@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 #import "Constants.h"
+#import <Fabric/Fabric.h>
+#import <Crashlytics/Crashlytics.h>
 
 @interface AppDelegate ()
 
@@ -28,7 +30,7 @@
     
     NSLog(@"Cache directory: %@", CACHE_DIR);
     
-    
+    [Fabric with:@[CrashlyticsKit]];
     return YES;
 }
 

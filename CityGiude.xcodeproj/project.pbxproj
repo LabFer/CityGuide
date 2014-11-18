@@ -75,6 +75,8 @@
 		71E155311A1AD52A00CD7A26 /* Banners.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155301A1AD52A00CD7A26 /* Banners.m */; };
 		71E155341A1AD52A00CD7A26 /* Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155331A1AD52A00CD7A26 /* Categories.m */; };
 		71E155371A1AD52A00CD7A26 /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155361A1AD52A00CD7A26 /* Comments.m */; };
+		935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB891A1B845D0079EDC3 /* Crashlytics.framework */; };
+		935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB8A1A1B845D0079EDC3 /* Fabric.framework */; };
 		93E2B78F1A1B15F200AAB446 /* libMapbox.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B78D1A1B15F200AAB446 /* libMapbox.a */; };
 		93E2B7901A1B15F300AAB446 /* Mapbox.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 93E2B78E1A1B15F200AAB446 /* Mapbox.bundle */; };
 		93E2B7931A1B160700AAB446 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7921A1B160700AAB446 /* libsqlite3.dylib */; };
@@ -231,6 +233,8 @@
 		71E155331A1AD52A00CD7A26 /* Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Categories.m; sourceTree = "<group>"; };
 		71E155351A1AD52A00CD7A26 /* Comments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Comments.h; sourceTree = "<group>"; };
 		71E155361A1AD52A00CD7A26 /* Comments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Comments.m; sourceTree = "<group>"; };
+		935FDB891A1B845D0079EDC3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		935FDB8A1A1B845D0079EDC3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		93E2B7551A1B15F200AAB446 /* Mapbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mapbox.h; sourceTree = "<group>"; };
 		93E2B7561A1B15F200AAB446 /* RMAbstractMercatorTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMAbstractMercatorTileSource.h; sourceTree = "<group>"; };
 		93E2B7571A1B15F200AAB446 /* RMAbstractWebMapSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMAbstractWebMapSource.h; sourceTree = "<group>"; };
@@ -299,10 +303,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */,
 				93E2B7971A1B161100AAB446 /* CoreLocation.framework in Frameworks */,
 				93E2B7951A1B160D00AAB446 /* QuartzCore.framework in Frameworks */,
 				93E2B7931A1B160700AAB446 /* libsqlite3.dylib in Frameworks */,
 				93E2B78F1A1B15F200AAB446 /* libMapbox.a in Frameworks */,
+				935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */,
 				71A543791A17A911008E54A7 /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -697,6 +703,8 @@
 		93E2B7911A1B15F500AAB446 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				935FDB891A1B845D0079EDC3 /* Crashlytics.framework */,
+				935FDB8A1A1B845D0079EDC3 /* Fabric.framework */,
 				93E2B7961A1B161100AAB446 /* CoreLocation.framework */,
 				93E2B7941A1B160D00AAB446 /* QuartzCore.framework */,
 				93E2B78D1A1B15F200AAB446 /* libMapbox.a */,
@@ -716,6 +724,7 @@
 				714DE9C11A0FB28E00E4FB3D /* Sources */,
 				714DE9C21A0FB28E00E4FB3D /* Frameworks */,
 				714DE9C31A0FB28E00E4FB3D /* Resources */,
+				935FDB881A1B841C0079EDC3 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -801,6 +810,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		935FDB881A1B841C0079EDC3 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 3dc1f1ba5c8ffe7582b3119ff758a3e91f0c3257 11b8ea6e0e8b3bc6f23e4d86592c38fcbbebd05b42a6912c3c536abd8329713f";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		714DE9C11A0FB28E00E4FB3D /* Sources */ = {
@@ -993,6 +1019,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = CityGiude/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1008,6 +1038,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = CityGiude/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
