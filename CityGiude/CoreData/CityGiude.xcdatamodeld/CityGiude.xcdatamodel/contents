@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6252" systemVersion="13F34" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Attributes" representedClassName="Attributes" syncable="YES">
+        <attribute name="filterable" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="require" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="value" optional="YES" attributeType="Binary" syncable="YES"/>
+        <relationship name="category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Categories" inverseName="attributes" inverseEntity="Categories" syncable="YES"/>
+        <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="attributes" inverseEntity="Places" syncable="YES"/>
+    </entity>
+    <entity name="Banners" representedClassName="Banners" syncable="YES">
+        <attribute name="endpoint" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="photo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="transaction_type" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Categories" representedClassName="Categories" syncable="YES">
+        <attribute name="filters" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="parent_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="photo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sort" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Attributes" inverseName="category" inverseEntity="Attributes" syncable="YES"/>
+        <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="category" inverseEntity="Places" syncable="YES"/>
+    </entity>
+    <entity name="Comments" representedClassName="Comments" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="create_at" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="place_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="rate" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="user_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="user_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="user_photo" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Gallery" representedClassName="Gallery" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="photo_big" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="photo_small" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="gallery" inverseEntity="Places" syncable="YES"/>
+    </entity>
+    <entity name="Keys" representedClassName="Keys" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="keys" inverseEntity="Places" syncable="YES"/>
+    </entity>
+    <entity name="Phones" representedClassName="Phones" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="phone_number" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="phones" inverseEntity="Places" syncable="YES"/>
+    </entity>
+    <entity name="Places" representedClassName="Places" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="categories_ids" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="decript" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="lattitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="photo_big" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="photo_small" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="promoted" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="properties" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="rate" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="rate_count" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="sort" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="website" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="work_time_description" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="work_time_end" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="work_time_start" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Attributes" inverseName="places" inverseEntity="Attributes" syncable="YES"/>
+        <relationship name="category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Categories" inverseName="places" inverseEntity="Categories" syncable="YES"/>
+        <relationship name="gallery" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Gallery" inverseName="places" inverseEntity="Gallery" syncable="YES"/>
+        <relationship name="keys" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Keys" inverseName="places" inverseEntity="Keys" syncable="YES"/>
+        <relationship name="phones" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Phones" inverseName="places" inverseEntity="Phones" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Attributes" positionX="151" positionY="207" width="128" height="163"/>
+        <element name="Banners" positionX="126" positionY="180" width="128" height="103"/>
+        <element name="Categories" positionX="115" positionY="-18" width="128" height="163"/>
+        <element name="Comments" positionX="286" positionY="-0" width="128" height="163"/>
+        <element name="Places" positionX="-63" positionY="-18" width="128" height="388"/>
+        <element name="Phones" positionX="108" positionY="135" width="128" height="88"/>
+        <element name="Gallery" positionX="117" positionY="144" width="128" height="103"/>
+        <element name="Keys" positionX="126" positionY="153" width="128" height="88"/>
+    </elements>
+</model>

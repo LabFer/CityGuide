@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "Constants.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,17 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [[UINavigationBar appearance] setBarTintColor:kDefaultNavBarColor];
+    [[UINavigationBar appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
+                                                           [UIColor whiteColor], NSForegroundColorAttributeName,
+                                                           [UIFont fontWithName:@"HelveticaNeue-Bold" size:14.0], NSFontAttributeName, nil]];
+    
+    
+    self.testArray = @[@"Категория №1", @"Категория №2", @"Категория №3", @"Категория №4", @"Категория №5", @"Категория №6"];
+    
+    NSLog(@"Cache directory: %@", CACHE_DIR);
+    
+    
     return YES;
 }
 
