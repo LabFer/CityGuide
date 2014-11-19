@@ -74,6 +74,19 @@
     
 }
 
+- (RMMapLayer *)mapView:(RMMapView *)mapView layerForAnnotation:(RMAnnotation *)annotation
+{
+    
+    if (annotation.isUserLocationAnnotation)
+        return nil;
+    
+    RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"star_yellow" ]];
+    
+    marker.canShowCallout = YES;
+    NSLog(@"Annotation marker is changed");
+    return marker;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

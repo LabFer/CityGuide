@@ -47,21 +47,21 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-       double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
+    double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
     for (Places *place in self.frcPlaces.fetchedObjects) {
-        
+        NSLog(@"Place from Coredata: %@",place);
         if ((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)) {
             minLat = [place.lattitude doubleValue];
             maxLat = minLat;
-            minLong = [place.lattitude doubleValue];
+            minLong = [place.longitude doubleValue];
             maxLong = minLong;
         }
         else {
-            if (minLat > [place.lattitude doubleValue]) minLat = [place.lattitude doubleValue];
-            if (maxLat < [place.lattitude doubleValue]) maxLat = [place.lattitude doubleValue];
-            if (minLong > [place.longitude doubleValue]) minLat = [place.longitude doubleValue];
-            if (maxLong < [place.longitude doubleValue]) maxLat = [place.longitude doubleValue];
+            if (minLat > [place.lattitude doubleValue]) {minLat = [place.lattitude doubleValue]; NSLog(@"minLat = %f",minLat);};
+            if (maxLat < [place.lattitude doubleValue]) {maxLat = [place.lattitude doubleValue]; NSLog(@"maxLat = %f",maxLat);};
+            if (minLong > [place.longitude doubleValue]) {minLong = [place.longitude doubleValue]; NSLog(@"minLat = %f",minLong);};
+            if (maxLong < [place.longitude doubleValue]) {maxLong = [place.longitude doubleValue]; NSLog(@"maxLong = %f",maxLong);};
         }
         
         RMPointAnnotation *annotation = [[RMPointAnnotation alloc] initWithMapView:self.mapView
@@ -73,14 +73,18 @@
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
                    {
+                       float degreeRadius = 9000.f / 110000.f; // (9000m / 110km per degree latitude)
+                       
+                       CLLocationCoordinate2D centerCoordinate = CLLocationCoordinate2DMake((minLat+maxLat)/2, (minLong+maxLong)/2);
+                       
                        RMSphericalTrapezium zoomBounds = {
                            .southWest = {
-                               .latitude  = minLat-0.1,
-                               .longitude = minLong-0.1
+                               .latitude  = centerCoordinate.latitude  - degreeRadius,
+                               .longitude = centerCoordinate.longitude - degreeRadius
                            },
                            .northEast = {
-                               .latitude  = maxLat+0.1,
-                               .longitude = maxLong+0.1
+                               .latitude  = centerCoordinate.latitude  + degreeRadius,
+                               .longitude = centerCoordinate.longitude + degreeRadius
                            }
                        };
                        
