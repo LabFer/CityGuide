@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="GGT-o9-KY8">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="GGT-o9-KY8">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
@@ -837,9 +837,16 @@
                                     <constraint firstAttribute="width" secondItem="KKz-cy-8On" secondAttribute="height" multiplier="32:5" id="z6M-mf-tO6"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="X9M-ks-uXl" customClass="RMMapView">
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="X9M-ks-uXl">
                                 <rect key="frame" x="140" y="114" width="320" height="486"/>
                                 <subviews>
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="shr-ui-Hxz" customClass="RMMapView">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="486"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <connections>
+                                            <outlet property="delegate" destination="3iL-Iz-J49" id="fH5-Ii-q9X"/>
+                                        </connections>
+                                    </view>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="Rvb-ml-P2e">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="486"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -983,7 +990,7 @@
                         <outlet property="buttonList" destination="qCn-B3-DQO" id="Mgr-Kz-Y1J"/>
                         <outlet property="buttonMap" destination="z9b-Fg-OZb" id="Fa7-xA-Fnf"/>
                         <outlet property="listMapButtonView" destination="KKz-cy-8On" id="h3M-oG-Sxc"/>
-                        <outlet property="mapView" destination="X9M-ks-uXl" id="y0t-BQ-FDL"/>
+                        <outlet property="mapView" destination="shr-ui-Hxz" id="nXM-EF-aaJ"/>
                         <outlet property="placeTableView" destination="Rvb-ml-P2e" id="9vH-TI-Seh"/>
                         <segue destination="3cd-Fw-9CP" kind="show" identifier="segueFromHouseToHouseDetail" id="s4z-KY-njd"/>
                     </connections>
@@ -1174,7 +1181,7 @@
                                                         </mask>
                                                     </variation>
                                                 </textView>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fua-Gt-TND">
+                                                <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fua-Gt-TND">
                                                     <rect key="frame" x="223" y="168" width="154" height="44"/>
                                                     <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
                                                     <state key="normal" title="Показать все" backgroundImage="btn_shawall">
@@ -1446,19 +1453,10 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="A3L-ZN-vTv" customClass="RMMapView">
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Тут будет карта" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5HW-96-Jwe">
-                                        <rect key="frame" x="236" y="46" width="128" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="centerX" secondItem="5HW-96-Jwe" secondAttribute="centerX" id="aJn-mD-uCz"/>
-                                    <constraint firstItem="5HW-96-Jwe" firstAttribute="top" secondItem="A3L-ZN-vTv" secondAttribute="top" constant="46" id="bRs-Fw-5Ol"/>
-                                </constraints>
+                                <connections>
+                                    <outlet property="delegate" destination="EZH-VI-9GO" id="iUi-yG-nED"/>
+                                </connections>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

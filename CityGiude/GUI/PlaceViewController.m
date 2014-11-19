@@ -38,6 +38,7 @@
     _userSettings = [[UIUserSettings alloc] init];
     [self setNavBarButtons];
     
+    self.mapView.hidden = YES;
     self.mapView.tileSource = [[RMMapboxSource alloc] initWithMapID:kMapboxMapID];
     [self.mapView.tileSource setCacheable:YES];
 }
@@ -144,25 +145,27 @@
 
 - (IBAction)buttonListPressed:(id)sender {
     self.placeTableView.hidden = NO;
+    self.mapView.hidden = YES;
     [self setupHousePresentationMode];
 }
 
 - (IBAction)buttonMappPressed:(id)sender {
     self.placeTableView.hidden = YES;
+    self.mapView.hidden = NO;
     [self setupHousePresentationMode];
 }
 
 -(void)setupHousePresentationMode{
     
     if(self.placeTableView.hidden){
-        NSLog(@"self.houseListCollectionView.hidden = YES");
+        //NSLog(@"self.houseListCollectionView.hidden = YES");
         [self.buttonMap setBackgroundImage:[UIImage imageNamed:@"house_white_btn_right"] forState:UIControlStateNormal];
         [self.buttonList setBackgroundImage:[UIImage imageNamed:@"house_blue_btn_left"] forState:UIControlStateNormal];
         [self.buttonList setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [self.buttonMap setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     }
     else{
-        NSLog(@"self.houseListCollectionView.hidden = NO");
+        //NSLog(@"self.houseListCollectionView.hidden = NO");
         [self.buttonMap setBackgroundImage:[UIImage imageNamed:@"house_blue_btn_right"] forState:UIControlStateNormal];
         [self.buttonList setBackgroundImage:[UIImage imageNamed:@"house_white_btn_left"] forState:UIControlStateNormal];
         [self.buttonList setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];

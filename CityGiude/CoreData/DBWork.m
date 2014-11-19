@@ -51,8 +51,8 @@ static DBWork* shared = NULL;
     
     place.id = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"id"]];
     place.address = [aPlace objectForKey:@"address"];
-    place.longitude = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"longitude"]];
-    place.lattitude = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"lattitude"]];
+    place.longitude = [NSDecimalNumber decimalNumberWithString:[aPlace objectForKey:@"longitude"]];
+    place.lattitude = [NSDecimalNumber decimalNumberWithString:[aPlace objectForKey:@"latitude"]];
     place.name = [aPlace objectForKey:@"name"];
 //    place.phones = [aPlace objectForKey:@"phones"];
     place.photo_small = [aPlace objectForKey:@"picture"];

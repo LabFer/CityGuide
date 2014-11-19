@@ -88,6 +88,8 @@
                 
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
+        if([self.delegate isKindOfClass:[LaunchViewController class]])
+            [self.delegate performSelector:@selector(startMainScreen)];
 //        [self reloadCollectionView];
     }];
     

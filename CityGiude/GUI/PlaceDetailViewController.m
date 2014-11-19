@@ -38,7 +38,7 @@
     self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button ====
     self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
     self.navigationItem.title = self.aPlace.name;
-    NSLog(@"self.navigationItem.title = %@", self.aPlace);
+    //NSLog(@"self.navigationItem.title = %@", self.aPlace);
     
 }
 
@@ -106,9 +106,11 @@
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     
-    if([[segue identifier] isEqualToString:@"segueFromHouseToHouseDetail"]){
+    NSLog(@"prepareForSegue");
+    if([[segue identifier] isEqualToString:@"segueFromHouseDetailToHouseMap"]){
         PlaceMapViewController *placeVC = (PlaceMapViewController*)[segue destinationViewController];
         //AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+        NSLog(@"prepareForSegue: %@", self.aPlace);
         placeVC.mapPlace = self.aPlace;
         
         //subVC.navigationItem.title = appDelegate.testArray[idx.item];
