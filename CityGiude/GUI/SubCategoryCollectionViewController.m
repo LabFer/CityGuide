@@ -100,6 +100,7 @@
     }
     
     self.navigationItem.rightBarButtonItem = [_userSettings setupRightButtonItem:self];
+    self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
 }
 
 -(void)goBack{
@@ -109,8 +110,6 @@
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    NSLog(@"Item selected: %@", appDelegate.testArray[indexPath.item]);
     [self performSegueWithIdentifier:@"segueFromSubcategoryToHouse" sender:indexPath];
 }
 

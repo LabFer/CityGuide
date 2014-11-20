@@ -43,15 +43,15 @@
     
     self.mapView.tileSource = [[RMMapboxSource alloc] initWithMapID:kMapboxMapID];
     
-    RMPointAnnotation *annotation = [[RMPointAnnotation alloc] initWithMapView:self.mapView
-                                                                    coordinate:CLLocationCoordinate2DMake([self.mapPlace.lattitude doubleValue], [self.mapPlace.longitude doubleValue])
-                                                                      andTitle:self.mapPlace.name];
+    RMAnnotation *annotation = [RMAnnotation  annotationWithMapView:self.mapView
+                                                         coordinate:CLLocationCoordinate2DMake([self.mapPlace.lattitude doubleValue], [self.mapPlace.longitude doubleValue])
+                                                           andTitle:self.mapPlace.name];
     [self.mapView addAnnotation:annotation];
     
-    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
-                   {
+//    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
+//    
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
+//                   {
                        float degreeRadius = 9000.f / 110000.f; // (9000m / 110km per degree latitude)
                        
                        CLLocationCoordinate2D centerCoordinate = annotation.coordinate;
@@ -67,12 +67,36 @@
                            }
                        };
                        
-                       [weakMap zoomWithLatitudeLongitudeBoundsSouthWest:zoomBounds.southWest
-                                                               northEast:zoomBounds.northEast 
-                                                                animated:YES];
-                   });
+                       [self.mapView zoomWithLatitudeLongitudeBoundsSouthWest:zoomBounds.southWest
+                                                                    northEast:zoomBounds.northEast
+                                                                     animated:YES];
+//                   });
     
 }
+
+- (RMMapLayer *)mapView:(RMMapView *)mapView layerForAnnotation:(RMAnnotation *)annotation
+{
+    
+    if (annotation.isUserLocationAnnotation)
+        return nil;
+    
+    RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"marker" ]];
+    
+    marker.canShowCallout = YES;
+    
+    //    NSLog(@"Annotation marker is changed");
+    //
+    //    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    //    calloutViewController* callout = [storyboard instantiateViewControllerWithIdentifier:@"calloutViewController"];
+    //
+    //    NSLog(@"callout: %@",callout.view);
+    //
+    //
+    //    marker.leftCalloutAccessoryView = callout.view;
+    
+    return marker;
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

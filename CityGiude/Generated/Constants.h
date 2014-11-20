@@ -36,6 +36,9 @@ typedef enum {
 #define kDefaultNavItemTintColor [UIColor colorWithRed:156.0f/255.0f green:202.0f/255.0f blue:238.0f/255.0f alpha:1.0f]
 #define kDefaultNavBarColor [UIColor colorWithRed:35.0f/255.0f green:113.0f/255.0f blue:175.0f/255.0f alpha:1.0f]
 
+// ========== Navigation Bar ========
+#define kNavigationTitle @"КАТЕГОРИИ"
+
 // ====== CoreData parameters ======
 #define kCoreDataCommentsEntity @"Comments"
 #define kCoreDataCategoriesEntity @"Categories"

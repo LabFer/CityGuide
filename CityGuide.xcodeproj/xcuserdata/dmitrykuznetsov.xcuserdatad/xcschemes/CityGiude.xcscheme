@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "714DE9C41A0FB28E00E4FB3D"
-               BuildableName = "CityGiude.app"
-               BlueprintName = "CityGiude"
-               ReferencedContainer = "container:CityGiude.xcodeproj">
+               BuildableName = "CityGuide.app"
+               BlueprintName = "CityGuide"
+               ReferencedContainer = "container:CityGuide.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "714DE9E01A0FB28F00E4FB3D"
-               BuildableName = "CityGiudeTests.xctest"
-               BlueprintName = "CityGiudeTests"
-               ReferencedContainer = "container:CityGiude.xcodeproj">
+               BuildableName = "CityGuideTests.xctest"
+               BlueprintName = "CityGuideTests"
+               ReferencedContainer = "container:CityGuide.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "714DE9E01A0FB28F00E4FB3D"
-               BuildableName = "CityGiudeTests.xctest"
-               BlueprintName = "CityGiudeTests"
-               ReferencedContainer = "container:CityGiude.xcodeproj">
+               BuildableName = "CityGuideTests.xctest"
+               BlueprintName = "CityGuideTests"
+               ReferencedContainer = "container:CityGuide.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "714DE9C41A0FB28E00E4FB3D"
-            BuildableName = "CityGiude.app"
-            BlueprintName = "CityGiude"
-            ReferencedContainer = "container:CityGiude.xcodeproj">
+            BuildableName = "CityGuide.app"
+            BlueprintName = "CityGuide"
+            ReferencedContainer = "container:CityGuide.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -76,9 +76,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "714DE9C41A0FB28E00E4FB3D"
-            BuildableName = "CityGiude.app"
-            BlueprintName = "CityGiude"
-            ReferencedContainer = "container:CityGiude.xcodeproj">
+            BuildableName = "CityGuide.app"
+            BlueprintName = "CityGuide"
+            ReferencedContainer = "container:CityGuide.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -94,9 +94,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "714DE9C41A0FB28E00E4FB3D"
-            BuildableName = "CityGiude.app"
-            BlueprintName = "CityGiude"
-            ReferencedContainer = "container:CityGiude.xcodeproj">
+            BuildableName = "CityGuide.app"
+            BlueprintName = "CityGuide"
+            ReferencedContainer = "container:CityGuide.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

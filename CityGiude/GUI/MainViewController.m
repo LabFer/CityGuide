@@ -15,12 +15,14 @@
 #import "CategoryTileDataSource.h"
 
 #import "SubCategoryCollectionViewController.h"
+#import "PlaceViewController.h"
 
 #import "UIViewController+MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "MenuTableViewController.h"
 
 #import "Categories.h"
+#import "Places.h"
 
 
 #import "AppDelegate.h"
@@ -123,6 +125,8 @@
     // ====== setup right nav button ======
     self.navigationItem.rightBarButtonItem = [_userSettings setupRightButtonItem:self];
     self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
+    
+    self.navigationItem.title = kNavigationTitle;
     
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
@@ -257,10 +261,14 @@
 
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+
+    Categories *category = ([_userSettings getPresentationMode] == UICatalogList) ? _listDataSource.itemsArray[indexPath.item] : _tileDataSource.itemsArray[indexPath.item];
     
-    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    NSLog(@"Item selected: %@", appDelegate.testArray[indexPath.item]);
-    [self performSegueWithIdentifier:@"segueFromCategoryToSubcategory" sender:indexPath];
+    NSLog(@"category.places.count = %lu", category.places.count);
+    if(category.places.count == 0)
+        [self performSegueWithIdentifier:@"segueFromCategoryToSubcategory" sender:category];
+    else
+        [self performSegueWithIdentifier:@"segueFromCategoryToPlaces" sender:category];
 }
 
 #pragma mark - Storyboard Navigation - Segue handler
@@ -268,12 +276,13 @@
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     
     if([[segue identifier] isEqualToString:@"segueFromCategoryToSubcategory"]){
-        SubCategoryCollectionViewController *subVC = (SubCategoryCollectionViewController*)[segue destinationViewController];
-        
-        NSIndexPath *idx = (NSIndexPath*)sender;
-        
-        subVC.aCategory = ([_userSettings getPresentationMode] == UICatalogList) ? _listDataSource.itemsArray[idx.item] : _tileDataSource.itemsArray[idx.item];
+        SubCategoryCollectionViewController *subVC = (SubCategoryCollectionViewController*)[segue destinationViewController];        
+        subVC.aCategory = (Categories*)sender;
 
+    }
+    else if ([[segue identifier] isEqualToString:@"segueFromCategoryToPlaces"]){
+        PlaceViewController *placeVC = (PlaceViewController*)[segue destinationViewController];
+        placeVC.aCategory = (Categories*)sender;
     }
 }
 

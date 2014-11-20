@@ -12,5 +12,15 @@
 @interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) Places *aPlace;
+@property (weak, nonatomic) IBOutlet UILabel *placeName;
+@property (weak, nonatomic) IBOutlet UILabel *placeCategory;
+@property (weak, nonatomic) IBOutlet UIImageView *placeImage;
+@property (weak, nonatomic) IBOutlet UITextView *placeTextView;
+@property (weak, nonatomic) IBOutlet UILabel *placeAdress;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeWorkTime;
+@property (weak, nonatomic) IBOutlet UILabel *placePhones;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeSite;
+
+
 
 @end

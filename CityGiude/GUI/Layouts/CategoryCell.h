@@ -12,6 +12,10 @@
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewCircle;
 @property (weak, nonatomic) IBOutlet UIImageView *imageViewCategoryIcon;
 @property (weak, nonatomic) IBOutlet UILabel *labelCategoryName;
+@property (weak, nonatomic) IBOutlet UIButton *btnCellHeart;
+- (IBAction)btnCellHeartPressed:(id)sender;
+
+@property (nonatomic) BOOL heart;
 
 + (NSString *)reuseId;
 

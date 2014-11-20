@@ -14,6 +14,10 @@
 
 @interface PlaceViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
+
+
+
+
 @property (strong) NSObject <RMTileCacheBackgroundDelegate> *tileCache;
 
 @property (strong) IBOutlet RMMapView *mapView;

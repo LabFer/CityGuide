@@ -11,6 +11,9 @@
 
 @implementation CategoryListCell
 
+- (IBAction)btnCellHeartPressed:(id)sender {
+}
+
 + (NSString *)reuseId
 {
     return kReuseCellListID;

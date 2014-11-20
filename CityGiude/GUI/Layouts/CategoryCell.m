@@ -11,6 +11,10 @@
 
 @implementation CategoryTileCell
 
+- (IBAction)btnCellHeartPressed:(id)sender {
+
+}
+
 + (NSString *)reuseId
 {
     return kReuseCellTileID;

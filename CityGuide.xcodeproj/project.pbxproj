@@ -82,6 +82,9 @@
 		93E2B7931A1B160700AAB446 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7921A1B160700AAB446 /* libsqlite3.dylib */; };
 		93E2B7951A1B160D00AAB446 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7941A1B160D00AAB446 /* QuartzCore.framework */; };
 		93E2B7971A1B161100AAB446 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7961A1B161100AAB446 /* CoreLocation.framework */; };
+		93F954291A1DF8D90080B7E1 /* calloutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F954281A1DF8D90080B7E1 /* calloutViewController.m */; };
+		93F9542C1A1E00460080B7E1 /* marker.png in Resources */ = {isa = PBXBuildFile; fileRef = 93F9542A1A1E00460080B7E1 /* marker.png */; };
+		93F9542D1A1E00460080B7E1 /* marker@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 93F9542B1A1E00460080B7E1 /* marker@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -137,7 +140,7 @@
 		7114D6BE1A17A045005C59C4 /* UIWebView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+AFNetworking.m"; sourceTree = "<group>"; };
 		7114D6C71A17A17C005C59C4 /* LaunchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaunchViewController.h; sourceTree = "<group>"; };
 		7114D6C81A17A17C005C59C4 /* LaunchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LaunchViewController.m; sourceTree = "<group>"; };
-		714DE9C51A0FB28F00E4FB3D /* CityGiude.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CityGiude.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		714DE9C51A0FB28F00E4FB3D /* CityGuide.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CityGuide.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		714DE9C91A0FB28F00E4FB3D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		714DE9CA1A0FB28F00E4FB3D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		714DE9CC1A0FB28F00E4FB3D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -146,7 +149,7 @@
 		714DE9D61A0FB28F00E4FB3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		714DE9D81A0FB28F00E4FB3D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		714DE9DB1A0FB28F00E4FB3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		714DE9E11A0FB28F00E4FB3D /* CityGiudeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CityGiudeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		714DE9E11A0FB28F00E4FB3D /* CityGuideTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CityGuideTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		714DE9E61A0FB28F00E4FB3D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		714DE9E71A0FB28F00E4FB3D /* CityGiudeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CityGiudeTests.m; sourceTree = "<group>"; };
 		714DE9F21A0FB3A100E4FB3D /* BannerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BannerViewController.h; sourceTree = "<group>"; };
@@ -296,6 +299,10 @@
 		93E2B7921A1B160700AAB446 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		93E2B7941A1B160D00AAB446 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		93E2B7961A1B161100AAB446 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		93F954271A1DF8D90080B7E1 /* calloutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calloutViewController.h; sourceTree = "<group>"; };
+		93F954281A1DF8D90080B7E1 /* calloutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = calloutViewController.m; sourceTree = "<group>"; };
+		93F9542A1A1E00460080B7E1 /* marker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = marker.png; path = GUI/marker.png; sourceTree = "<group>"; };
+		93F9542B1A1E00460080B7E1 /* marker@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "marker@2x.png"; path = "GUI/marker@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -407,8 +414,8 @@
 		714DE9C61A0FB28F00E4FB3D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				714DE9C51A0FB28F00E4FB3D /* CityGiude.app */,
-				714DE9E11A0FB28F00E4FB3D /* CityGiudeTests.xctest */,
+				714DE9C51A0FB28F00E4FB3D /* CityGuide.app */,
+				714DE9E11A0FB28F00E4FB3D /* CityGuideTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -424,6 +431,8 @@
 				714DE9CD1A0FB28F00E4FB3D /* AppDelegate.m */,
 				714DE9D51A0FB28F00E4FB3D /* Main.storyboard */,
 				714DE9D81A0FB28F00E4FB3D /* Images.xcassets */,
+				93F9542A1A1E00460080B7E1 /* marker.png */,
+				93F9542B1A1E00460080B7E1 /* marker@2x.png */,
 				714DE9DA1A0FB28F00E4FB3D /* LaunchScreen.xib */,
 				714DE9C81A0FB28F00E4FB3D /* Supporting Files */,
 			);
@@ -511,6 +520,8 @@
 		716D47501A12FA26006A7BDB /* Place */ = {
 			isa = PBXGroup;
 			children = (
+				93F954271A1DF8D90080B7E1 /* calloutViewController.h */,
+				93F954281A1DF8D90080B7E1 /* calloutViewController.m */,
 				716D47511A12FA53006A7BDB /* PlaceListCell.h */,
 				716D47521A12FA53006A7BDB /* PlaceListCell.m */,
 			);
@@ -717,27 +728,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		714DE9C41A0FB28E00E4FB3D /* CityGiude */ = {
+		714DE9C41A0FB28E00E4FB3D /* CityGuide */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 714DE9EB1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGiude" */;
+			buildConfigurationList = 714DE9EB1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGuide" */;
 			buildPhases = (
 				714DE9C11A0FB28E00E4FB3D /* Sources */,
 				714DE9C21A0FB28E00E4FB3D /* Frameworks */,
 				714DE9C31A0FB28E00E4FB3D /* Resources */,
 				935FDB881A1B841C0079EDC3 /* Run Script */,
+				71E307681A1C785800BFC37F /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = CityGiude;
+			name = CityGuide;
 			productName = CityGiude;
-			productReference = 714DE9C51A0FB28F00E4FB3D /* CityGiude.app */;
+			productReference = 714DE9C51A0FB28F00E4FB3D /* CityGuide.app */;
 			productType = "com.apple.product-type.application";
 		};
-		714DE9E01A0FB28F00E4FB3D /* CityGiudeTests */ = {
+		714DE9E01A0FB28F00E4FB3D /* CityGuideTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 714DE9EE1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGiudeTests" */;
+			buildConfigurationList = 714DE9EE1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGuideTests" */;
 			buildPhases = (
 				714DE9DD1A0FB28F00E4FB3D /* Sources */,
 				714DE9DE1A0FB28F00E4FB3D /* Frameworks */,
@@ -748,9 +760,9 @@
 			dependencies = (
 				714DE9E31A0FB28F00E4FB3D /* PBXTargetDependency */,
 			);
-			name = CityGiudeTests;
+			name = CityGuideTests;
 			productName = CityGiudeTests;
-			productReference = 714DE9E11A0FB28F00E4FB3D /* CityGiudeTests.xctest */;
+			productReference = 714DE9E11A0FB28F00E4FB3D /* CityGuideTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -764,6 +776,7 @@
 				TargetAttributes = {
 					714DE9C41A0FB28E00E4FB3D = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = UQUCFBUZM9;
 					};
 					714DE9E01A0FB28F00E4FB3D = {
 						CreatedOnToolsVersion = 6.1;
@@ -771,7 +784,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 714DE9C01A0FB28E00E4FB3D /* Build configuration list for PBXProject "CityGiude" */;
+			buildConfigurationList = 714DE9C01A0FB28E00E4FB3D /* Build configuration list for PBXProject "CityGuide" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -784,8 +797,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				714DE9C41A0FB28E00E4FB3D /* CityGiude */,
-				714DE9E01A0FB28F00E4FB3D /* CityGiudeTests */,
+				714DE9C41A0FB28E00E4FB3D /* CityGuide */,
+				714DE9E01A0FB28F00E4FB3D /* CityGuideTests */,
 			);
 		};
 /* End PBXProject section */
@@ -796,8 +809,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				93E2B7901A1B15F300AAB446 /* Mapbox.bundle in Resources */,
+				93F9542C1A1E00460080B7E1 /* marker.png in Resources */,
 				714DE9D71A0FB28F00E4FB3D /* Main.storyboard in Resources */,
 				714DE9DC1A0FB28F00E4FB3D /* LaunchScreen.xib in Resources */,
+				93F9542D1A1E00460080B7E1 /* marker@2x.png in Resources */,
 				714DE9D91A0FB28F00E4FB3D /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -812,6 +827,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		71E307681A1C785800BFC37F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 3dc1f1ba5c8ffe7582b3119ff758a3e91f0c3257 11b8ea6e0e8b3bc6f23e4d86592c38fcbbebd05b42a6912c3c536abd8329713f";
+		};
 		935FDB881A1B841C0079EDC3 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -870,6 +898,7 @@
 				714DE9CE1A0FB28F00E4FB3D /* AppDelegate.m in Sources */,
 				718E02951A10F18700983653 /* UIUserSettings.m in Sources */,
 				71E155311A1AD52A00CD7A26 /* Banners.m in Sources */,
+				93F954291A1DF8D90080B7E1 /* calloutViewController.m in Sources */,
 				714DE9CB1A0FB28F00E4FB3D /* main.m in Sources */,
 				71A543761A17A8E7008E54A7 /* unzip.c in Sources */,
 				718E02991A10FB6100983653 /* CategoryListDataSource.m in Sources */,
@@ -912,7 +941,7 @@
 /* Begin PBXTargetDependency section */
 		714DE9E31A0FB28F00E4FB3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 714DE9C41A0FB28E00E4FB3D /* CityGiude */;
+			target = 714DE9C41A0FB28E00E4FB3D /* CityGuide */;
 			targetProxy = 714DE9E21A0FB28F00E4FB3D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -1019,6 +1048,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Ruslan Batirshin (2Y423BVPX6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ruslan Batirshin (2Y423BVPX6)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1030,7 +1061,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Mapbox",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = CityGuide;
+				PROVISIONING_PROFILE = "8b4b23a5-67b3-4669-a0ae-f248c9d289f6";
 			};
 			name = Debug;
 		};
@@ -1038,6 +1070,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Ruslan Batirshin (2Y423BVPX6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ruslan Batirshin (2Y423BVPX6)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1049,7 +1083,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Mapbox",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = CityGuide;
+				PROVISIONING_PROFILE = "8b4b23a5-67b3-4669-a0ae-f248c9d289f6";
 			};
 			name = Release;
 		};
@@ -1067,7 +1102,7 @@
 				);
 				INFOPLIST_FILE = CityGiudeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = CityGuideTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CityGiude.app/CityGiude";
 			};
 			name = Debug;
@@ -1082,7 +1117,7 @@
 				);
 				INFOPLIST_FILE = CityGiudeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = CityGuideTests;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CityGiude.app/CityGiude";
 			};
 			name = Release;
@@ -1090,7 +1125,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		714DE9C01A0FB28E00E4FB3D /* Build configuration list for PBXProject "CityGiude" */ = {
+		714DE9C01A0FB28E00E4FB3D /* Build configuration list for PBXProject "CityGuide" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				714DE9E91A0FB28F00E4FB3D /* Debug */,
@@ -1099,7 +1134,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		714DE9EB1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGiude" */ = {
+		714DE9EB1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGuide" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				714DE9EC1A0FB28F00E4FB3D /* Debug */,
@@ -1108,7 +1143,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		714DE9EE1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGiudeTests" */ = {
+		714DE9EE1A0FB28F00E4FB3D /* Build configuration list for PBXNativeTarget "CityGuideTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				714DE9EF1A0FB28F00E4FB3D /* Debug */,

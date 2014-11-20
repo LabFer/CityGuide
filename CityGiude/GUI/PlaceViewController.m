@@ -13,7 +13,7 @@
 #import "PlaceListCell.h"
 #import "DBWork.h"
 #import "Places.h"
-
+#import "calloutViewController.h"
 #define kMapboxMapID  @"bboytx.k5gobg2j"
 
 @implementation PlaceViewController{
@@ -27,7 +27,9 @@
 
     [super viewDidLoad];
     
-    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:@"sort" predicate:nil sectionName:nil delegate:self];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
+    NSLog(@"Places predicate: %@", predicate);
+    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
 
     self.placeTableView.backgroundColor = [UIColor whiteColor];
     self.placeTableView.delegate = self;
@@ -54,7 +56,7 @@
         if ((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)) {
             minLat = [place.lattitude doubleValue];
             maxLat = minLat;
-            minLong = [place.lattitude doubleValue];
+            minLong = [place.longitude doubleValue];
             maxLong = minLong;
         }
         else {
@@ -64,9 +66,9 @@
             if (maxLong < [place.longitude doubleValue]) maxLat = [place.longitude doubleValue];
         }
         
-        RMPointAnnotation *annotation = [[RMPointAnnotation alloc] initWithMapView:self.mapView
-                                                                        coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue])
-                                                                          andTitle:place.name];
+        RMAnnotation *annotation = [RMAnnotation annotationWithMapView:self.mapView
+                                                            coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue])
+                                                              andTitle:place.name];
         [self.mapView addAnnotation:annotation];
     }
     __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
@@ -96,10 +98,20 @@
     if (annotation.isUserLocationAnnotation)
         return nil;
     
-    RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"star_yellow" ]];
+    RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"marker" ]];
     
     marker.canShowCallout = YES;
-    NSLog(@"Annotation marker is changed");
+    
+//    NSLog(@"Annotation marker is changed");
+//    
+//    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+//    calloutViewController* callout = [storyboard instantiateViewControllerWithIdentifier:@"calloutViewController"];
+//    
+//    NSLog(@"callout: %@",callout.view);
+//    
+//    
+//    marker.leftCalloutAccessoryView = callout.view;
+    
     return marker;
 }
 
@@ -182,7 +194,6 @@
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     
-    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
     return [self.frcPlaces.fetchedObjects count];
 }
 
@@ -203,8 +214,6 @@
 
 - (void)configureCell:(PlaceListCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     
-    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-    
     Places *place = self.frcPlaces.fetchedObjects[indexPath.row];
     [cell.titleLabel setText:place.name];
 }
@@ -212,7 +221,7 @@
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [self.placeTableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSLog(@"Item selected: %@", self.frcPlaces.fetchedObjects[indexPath.row]);
+    //NSLog(@"Item selected: %@", self.frcPlaces.fetchedObjects[indexPath.row]);
     [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:indexPath];
 
 }

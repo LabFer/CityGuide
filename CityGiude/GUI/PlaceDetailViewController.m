@@ -9,6 +9,8 @@
 #import "PlaceDetailViewController.h"
 #import "PlaceMapViewController.h"
 #import "UIUserSettings.h"
+#import "Phones.h"
+#import "Categories.h"
 
 @implementation PlaceDetailViewController{
     UIUserSettings *_userSettings;
@@ -21,6 +23,8 @@
     [super viewDidLoad];
     
     [self setNavBarButtons];
+    
+    [self setupPlaceInfo];
     
 }
 
@@ -48,6 +52,51 @@
 
 -(void)mapButtonPressed{
     [self performSegueWithIdentifier:@"segueFromHouseDetailToHouseMap" sender:self];
+}
+
+#pragma mark - Place Details
+
+-(void)setupPlaceInfo{
+    self.placeName.text = self.aPlace.name;
+    self.placeTextView.text = self.aPlace.decript;
+    
+    self.placeCategory.text = [self getStringCategories];
+    self.placePhones.text = [self getStringPhones];
+    
+}
+
+-(NSString*)getStringCategories{
+    if([self.aPlace.category allObjects].count == 0)
+        return @"";
+    
+    Categories *aCategory = [self.aPlace.category allObjects][0];
+    NSMutableString *aStr =  [NSMutableString stringWithString:aCategory.name];
+    
+    for(int i = 1; i < [self.aPlace.category allObjects].count; i++){
+        [aStr appendString:@", "];
+        aCategory = [self.aPlace.category allObjects][i];
+        [aStr appendString:aCategory.name];
+        
+    }
+    
+    return [NSString stringWithString:aStr];
+}
+
+-(NSString*)getStringPhones{
+    if([self.aPlace.phones allObjects].count == 0)
+        return @"";
+    
+    Phones *aPhone = [self.aPlace.phones allObjects][0];
+    NSMutableString *aStr =  [NSMutableString stringWithString:aPhone.phone_number];
+    
+    for(int i = 1; i < [self.aPlace.phones allObjects].count; i++){
+        [aStr appendString:@", "];
+        aPhone = [self.aPlace.phones allObjects][i];
+        [aStr appendString:aPhone.phone_number];
+        
+    }
+    
+    return [NSString stringWithString:aStr];
 }
 
 #pragma mark - TableView Delegate
