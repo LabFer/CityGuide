@@ -17,6 +17,36 @@
             endingLineNumber = "17"
             landmarkName = "tileCache"
             landmarkType = "19">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PlaceViewController tileCache]"
+                  moduleName = "CityGuide"
+                  urlString = "file:///Users/timurkhazamov/Documents/Work/GitHub/CityGuide/CityGiude/GUI/PlaceViewController.h"
+                  timestampString = "438174172.237251"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "21"
+                  endingLineNumber = "21"
+                  offsetFromSymbolStart = "12">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PlaceViewController setTileCache:]"
+                  moduleName = "CityGuide"
+                  urlString = "file:///Users/timurkhazamov/Documents/Work/GitHub/CityGuide/CityGiude/GUI/PlaceViewController.h"
+                  timestampString = "438174172.237418"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "21"
+                  endingLineNumber = "21"
+                  offsetFromSymbolStart = "20">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

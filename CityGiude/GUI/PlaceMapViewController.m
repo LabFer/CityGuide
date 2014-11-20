@@ -80,6 +80,7 @@
     if (annotation.isUserLocationAnnotation)
         return nil;
     
+<<<<<<< HEAD
     RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"marker" ]];
     
     marker.canShowCallout = YES;
@@ -98,6 +99,15 @@
 }
 
 
+=======
+    RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"star_yellow" ]];
+    
+    marker.canShowCallout = YES;
+    NSLog(@"Annotation marker is changed");
+    return marker;
+}
+
+>>>>>>> FETCH_HEAD
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
