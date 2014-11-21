@@ -85,6 +85,7 @@
 		93F954291A1DF8D90080B7E1 /* calloutViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F954281A1DF8D90080B7E1 /* calloutViewController.m */; };
 		93F9542C1A1E00460080B7E1 /* marker.png in Resources */ = {isa = PBXBuildFile; fileRef = 93F9542A1A1E00460080B7E1 /* marker.png */; };
 		93F9542D1A1E00460080B7E1 /* marker@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 93F9542B1A1E00460080B7E1 /* marker@2x.png */; };
+		93F954301A1E46CB0080B7E1 /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93F9542F1A1E46CB0080B7E1 /* SMCalloutView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -303,6 +304,8 @@
 		93F954281A1DF8D90080B7E1 /* calloutViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = calloutViewController.m; sourceTree = "<group>"; };
 		93F9542A1A1E00460080B7E1 /* marker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = marker.png; path = GUI/marker.png; sourceTree = "<group>"; };
 		93F9542B1A1E00460080B7E1 /* marker@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "marker@2x.png"; path = "GUI/marker@2x.png"; sourceTree = "<group>"; };
+		93F9542E1A1E46CB0080B7E1 /* SMCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SMCalloutView.h; path = ../SMCalloutView.h; sourceTree = "<group>"; };
+		93F9542F1A1E46CB0080B7E1 /* SMCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SMCalloutView.m; path = ../SMCalloutView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -642,6 +645,7 @@
 		93E2B7531A1B15F200AAB446 /* Mapbox */ = {
 			isa = PBXGroup;
 			children = (
+				93F954311A1E46E20080B7E1 /* SMCalloutView */,
 				93E2B7541A1B15F200AAB446 /* Headers */,
 				93E2B78E1A1B15F200AAB446 /* Mapbox.bundle */,
 			);
@@ -723,6 +727,15 @@
 				71A543781A17A911008E54A7 /* libz.dylib */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		93F954311A1E46E20080B7E1 /* SMCalloutView */ = {
+			isa = PBXGroup;
+			children = (
+				93F9542E1A1E46CB0080B7E1 /* SMCalloutView.h */,
+				93F9542F1A1E46CB0080B7E1 /* SMCalloutView.m */,
+			);
+			name = SMCalloutView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -866,6 +879,7 @@
 				718E029D1A10FB8A00983653 /* CategoryTileDataSource.m in Sources */,
 				718E028F1A10E89B00983653 /* MMDrawerController.m in Sources */,
 				7114D6C61A17A045005C59C4 /* UIWebView+AFNetworking.m in Sources */,
+				93F954301A1E46CB0080B7E1 /* SMCalloutView.m in Sources */,
 				714DE9D11A0FB28F00E4FB3D /* CityGiude.xcdatamodeld in Sources */,
 				7114D6C41A17A045005C59C4 /* UIProgressView+AFNetworking.m in Sources */,
 				7114D6BF1A17A045005C59C4 /* AFNetworkActivityIndicatorManager.m in Sources */,

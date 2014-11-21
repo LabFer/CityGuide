@@ -9,14 +9,11 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "Categories.h"
+#import "SMCalloutView.h"
 #import "Mapbox.h"
 
 
-@interface PlaceViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
-
-
-
-
+@interface PlaceViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, SMCalloutViewDelegate>
 
 @property (strong) NSObject <RMTileCacheBackgroundDelegate> *tileCache;
 
