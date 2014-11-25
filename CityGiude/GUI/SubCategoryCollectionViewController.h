@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "Categories.h"
+#import "SubCategoryListFlowLayout.h"
+#import "SubCategoryTileFlowLayout.h"
 
-@interface SubCategoryCollectionViewController : UICollectionViewController <UICollectionViewDelegate>
+@interface SubCategoryCollectionViewController : UICollectionViewController <UICollectionViewDelegate, UICollectionViewDataSource>
 
 @property (nonatomic, strong) Categories *aCategory;
+@property (nonatomic, strong) NSFetchedResultsController *frcCategories;
 
 @end

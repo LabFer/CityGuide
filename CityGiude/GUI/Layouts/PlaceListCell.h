@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PlaceListCell : UITableViewCell
+@interface PlaceListCell : UICollectionViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *subTitleLabel;

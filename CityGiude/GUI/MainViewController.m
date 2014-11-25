@@ -11,8 +11,9 @@
 #import "UIUserSettings.h"
 #import "CategoryListFlowLayout.h"
 #import "CategoryTileFlowLayout.h"
-#import "CategoryListDataSource.h"
-#import "CategoryTileDataSource.h"
+#import "CategoryListCell.h"
+#import "CategoryCell.h"
+#import "BannerHeaderCollectionView.h"
 
 #import "SubCategoryCollectionViewController.h"
 #import "PlaceViewController.h"
@@ -23,15 +24,15 @@
 
 #import "Categories.h"
 #import "Places.h"
+#import "DBWork.h"
 
 
 #import "AppDelegate.h"
 
 
 @interface MainViewController (){
-    CategoryListDataSource *_listDataSource;
-    CategoryTileDataSource *_tileDataSource;
     UIUserSettings *_userSettings;
+    BannerHeaderCollectionView *_headerView;
 }
 
 @end
@@ -39,31 +40,29 @@
 @implementation MainViewController
 
 - (void)viewDidLoad {
-    
-    self.isCategory = YES;
-    
-    // ============== CollectionView Settings ===========
+
     _userSettings = [[UIUserSettings alloc] init];
-    _tileDataSource = [[CategoryTileDataSource alloc] init];
-    _tileDataSource.delegate = self;
-    _listDataSource = [[CategoryListDataSource alloc] init];
-    _listDataSource.delegate = self;
-    
-    if([_userSettings getPresentationMode] == UICatalogTile){
-        [self.catalogCollectionView setDataSource:_tileDataSource];
-        [self.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
-    }
-    else{
-        [self.catalogCollectionView setDataSource:_listDataSource];
-        [self.catalogCollectionView setCollectionViewLayout:[[CategoryListFlowLayout alloc] init]];
-    }
     
     [super viewDidLoad];
     
-    self.catalogCollectionView.backgroundColor = [UIColor whiteColor];
-    self.catalogCollectionView.delegate = self;
+    // ======== Set CoreData =======
+    NSString *str = [NSString stringWithFormat:@"parent_id == %i", 0];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:str];
+    self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
     
-    [self.view setBackgroundColor:[UIColor whiteColor]];
+    if([_userSettings getPresentationMode] == UICatalogTile){
+        [self.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
+    }
+    else{
+        [self.catalogCollectionView setCollectionViewLayout:[[CategoryListFlowLayout alloc] init]];
+    }
+    
+    
+    self.catalogCollectionView.backgroundColor = [UIColor whiteColor];
+    
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
+    [self.view setBackgroundColor:[UIColor clearColor]];
    
     [self setNavBarButtons];
     
@@ -80,17 +79,17 @@
     [[self.pageController view] setFrame:[self.view bounds]];
     
     BannerContentViewController *initialVC = [self viewControllerAtIndex:0];
-    NSLog(@"initialVC: %@", initialVC);
+    //NSLog(@"initialVC: %@", initialVC);
     NSArray *vc = [NSArray arrayWithObject:initialVC];
     [self.pageController setViewControllers:vc direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
     
     [self addChildViewController:self.pageController];
-    [self.bannerView addSubview:[self.pageController view]];
-    [self.pageController didMoveToParentViewController:self];
-    
-    self.pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
-    self.pageControl.pageIndicatorTintColor = [UIColor lightTextColor];
-    [self.bannerView bringSubviewToFront:self.pageControl];
+//    [self.bannerView addSubview:[self.pageController view]];
+//    [self.pageController didMoveToParentViewController:self];
+//    
+//    self.pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
+//    self.pageControl.pageIndicatorTintColor = [UIColor lightTextColor];
+//    [self.bannerView bringSubviewToFront:self.pageControl];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -98,9 +97,9 @@
     // Dispose of any resources that can be recreated.
 }
 
--(void)viewDidAppear:(BOOL)animated{
+-(void)viewWillAppear:(BOOL)animated{
     [self setupPageIndicator];
-    self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
+    self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
@@ -110,17 +109,10 @@
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
     
-//    MenuTableViewController *lc =  (MenuTableViewController *)self.mm_drawerController.leftDrawerViewController;
-//    lc.previousDisplayMode = UICatalog;
-    
     MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
     leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
     
     [self.navigationItem setLeftBarButtonItem:leftDrawerButton animated:YES];
-    
-//    self.navigationController.navigationBar.topItem.title = kAppMainTitle;
-//    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-//    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"navbar"] forBarMetrics:UIBarMetricsDefault];
     
     // ====== setup right nav button ======
     self.navigationItem.rightBarButtonItem = [_userSettings setupRightButtonItem:self];
@@ -136,12 +128,7 @@
 }
 
 -(void)menuDrawerButtonPress:(id)sender{
-//    if(_isSearchBarShown){
-//        [_searchView resignFirstResponder];
-//    }
-    
-//    LeftSideBarViewController *lc =  (LeftSideBarViewController *)self.mm_drawerController.leftDrawerViewController;
-//    lc.delegate = self;
+
     [self.mm_drawerController setMaximumLeftDrawerWidth:280.0f];
     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
@@ -149,17 +136,18 @@
 -(void)rightBarButtonPressed{
     
     if([_userSettings getPresentationMode] == UICatalogList){
-        [self.catalogCollectionView setDataSource:_tileDataSource];
+//        [self.catalogCollectionView setDataSource:_tileDataSource];
         //_tileDataSource.delegate = self;
         [self.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
         [_userSettings setPresentationMode:UICatalogTile];
     }
     else{
-        [self.catalogCollectionView setDataSource:_listDataSource];
+//        [self.catalogCollectionView setDataSource:_listDataSource];
         [self.catalogCollectionView setCollectionViewLayout:[[CategoryListFlowLayout alloc] init]];
         [_userSettings setPresentationMode:UICatalogList];
     }
     
+    [self.catalogCollectionView reloadData];
     self.navigationItem.rightBarButtonItem = [_userSettings setupRightButtonItem:self];
     self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
 }
@@ -242,8 +230,10 @@
 #pragma mark - Page Indicator
 -(void)setupPageIndicator{
     
-    self.pageControl.numberOfPages = [self.pageContent count];
-    [self setupCurrentPage];
+    if(_headerView){
+        _headerView.pageControl.numberOfPages = [self.pageContent count];
+        [self setupCurrentPage];
+    }
 }
 
 -(void)pageViewController:(UIPageViewController *)pageViewController didFinishAnimating:(BOOL)finished previousViewControllers:(NSArray *)previousViewControllers transitionCompleted:(BOOL)completed{
@@ -255,21 +245,100 @@
 }
 
 -(void)setupCurrentPage{
-    NSUInteger newIndex = [self indexOfViewController:(BannerContentViewController *)self.pageController.viewControllers[0]];
-    self.pageControl.currentPage =  newIndex;
+    
+    if(_headerView){
+        NSUInteger newIndex = [self indexOfViewController:(BannerContentViewController *)self.pageController.viewControllers[0]];
+        _headerView.pageControl.currentPage =  newIndex;
+    }
 }
 
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
 
-    Categories *category = ([_userSettings getPresentationMode] == UICatalogList) ? _listDataSource.itemsArray[indexPath.item] : _tileDataSource.itemsArray[indexPath.item];
-    
-    NSLog(@"category.places.count = %lu", category.places.count);
+    NSLog(@"didSelectItemAtIndexPath = %li", indexPath.item);
+    Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
+//    
+//    NSLog(@"category.places.count = %lu", category.places.count);
     if(category.places.count == 0)
         [self performSegueWithIdentifier:@"segueFromCategoryToSubcategory" sender:category];
     else
         [self performSegueWithIdentifier:@"segueFromCategoryToPlaces" sender:category];
 }
+
+#pragma mark UICollectionViewDataSource
+
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+{
+    //return [[JournalData shared].books numberOfsections];
+    return 1;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    
+    return [self.frcCategories.fetchedObjects count];
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    UICollectionViewCell *cell = nil;
+    
+    //NSLog(@"MainViewController indexPath: %li", indexPath.item);
+    
+    if([_userSettings getPresentationMode] == UICatalogList){
+        cell = [self.catalogCollectionView dequeueReusableCellWithReuseIdentifier:[CategoryListCell reuseId] forIndexPath:indexPath];
+        [self configureCategoryListCell:(CategoryListCell *)cell atIndexPath:indexPath];
+    }
+    else{
+        cell = [self.catalogCollectionView dequeueReusableCellWithReuseIdentifier:[CategoryTileCell reuseId] forIndexPath:indexPath];
+        [self configureCategoryTileCell:(CategoryTileCell *)cell atIndexPath:indexPath];
+    }
+
+    //
+    //    cell.layer.shouldRasterize = YES;
+    //    cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    
+    
+    return cell;
+}
+
+-(void)configureCategoryListCell:(CategoryListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
+    Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
+    [cell.labelCategoryName setText:category.name];
+}
+
+-(void)configureCategoryTileCell:(CategoryTileCell*)cell atIndexPath:(NSIndexPath*)indexPath{
+    Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
+    [cell.labelCategoryName setText:category.name];
+}
+
+#pragma mark CollectionView Header
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+    
+    //NSLog(@"CollectionView Header: %@", indexPath);
+    
+    UICollectionReusableView *reusableView = nil;
+    
+    BannerHeaderCollectionView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"BannerHeaderCollectionView" forIndexPath:indexPath];
+    
+    [headerView setBackgroundColor:[UIColor clearColor]];
+    [headerView configurePageViewController];
+    [headerView addSubview:[self.pageController view]];
+    [self.pageController didMoveToParentViewController:self];
+    [headerView bringSubviewToFront:headerView.pageControl];
+    headerView.pageControl.numberOfPages = [self.pageContent count];
+    [self setupCurrentPage];
+    
+    _headerView = headerView;
+    
+    
+
+    reusableView = headerView;
+    
+    return headerView;
+}
+
 
 #pragma mark - Storyboard Navigation - Segue handler
 

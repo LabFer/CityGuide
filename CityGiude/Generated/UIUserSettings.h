@@ -19,5 +19,8 @@
 -(UIBarButtonItem*)setupBackButtonItem:(UIViewController*)viewController;
 -(UIBarButtonItem*)setupFilterButtonItem:(UIViewController*)viewController;
 -(UIBarButtonItem*)setupMapMarkerButtonItem:(UIViewController*)viewController;
+-(UIBarButtonItem*)setupCancelButtonItem:(UIViewController*)viewController;
+-(UIBarButtonItem*)setupConfirmButtonItem:(UIViewController*)viewController;
+-(UIBarButtonItem*)setupResponseButtonItem:(UIViewController*)viewController;
 
 @end

@@ -14,6 +14,7 @@
 #import "DBWork.h"
 #import "Places.h"
 #import "calloutViewController.h"
+#import "SubCategoryListFlowLayout.h"
 #define kMapboxMapID  @"bboytx.k5gobg2j"
 
 @implementation PlaceViewController{
@@ -27,20 +28,31 @@
 
     [super viewDidLoad];
     
+    SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
+    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
+    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
+    [self.placeCollectionView setCollectionViewLayout:layout];
+
+    
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
     NSLog(@"Places predicate: %@", predicate);
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
 
-    self.placeTableView.backgroundColor = [UIColor whiteColor];
-    self.placeTableView.delegate = self;
-    self.placeTableView.dataSource = self;
+    self.placeCollectionView.backgroundColor = [UIColor whiteColor];
     
     self.listMapButtonView.backgroundColor = kDefaultNavBarColor;
     
     _userSettings = [[UIUserSettings alloc] init];
-    [self setNavBarButtons];
     
-    self.mapView.hidden = YES;
+    // ===== UISegmentedControl ====
+    UIFont *font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0f];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName];
+    [self.segmentController setTitleTextAttributes:attributes forState:UIControlStateNormal];
+    
+    [self setupHousePresentationMode];
+    
+    [self setNavBarButtons];
+
     self.mapView.tileSource = [[RMMapboxSource alloc] initWithMapID:kMapboxMapID];
     [self.mapView.tileSource setCacheable:YES];
 }
@@ -128,18 +140,6 @@
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
     
-    //    LeftSideBarViewController *lc =  (LeftSideBarViewController *)self.mm_drawerController.leftDrawerViewController;
-    //    lc.previousDisplayMode = UICatalog;
-    //
-    //    MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"btn_left_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(leftDrawerButtonPress:)];
-    //    leftDrawerButton.tintColor = [UIColor grayColor];
-    //
-    //    [self.navigationItem setLeftBarButtonItem:leftDrawerButton animated:YES];
-    //
-    //    self.navigationController.navigationBar.topItem.title = kAppMainTitle;
-    //    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    //    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"navbar"] forBarMetrics:UIBarMetricsDefault];
-    
     self.navigationItem.rightBarButtonItem = [_userSettings setupFilterButtonItem:self]; // ====== setup right nav button ======
     self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
     
@@ -156,78 +156,78 @@
 }
 
 -(void)filterButtonPressed{
-    NSLog(@"filterButtonPressed");
+    [self performSegueWithIdentifier:@"segueFromPlaceViewToFilterView" sender:self];
+}
+
+#pragma mark - Button Handlers
+
+- (IBAction)segmentValueChanged:(id)sender {
+    
+    [self setupHousePresentationMode];
 }
 
 - (IBAction)buttonListPressed:(id)sender {
-    self.placeTableView.hidden = NO;
+    self.placeCollectionView.hidden = NO;
     self.mapView.hidden = YES;
     [self setupHousePresentationMode];
 }
 
 - (IBAction)buttonMappPressed:(id)sender {
-    self.placeTableView.hidden = YES;
+    self.placeCollectionView.hidden = YES;
     self.mapView.hidden = NO;
     [self setupHousePresentationMode];
 }
 
 -(void)setupHousePresentationMode{
     
-    if(self.placeTableView.hidden){
-        //NSLog(@"self.houseListCollectionView.hidden = YES");
-        [self.buttonMap setBackgroundImage:[UIImage imageNamed:@"house_white_btn_right"] forState:UIControlStateNormal];
-        [self.buttonList setBackgroundImage:[UIImage imageNamed:@"house_blue_btn_left"] forState:UIControlStateNormal];
-        [self.buttonList setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [self.buttonMap setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    if(self.segmentController.selectedSegmentIndex == 0){
+        self.placeCollectionView.hidden = NO;
+        self.mapView.hidden = YES;
     }
     else{
-        //NSLog(@"self.houseListCollectionView.hidden = NO");
-        [self.buttonMap setBackgroundImage:[UIImage imageNamed:@"house_blue_btn_right"] forState:UIControlStateNormal];
-        [self.buttonList setBackgroundImage:[UIImage imageNamed:@"house_white_btn_left"] forState:UIControlStateNormal];
-        [self.buttonList setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        [self.buttonMap setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.placeCollectionView.hidden = YES;
+        self.mapView.hidden = NO;
     }
 }
 
-#pragma mark - TableView Datasource
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+#pragma mark UICollectionViewDataSource
+
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    // Return the number of sections.
+    //return [[JournalData shared].books numberOfsections];
     return 1;
 }
 
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
     
     return [self.frcPlaces.fetchedObjects count];
 }
 
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 115.0f;
-}
-#pragma mark - TableView Delegate
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-
-    PlaceListCell *cell = [self.placeTableView dequeueReusableCellWithIdentifier:[PlaceListCell reuseId]];
-  
-    // Configure the cell...
-    [self configureCell:cell atIndexPath:indexPath];
+    
+    PlaceListCell *cell = [self.placeCollectionView dequeueReusableCellWithReuseIdentifier:[PlaceListCell reuseId] forIndexPath:indexPath];
+    
+    [self configurePlaceListCell:(PlaceListCell *)cell atIndexPath:indexPath];
+    
+    //NSLog(@"MainViewController indexPath: %li", indexPath.item);
+    //    cell.layer.shouldRasterize = YES;
+    //    cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    
     
     return cell;
 }
 
-- (void)configureCell:(PlaceListCell *)cell atIndexPath:(NSIndexPath *)indexPath {
-    
+-(void)configurePlaceListCell:(PlaceListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Places *place = self.frcPlaces.fetchedObjects[indexPath.row];
     [cell.titleLabel setText:place.name];
 }
 
--(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    [self.placeTableView deselectRowAtIndexPath:indexPath animated:YES];
+#pragma mark - CollectionViewDelegate
+-(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    //NSLog(@"Item selected: %@", self.frcPlaces.fetchedObjects[indexPath.row]);
     [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:indexPath];
-
 }
 
 
@@ -239,7 +239,7 @@
             PlaceDetailViewController *placeVC = (PlaceDetailViewController*)[segue destinationViewController];
             //AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
             NSIndexPath *idx = (NSIndexPath*)sender;
-            placeVC.aPlace = self.frcPlaces.fetchedObjects[idx.row];
+            placeVC.aPlace = self.frcPlaces.fetchedObjects[idx.item];
             
             //subVC.navigationItem.title = appDelegate.testArray[idx.item];
             

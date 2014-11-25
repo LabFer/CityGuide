@@ -13,7 +13,7 @@
 #import "Mapbox.h"
 
 
-@interface PlaceViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, SMCalloutViewDelegate>
+@interface PlaceViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, SMCalloutViewDelegate>
 
 @property (strong) NSObject <RMTileCacheBackgroundDelegate> *tileCache;
 
@@ -22,11 +22,13 @@
 @property (weak, nonatomic) IBOutlet UIButton *buttonList;
 @property (weak, nonatomic) IBOutlet UIButton *buttonMap;
 
-@property (weak, nonatomic) IBOutlet UITableView *placeTableView;
+@property (weak, nonatomic) IBOutlet UICollectionView *placeCollectionView;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *segmentController;
 
 @property (weak, nonatomic) IBOutlet UIView *listMapButtonView;
 @property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
 @property (nonatomic, strong) Categories *aCategory;
+- (IBAction)segmentValueChanged:(id)sender;
 
 - (IBAction)buttonListPressed:(id)sender;
 - (IBAction)buttonMappPressed:(id)sender;

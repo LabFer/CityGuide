@@ -68,4 +68,28 @@
     return backBtn;
 }
 
+-(UIBarButtonItem*)setupCancelButtonItem:(UIViewController*)viewController{
+    
+    UIBarButtonItem *cancelBtn = [[UIBarButtonItem alloc] initWithTitle:@"Отмена" style:UIBarButtonItemStylePlain target:viewController action:@selector(cancelButtonPressed)];
+    
+    return cancelBtn;
+}
+
+-(UIBarButtonItem*)setupConfirmButtonItem:(UIViewController*)viewController{
+    
+    UIBarButtonItem *confirmBtn = [[UIBarButtonItem alloc] initWithTitle:@"ОК" style:UIBarButtonItemStylePlain target:viewController action:@selector(confirmButtonPressed)];
+    
+    return confirmBtn;
+}
+
+-(UIBarButtonItem*)setupResponseButtonItem:(UIViewController*)viewController{
+    
+    UIImage *btnImg = [UIImage imageNamed:@"navbar_response"];
+    UIBarButtonItem *backBtn = [[UIBarButtonItem alloc] initWithImage:btnImg style:UIBarButtonItemStylePlain target:viewController action:@selector(responseButtonPressed)];
+    
+    return backBtn;
+}
+
+
+
 @end

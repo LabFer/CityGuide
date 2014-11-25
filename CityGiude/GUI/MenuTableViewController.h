@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MenuTableViewController : UITableViewController
+@interface MenuTableViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, strong) NSMutableArray *navigationControllerArray;
 
 @end
