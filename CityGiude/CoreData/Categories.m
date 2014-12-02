@@ -21,5 +21,6 @@
 @dynamic sort;
 @dynamic attributes;
 @dynamic places;
+@dynamic favour;
 
 @end

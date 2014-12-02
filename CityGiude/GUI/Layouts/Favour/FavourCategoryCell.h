@@ -8,11 +8,21 @@
 
 #import <UIKit/UIKit.h>
 
-@interface FavourCategoryCell : UITableViewCell
+@protocol FavourCategoryListCellDelegate <NSObject>
+@optional
+- (void)btnDeleteCategoryPressed:(id)sender forCell:(UICollectionViewCell *)cell;
+@end
+
+@interface FavourCategoryCell : UICollectionViewCell <UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *categoryTitleLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *categoryImage;
+@property (weak, nonatomic) IBOutlet UIView *cellContentView;
 
+@property (weak, nonatomic) IBOutlet UIButton *btnDeleteCategory;
+- (IBAction)btnDeleteCategoryPressed:(id)sender;
+
+@property (weak, nonatomic) id<FavourCategoryListCellDelegate> delegate;
 
 + (NSString *)reuseId;
 

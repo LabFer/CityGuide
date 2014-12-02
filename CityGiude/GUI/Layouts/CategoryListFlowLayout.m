@@ -12,7 +12,7 @@
 //#import "BookShelfiPadPortraitDecorationView.h"
 //#import "CatalogHeaderView.h"
 
-static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
+//static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
 
 @implementation CategoryListFlowLayout{
     NSDictionary *_layoutInfo; //store all layout information
@@ -33,15 +33,14 @@ static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
 -(void)setDefaultValues{
     
     CGFloat scale = 185.0f / 320.0f; // H/W from initial design
-    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
-    self.itemSize = CGSizeMake(sizeOfItems, 80.0f); //size of each cell
+    CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+    self.itemSize = CGSizeMake(screenSize, 80.0f); //size of each cell
     self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
-    self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 40.0f);
+    self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.numberOfColumns = 1;
     self.interItemSpacingY = 0.0f;
 
-    NSLog(@"layout superView: %@", self.superclass);
-    self.headerViewHeight = sizeOfItems * scale;
+    self.headerViewHeight = screenSize * scale;
     //self.headerReferenceSize = CGSizeMake(self.collectionView.frame.size.width, self.headerViewHeight);
     
     //Register Decoration View Class
@@ -58,7 +57,7 @@ static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
     NSMutableDictionary *headerLayoutInfo = [NSMutableDictionary dictionary]; //temp dict for header view attributes
     
     NSInteger itemCount = [self.collectionView numberOfItemsInSection:0]; //number of items in section. I have only 1 section
-    NSLog(@"List itemCount: %ld", itemCount);
+    //NSLog(@"List itemCount: %ld", itemCount);
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:0]; //default value for indexpath
 
 //    NSMutableDictionary *dict = [NSMutableDictionary dictionary]; //store temp info for shelves

@@ -39,6 +39,22 @@ static DBWork* shared = NULL;
     [self insertPlacesFromArray:placesArray];
 }
 
+-(NSArray *)sortDescriptorsFromString:(NSString*)sortKeys{
+    
+    NSArray *tmp = [sortKeys componentsSeparatedByString:@","];
+    NSMutableArray *sortArray = [[NSMutableArray alloc] initWithCapacity:0];
+    
+    for(NSString *item in tmp){
+        
+        BOOL isAscending = YES;
+        if([item isEqualToString:@"promoted"]) isAscending = NO;
+        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:item ascending:isAscending];
+        [sortArray addObject:sortDescriptor];
+    }
+    
+    return [NSArray arrayWithArray:sortArray];
+}
+
 
 #pragma mark - Places Entity
 
@@ -72,6 +88,7 @@ static DBWork* shared = NULL;
     place.phones = [self insertNewPhonesFromArray:[aPlace objectForKey:@"phone"]];
     place.gallery = [self insertNewGalleryFromArray:[aPlace objectForKey:@"images"]];
     place.category = [self getCategoriesFromArray:[aPlace objectForKey:@"parentID"]];
+    place.favour = [NSNumber numberWithBool:NO];
     
     //FIXME: what is viewCount, viewItem, text
 //    @property (nonatomic, retain) NSData * categories_ids; FIXME: replace with real data from server
@@ -247,6 +264,7 @@ static DBWork* shared = NULL;
     category.parent_id = [[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"parentID"]];
     category.photo = [aCategory objectForKey:@"photo"];
     category.sort = [[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"position"]];
+    category.favour = [NSNumber numberWithBool:NO];
     
 //    @property (nonatomic, retain) NSData * filters; FIXME: replace with real data from server
 //    @property (nonatomic, retain) NSSet *places;
@@ -494,7 +512,7 @@ static DBWork* shared = NULL;
 
 #pragma mark - Core Data stack
 
--(NSFetchedResultsController *)fetchedResultsController:(NSString*)entityName                                                  sortKey:(NSString*)sortKey predicate:(NSPredicate*)predicate sectionName:(NSString*)sectionName delegate:(id)delegate
+-(NSFetchedResultsController *)fetchedResultsController:(NSString*)entityName                                                  sortKey:(NSString*)sortKeys predicate:(NSPredicate*)predicate sectionName:(NSString*)sectionName delegate:(id)delegate
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     fetchRequest.entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:DBWork.shared.managedObjectContext];
@@ -505,8 +523,8 @@ static DBWork* shared = NULL;
         [fetchRequest setPredicate:predicate];
     }
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:YES];
-    fetchRequest.sortDescriptors = [NSArray arrayWithObjects:sortDescriptor, nil];
+    //NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:sortKey ascending:YES];
+    fetchRequest.sortDescriptors = [self sortDescriptorsFromString:sortKeys];//[NSArray arrayWithObjects:sortDescriptor, nil];
     
     [NSFetchedResultsController deleteCacheWithName:nil];
     NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:[DBWork shared].managedObjectContext sectionNameKeyPath:sectionName cacheName:nil];
@@ -552,5 +570,6 @@ static DBWork* shared = NULL;
         }
     }
 }
+
 
 @end

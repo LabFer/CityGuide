@@ -11,7 +11,7 @@
 //#import "BookShelfiPadLandscapeDecorationView.h"
 //#import "CatalogHeaderView.h"
 
-static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
+//static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
 
 @implementation CategoryTileFlowLayout{
     NSDictionary *_layoutInfo; //store all layout information
@@ -33,14 +33,16 @@ static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
 -(void)setDefaultValues{
     
     CGFloat scale = 185.0f / 320.0f; // H/W from initial design
-    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width / 2;
-    self.itemSize = CGSizeMake(sizeOfItems, sizeOfItems); //size of each cell
-    self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 10.0f, 0.0f);
+    CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+    self.itemSize = CGSizeMake(160.0f, 160.0f); //size of each cell
+    self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.numberOfColumns = 2;
     self.interItemSpacingY = 0.0f;
     
-    self.headerViewHeight = 2*sizeOfItems * scale;
+    
+    
+    self.headerViewHeight = screenSize * scale;
     
     //Register Decoration View Class
 //    [self registerClass:[BookShelfiPadLandscapeDecorationView class] forDecorationViewOfKind:[BookShelfiPadLandscapeDecorationView kind]];
@@ -57,7 +59,7 @@ static NSString * const catalogCellKind = @"CatalogCell"; //key for CatalogCells
     
     NSInteger itemCount = [self.collectionView numberOfItemsInSection:0]; //number of items in section. I have only 1 section
     
-    NSLog(@"Tile itemCount: %ld", itemCount);
+    //NSLog(@"Tile itemCount: %ld", itemCount);
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:0]; //default value for indexpath
     
 //    NSMutableDictionary *dict = [NSMutableDictionary dictionary]; //store temp info for shelves

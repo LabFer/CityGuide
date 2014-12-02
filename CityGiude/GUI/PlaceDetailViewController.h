@@ -7,20 +7,26 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MessageUI/MessageUI.h>
 #import "Places.h"
 
-@interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
+#import "PlaceDetailedMainCell.h"
+#import "PlaceDetailedMainCellNoImage.h"
+#import "RatingCell.h"
+#import "PPImageScrollingTableViewCell.h"
+#import "AboutCell.h"
+#import "ShareCell.h"
+#import "InfoCell.h"
+#import "CommonCell.h"
+
+//#import "SHKSharerDelegate.h"
+
+@interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
+
+@property (nonatomic, strong) PlaceDetailedMainCell *prototypeMainCell;
+@property (nonatomic, strong) PlaceDetailedMainCellNoImage *prototypeMainCellNoImage;
 
 @property (nonatomic, strong) Places *aPlace;
-@property (weak, nonatomic) IBOutlet UILabel *placeName;
-@property (weak, nonatomic) IBOutlet UILabel *placeCategory;
-@property (weak, nonatomic) IBOutlet UIImageView *placeImage;
-@property (weak, nonatomic) IBOutlet UITextView *placeTextView;
-@property (weak, nonatomic) IBOutlet UILabel *placeAdress;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeWorkTime;
-@property (weak, nonatomic) IBOutlet UILabel *placePhones;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeSite;
-
-
+@property (strong, nonatomic) NSArray *images;
 
 @end

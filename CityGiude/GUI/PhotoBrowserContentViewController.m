@@ -7,6 +7,7 @@
 //
 
 #import "PhotoBrowserContentViewController.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface PhotoBrowserContentViewController ()
 
@@ -17,7 +18,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    [self.bannerImageView setImage:[UIImage imageNamed:@"banner"]];
+    [self.bannerImageView setImageWithURL:self.titleText];
 }
 
 - (void)didReceiveMemoryWarning {

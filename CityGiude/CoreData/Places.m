@@ -38,5 +38,6 @@
 @dynamic phones;
 @dynamic gallery;
 @dynamic keys;
+@dynamic favour;
 
 @end

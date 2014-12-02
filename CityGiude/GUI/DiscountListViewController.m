@@ -31,6 +31,7 @@
     CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
     layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
     [self.discountListCollectionView setCollectionViewLayout:layout];
+    self.discountListCollectionView.backgroundColor = [UIColor whiteColor];
     
     [self setNavBarButtons];
     

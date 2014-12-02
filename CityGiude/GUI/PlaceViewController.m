@@ -15,10 +15,15 @@
 #import "Places.h"
 #import "calloutViewController.h"
 #import "SubCategoryListFlowLayout.h"
+
+#import "AFNetworking.h"
+#import "UIImageView+AFNetworking.h"
+
 #define kMapboxMapID  @"bboytx.k5gobg2j"
 
 @implementation PlaceViewController{
     UIUserSettings *_userSettings;
+    NSString *_sortKeys;
 }
 
 @synthesize mapView;
@@ -35,12 +40,14 @@
 
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
-    NSLog(@"Places predicate: %@", predicate);
-    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
+    _sortKeys = @"promoted,sort,name";
+    //NSLog(@"Places predicate: %@", predicate);
+    
+    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
 
     self.placeCollectionView.backgroundColor = [UIColor whiteColor];
     
-    self.listMapButtonView.backgroundColor = kDefaultNavBarColor;
+    self.listMapButtonView.backgroundColor = kDefaultButtonBarColor;
     
     _userSettings = [[UIUserSettings alloc] init];
     
@@ -64,7 +71,7 @@
     double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
     for (Places *place in self.frcPlaces.fetchedObjects) {
-        NSLog(@"Place from Coredata: %@",place);
+        //NSLog(@"Place from Coredata: %@",place);
         if ((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)) {
             minLat = [place.lattitude doubleValue];
             maxLat = minLat;
@@ -148,6 +155,9 @@
     
     self.navigationItem.title = self.aCategory.name;
     
+    // ===== remove shadow =====
+
+    
     
 }
 
@@ -222,6 +232,32 @@
 -(void)configurePlaceListCell:(PlaceListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Places *place = self.frcPlaces.fetchedObjects[indexPath.row];
     [cell.titleLabel setText:place.name];
+    [cell.subTitleLabel setText:place.address];
+    //@property (weak, nonatomic) IBOutlet UIImageView *placeImage; FIXME: add image for place
+
+    [cell.distanceLabel setText:@"10 км"]; //FIXME add distance for place
+
+    if(place.promoted.boolValue){
+        cell.backgroundColor = kPromotedPlaceCellColor;
+    }
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSLog(@"%@\n%@", urlStr, imgUrl);
+    //[cell.placeImage setImageWithURL:imgUrl];
+    [cell.placeImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    
+    cell.placeImage.layer.cornerRadius = kImageViewCornerRadius;
+    cell.placeImage.clipsToBounds = YES;
+    
+    
+    // ======= rate view =====
+    cell.rateView.notSelectedImage = [UIImage imageNamed:@"star_grey"];
+    //self.rateView.halfSelectedImage = [UIImage imageNamed:@"kermit_half.png"];
+    cell.rateView.fullSelectedImage = [UIImage imageNamed:@"star_yellow"];
+    cell.rateView.rating = place.rate.floatValue;
+    cell.rateView.editable = NO;
+    cell.rateView.maxRating = 5;
 }
 
 #pragma mark - CollectionViewDelegate

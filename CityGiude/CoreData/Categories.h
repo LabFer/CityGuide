@@ -21,6 +21,7 @@
 @property (nonatomic, retain) NSNumber * sort;
 @property (nonatomic, retain) NSSet *attributes;
 @property (nonatomic, retain) NSSet *places;
+@property (nonatomic, retain) NSNumber *favour;
 @end
 
 @interface Categories (CoreDataGeneratedAccessors)

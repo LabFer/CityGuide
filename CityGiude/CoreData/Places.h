@@ -36,6 +36,7 @@
 @property (nonatomic, retain) NSSet *phones;
 @property (nonatomic, retain) NSSet *gallery;
 @property (nonatomic, retain) NSSet *keys;
+@property (nonatomic, retain) NSNumber *favour;
 @end
 
 @interface Places (CoreDataGeneratedAccessors)

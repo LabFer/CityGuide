@@ -9,6 +9,8 @@
 #import "MenuTableViewController.h"
 #import "UIViewController+MMDrawerController.h"
 
+#import "FavourViewController.h"
+
 @implementation MenuTableViewController
 
 -(void)viewDidLoad{
@@ -48,12 +50,18 @@
 //    return cell;
 //}
 
-//-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-//    if(indexPath.row == 0)
-//        return 20.0f;
-//    
-//    return 44.0f;
-//}
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if(indexPath.row == 0)
+        return 20.0f;
+    
+    if(indexPath.row == 9){
+        CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+        //NSLog(@"cell Height = %f; screenHeihgt = %f", screenHeight - 9 * 44.0f - 20.0f, screenHeight);
+        return screenHeight - 9 * 44.0f - 20.0f;
+    }
+    
+    return 44.0f;
+}
 
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     NSLog(@"didSelectRowAtIndexPath: %li", indexPath.row);
@@ -97,6 +105,9 @@
         navigationController = (UINavigationController *)[[UINavigationController alloc] initWithRootViewController:(UIViewController *)newViewController];
         
         [self.navigationControllerArray replaceObjectAtIndex:indexPath.row withObject:navigationController];
+    }
+    else{
+
     }
     
     [self.mm_drawerController setCenterViewController:(UINavigationController *)navigationController withCloseAnimation:YES completion:nil];

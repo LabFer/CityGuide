@@ -9,6 +9,7 @@
 #import "PhotoBrowserViewController.h"
 #import "PhotoBrowserContentViewController.h"
 #import "UIUserSettings.h"
+#import "Gallery.h"
 
 
 #import "AppDelegate.h"
@@ -35,7 +36,14 @@
     [self setNavBarButtons];
 
     // ====== SETUP BANNER PAGEVIEW CONTROLLER=====
-    self.pageContent = [[NSArray alloc] initWithObjects:@"1", @"2", @"3", @"4", @"5", nil];
+    NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:0];
+    for(Gallery *item in [self.aPlace.gallery allObjects]){
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, item.photo_big];
+        NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [array addObject:imgUrl];
+    }
+    
+    self.pageContent = [[NSArray alloc] initWithArray:array];
     [self.navigationItem setTitle:[NSString stringWithFormat:@"1/%lu", [self.pageContent count]]];
 
     
@@ -49,7 +57,7 @@
     [[self.pageController view] setFrame:[self.photoBrowserView bounds]];
     
     PhotoBrowserContentViewController *initialVC = [self viewControllerAtIndex:0];
-    NSLog(@"initialVC: %@", initialVC);
+    NSLog(@" PhotoBrowserVC initialVC: %@", initialVC);
     NSArray *vc = [NSArray arrayWithObject:initialVC];
     [self.pageController setViewControllers:vc direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
     
@@ -93,7 +101,7 @@
     }
     
     // Create a new view controller and pass suitable data.
-    PhotoBrowserContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"BannerContentViewController"];
+    PhotoBrowserContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PhotoBrowserContentViewController"];
     //    pageContentViewController.imageFile = self.pageImages[index];
     pageContentViewController.titleText = self.pageContent[index];
     pageContentViewController.pageIndex = index;

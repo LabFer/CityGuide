@@ -14,6 +14,7 @@
 //@property (weak, nonatomic) IBOutlet UIView *bannerView;
 //@property (weak, nonatomic) IBOutlet UIView *catalogView;
 //@property (weak, nonatomic) IBOutlet UIPageControl *pageControl;
+
 @property (weak, nonatomic) IBOutlet UICollectionView *catalogCollectionView;
 @property (nonatomic, strong) NSFetchedResultsController *frcCategories;
 
@@ -22,6 +23,8 @@
 @property (nonatomic, retain) NSTimer *pageTimer;
 
 @property (nonatomic, retain) NSString *categoryName;
+
+-(void)rightBarButtonPressed;
 
 @end
 

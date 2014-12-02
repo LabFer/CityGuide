@@ -7,12 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Places.h"
 
 @interface PhotoBrowserViewController : UIViewController <UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
 @property (nonatomic, retain) NSArray *pageContent;
 @property (nonatomic, strong) UIPageViewController *pageController;
 @property (weak, nonatomic) IBOutlet UIView *photoBrowserView;
+
+@property (strong, nonatomic) Places *aPlace;
 
 @end
 

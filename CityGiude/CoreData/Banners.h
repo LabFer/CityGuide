@@ -12,9 +12,15 @@
 
 @interface Banners : NSManagedObject
 
-@property (nonatomic, retain) NSString * endpoint;
-@property (nonatomic, retain) NSNumber * id;
-@property (nonatomic, retain) NSString * photo;
-@property (nonatomic, retain) NSString * transaction_type;
+@property (nonatomic, retain) NSString * bannerName;
+@property (nonatomic, retain) NSNumber * bannerID;
+@property (nonatomic, retain) NSString * picture;
+@property (nonatomic, retain) NSNumber * position;
+@property (nonatomic, retain) NSNumber * showName;
+@property (nonatomic, retain) NSString * type;
+@property (nonatomic, retain) NSString * url;
+
+
+
 
 @end

@@ -13,11 +13,15 @@
 #import "CategoryCell.h"
 #import "CategoryListCell.h"
 #import "DBWork.h"
-#import "BannerHeaderCollectionView.h"
+
+#import "MainViewController.h"
+#import "CategoryTileFlowLayout.h"
+#import "CategoryListFlowLayout.h"
 
 
 @implementation SubCategoryCollectionViewController{
     UIUserSettings *_userSettings;
+    NSString *_sortKeys;
 }
 
 -(void)viewDidLoad{
@@ -31,7 +35,8 @@
     // ======== Set CoreData =======
     NSString *str = [NSString stringWithFormat:@"parent_id == %@", self.aCategory.id];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:str];
-    self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
+    _sortKeys = @"sort,name";
+    self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
     
     if([_userSettings getPresentationMode] == UICatalogTile){
         [self.collectionView setCollectionViewLayout:[[SubCategoryTileFlowLayout alloc] init]];
@@ -68,16 +73,24 @@
 
 -(void)rightBarButtonPressed{
     
+    MainViewController *main = (MainViewController*)self.delegate;
+    
     if([_userSettings getPresentationMode] == UICatalogList){
         [self.collectionView setCollectionViewLayout:[[SubCategoryTileFlowLayout alloc] init]];
         [_userSettings setPresentationMode:UICatalogTile];
+        
+        [main.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
     }
     else{
         [self.collectionView setCollectionViewLayout:[[SubCategoryListFlowLayout alloc] init]];
         [_userSettings setPresentationMode:UICatalogList];
+        
+        [main.catalogCollectionView setCollectionViewLayout:[[CategoryListFlowLayout alloc] init]];
     }
     
     [self.collectionView reloadData];
+    [main.catalogCollectionView reloadData]; //updates data in MainViewController
+
     self.navigationItem.rightBarButtonItem = [_userSettings setupRightButtonItem:self];
     self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
 }
@@ -127,11 +140,21 @@
 -(void)configureCategoryListCell:(CategoryListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
+    [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    if(category.favour.boolValue)
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
+    else
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
 }
 
 -(void)configureCategoryTileCell:(CategoryTileCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
+    [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    if(category.favour.boolValue)
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
+    else
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
 }
 
 #pragma mark - CollectionViewDelegate
@@ -139,15 +162,6 @@
     
     [self performSegueWithIdentifier:@"segueFromSubcategoryToHouse" sender:indexPath];
 }
-
-//#pragma mark CollectionView Header
-//-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
-//    
-//    //NSLog(@"CollectionView Header: %@", indexPath);
-//        
-//    BannerHeaderCollectionView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"BannerHeaderCollectionView" forIndexPath:indexPath];
-//    return headerView;
-//}
 
 #pragma mark - Storyboard Navigation - Segue handler
 
@@ -162,6 +176,29 @@
         
     }
 
+}
+
+#pragma mark - Button Handlers
+
+- (IBAction)collectionViewCellButtonPressed:(UIButton *)button{
+    
+    //Acccess the cell
+    UICollectionViewCell *cell = (UICollectionViewCell*)button.superview.superview;
+    
+    NSIndexPath *indexPath = [self.collectionView indexPathForCell:cell];
+    Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
+    //NSLog(@"button pressed: %@, %@", indexPath, category.name);
+    
+    //if(category.favour.boolValue)
+    category.favour = [NSNumber numberWithBool:!category.favour.boolValue];
+    [[DBWork shared] saveContext];
+    
+    [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObjects:indexPath, nil]];
+    
+    //NSString *title = self.strings[indexPath.row];
+    
+    //self.someLabel.text = title;
+    
 }
 
 

@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
+#import "FavourPlaceListCell.h"
+#import "FavourCategoryCell.h"
 
-@interface FavourViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+@interface FavourViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate, FavourPlaceListCellDelegate, FavourCategoryListCellDelegate>
 
 @property (weak, nonatomic) IBOutlet UICollectionView *listCollectionView;
 @property (nonatomic, strong) NSFetchedResultsController *frcPlaces;

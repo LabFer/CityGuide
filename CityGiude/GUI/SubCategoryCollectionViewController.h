@@ -13,6 +13,7 @@
 
 @interface SubCategoryCollectionViewController : UICollectionViewController <UICollectionViewDelegate, UICollectionViewDataSource>
 
+@property (nonatomic, assign) id delegate;
 @property (nonatomic, strong) Categories *aCategory;
 @property (nonatomic, strong) NSFetchedResultsController *frcCategories;
 

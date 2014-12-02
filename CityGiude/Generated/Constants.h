@@ -12,6 +12,7 @@
 
 // ======== Devices =========
 #define IS_IPAD [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad
+#define DEVICE_KEY ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) ? @"Q1WT8ds": @"KJHB4Sd45"
 
 // ====== Directories =======
 #define DOCUMENTS [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject]
@@ -28,9 +29,19 @@
 #define kReuseFilterCommonCellID @"FilterCommonCell"
 #define kReuseFilterListCellID @"FilterListCell"
 #define kReuseDiscountListCellID @"DiscountListCell"
-#define kReuseFavourCategoryCellID @"FavourCategoryCell"
 #define kReuseSettingsCellID @"SettingsCell"
 #define kReuseBannerHeaderCollectionViewKind @"BannerHeaderCollectionView"
+
+#define kReusePlaceDetailedMainCellID @"PlaceDetailedMainCell"
+#define kReusePlaceDetailedMainNoImageCellID @"PlaceDetailedMainCellNoImage"
+#define kReusePlaceDetailedRatingCellID @"RatingCell"
+#define kReusePlaceDetailPPImageScrollingTableViewCell @"PPImageScrollingTableViewCell"
+#define kReusePlaceDetailedAboutCellID @"AboutCell"
+#define kReusePlaceDetailedShareCellID @"ShareCell"
+#define kReusePlaceDetailedInfoCellID @"InfoCell"
+#define kReusePlaceDetailedCommonCellID @"CommonCell"
+#define kReuseFavourPlaceListCellID @"FavourPlaceListCell"
+#define kReuseFavourCategoryCellID @"FavourCategoryCell"
 
 // ========= Presentation Mode =========
 typedef enum {
@@ -45,6 +56,8 @@ typedef enum {
 // ========= Colors =========
 #define kDefaultNavItemTintColor [UIColor colorWithRed:156.0f/255.0f green:202.0f/255.0f blue:238.0f/255.0f alpha:1.0f]
 #define kDefaultNavBarColor [UIColor colorWithRed:35.0f/255.0f green:113.0f/255.0f blue:175.0f/255.0f alpha:1.0f]
+#define kPromotedPlaceCellColor [UIColor colorWithRed:156.0f/255.0f green:202.0f/255.0f blue:238.0f/255.0f alpha:0.3f]
+#define kDefaultButtonBarColor [UIColor colorWithRed:70.0f/255.0f green:132.0f/255.0f blue:182.0f/255.0f alpha:1.0f]
 
 // ========== Navigation Bar ========
 #define kNavigationTitle @"КАТЕГОРИИ"
@@ -71,13 +84,17 @@ typedef enum {
 
 #define kCoreDataModelName @"CityGiude"
 #define kCoreDataSQLiteName @"CityGiude.sqlite"
-#define kSortKeyDB @"position"
+
 
 // =========== Button titles ========
 #define kFilterAllTime @"Круглосуточно"
 #define kFilterWorkNow @"Работает сейчас"
 #define kFilterWebsiteExists @"Есть веб сайт"
 #define kPlaceholderTextView @"Ключевые слова:"
+#define kTextViewShowAll @"Показать все"
+#define kTextViewCollapse @"Свернуть"
+#define kActionSheetPhoneTitle @"Позвонить"
+#define kActionSheetPhoneCancel @"Отмена"
 
 // ============ Email ===============
 #define kMailSubject @"Отзыв о программе CityGuide"
@@ -89,5 +106,13 @@ typedef enum {
 #define kSettingsDiscount @"Акции и скидки"
 #define kSettingsFavour @"Избранное"
 #define kSettingsComments @"Комментарии"
+#define kSettingsResponces @"Отзывы"
+
+// ============ Sort Keys ==========
+#define kSortKeyisAscending @"isAscending"
+#define kSortKeyName @"keyName"
+#define kSortKeyDB @"position"
+
+#define kImageViewCornerRadius 5
 
 #endif

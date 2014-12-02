@@ -11,9 +11,12 @@
 
 @implementation Banners
 
-@dynamic endpoint;
-@dynamic id;
-@dynamic photo;
-@dynamic transaction_type;
+@dynamic bannerName;
+@dynamic bannerID;
+@dynamic picture;
+@dynamic position;
+@dynamic showName;
+@dynamic type;
+@dynamic url;
 
 @end

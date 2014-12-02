@@ -11,6 +11,7 @@
 #import "Categories.h"
 #import "SMCalloutView.h"
 #import "Mapbox.h"
+#import "RateView.h"
 
 
 @interface PlaceViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, SMCalloutViewDelegate>

@@ -11,12 +11,16 @@
         <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="attributes" inverseEntity="Places" syncable="YES"/>
     </entity>
     <entity name="Banners" representedClassName="Banners" syncable="YES">
-        <attribute name="endpoint" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="photo" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="transaction_type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="bannerID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="bannerName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="picture" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="position" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="showName" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Categories" representedClassName="Categories" syncable="YES">
+        <attribute name="favour" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="filters" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -56,6 +60,7 @@
         <attribute name="address" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="categories_ids" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="decript" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="favour" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="lattitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
         <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
@@ -79,12 +84,12 @@
     </entity>
     <elements>
         <element name="Attributes" positionX="151" positionY="207" width="128" height="163"/>
-        <element name="Banners" positionX="126" positionY="180" width="128" height="103"/>
-        <element name="Categories" positionX="115" positionY="-18" width="128" height="163"/>
+        <element name="Banners" positionX="126" positionY="180" width="128" height="150"/>
+        <element name="Categories" positionX="115" positionY="-18" width="128" height="180"/>
         <element name="Comments" positionX="286" positionY="-0" width="128" height="163"/>
-        <element name="Places" positionX="-63" positionY="-18" width="128" height="388"/>
-        <element name="Phones" positionX="108" positionY="135" width="128" height="88"/>
         <element name="Gallery" positionX="117" positionY="144" width="128" height="103"/>
         <element name="Keys" positionX="126" positionY="153" width="128" height="88"/>
+        <element name="Phones" positionX="108" positionY="135" width="128" height="88"/>
+        <element name="Places" positionX="-63" positionY="-18" width="128" height="403"/>
     </elements>
 </model>

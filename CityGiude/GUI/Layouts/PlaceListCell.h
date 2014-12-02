@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RateView.h"
 
 @interface PlaceListCell : UICollectionViewCell
 
@@ -16,11 +17,8 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *mapMarkerImage;
 @property (weak, nonatomic) IBOutlet UILabel *distanceLabel;
-@property (weak, nonatomic) IBOutlet UIImageView *star1Image;
-@property (weak, nonatomic) IBOutlet UIImageView *star2Image;
-@property (weak, nonatomic) IBOutlet UIImageView *star3Image;
-@property (weak, nonatomic) IBOutlet UIImageView *star4Image;
-@property (weak, nonatomic) IBOutlet UIImageView *star5Image;
+
+@property (weak, nonatomic) IBOutlet RateView *rateView;
 
 + (NSString *)reuseId;
 

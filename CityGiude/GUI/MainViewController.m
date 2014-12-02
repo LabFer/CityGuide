@@ -33,6 +33,7 @@
 @interface MainViewController (){
     UIUserSettings *_userSettings;
     BannerHeaderCollectionView *_headerView;
+    NSString *_sortKeys;
 }
 
 @end
@@ -48,7 +49,8 @@
     // ======== Set CoreData =======
     NSString *str = [NSString stringWithFormat:@"parent_id == %i", 0];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:str];
-    self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
+    _sortKeys = @"sort,name";
+    self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
     
     if([_userSettings getPresentationMode] == UICatalogTile){
         [self.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
@@ -62,7 +64,7 @@
     
     self.automaticallyAdjustsScrollViewInsets = NO;
     
-    [self.view setBackgroundColor:[UIColor clearColor]];
+    //[self.view setBackgroundColor:[UIColor clearColor]];
    
     [self setNavBarButtons];
     
@@ -100,6 +102,8 @@
 -(void)viewWillAppear:(BOOL)animated{
     [self setupPageIndicator];
     self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
+    
+    [self.catalogCollectionView reloadData];
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
@@ -111,7 +115,6 @@
     
     MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
     leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
-    
     [self.navigationItem setLeftBarButtonItem:leftDrawerButton animated:YES];
     
     // ====== setup right nav button ======
@@ -123,8 +126,9 @@
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-
-    
+    // ====== mmdrawer swipe gesture =======
+    [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
+    [self.mm_drawerController setCloseDrawerGestureModeMask:MMCloseDrawerGestureModeAll];
 }
 
 -(void)menuDrawerButtonPress:(id)sender{
@@ -306,11 +310,23 @@
 -(void)configureCategoryListCell:(CategoryListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
+    [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    if(category.favour.boolValue)
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
+    else
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
 }
 
 -(void)configureCategoryTileCell:(CategoryTileCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
+    [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    if(category.favour.boolValue)
+       [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
+    else
+        [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
 }
 
 #pragma mark CollectionView Header
@@ -347,6 +363,7 @@
     if([[segue identifier] isEqualToString:@"segueFromCategoryToSubcategory"]){
         SubCategoryCollectionViewController *subVC = (SubCategoryCollectionViewController*)[segue destinationViewController];        
         subVC.aCategory = (Categories*)sender;
+        subVC.delegate = self;
 
     }
     else if ([[segue identifier] isEqualToString:@"segueFromCategoryToPlaces"]){
@@ -355,6 +372,29 @@
     }
 }
 
+
+#pragma mark - Button Handlers
+
+- (IBAction)collectionViewCellButtonPressed:(UIButton *)button{
+    
+    //Acccess the cell
+    UICollectionViewCell *cell = (UICollectionViewCell*)button.superview.superview;
+    
+    NSIndexPath *indexPath = [self.catalogCollectionView indexPathForCell:cell];
+    Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
+    //NSLog(@"button pressed: %@, %@", indexPath, category.name);
+    
+    //if(category.favour.boolValue)
+    category.favour = [NSNumber numberWithBool:!category.favour.boolValue];
+    [[DBWork shared] saveContext];
+    
+    [self.catalogCollectionView reloadItemsAtIndexPaths:[NSArray arrayWithObjects:indexPath, nil]];
+    
+    //NSString *title = self.strings[indexPath.row];
+    
+    //self.someLabel.text = title;
+    
+}
 
 
 

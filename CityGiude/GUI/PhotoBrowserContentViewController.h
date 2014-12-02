@@ -13,7 +13,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *bannerImageView;
 
 @property NSUInteger pageIndex;
-@property NSString *titleText;
+@property NSURL *titleText;
 @property NSString *imageFile;
 
 @property(nonatomic, strong) id dataObject;
