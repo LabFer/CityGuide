@@ -57,6 +57,8 @@
 
 - (IBAction)brnDeletePressed:(id)sender {
 //    NSLog(@"Cell brnDeletePressed");
+    [self handleSwipeRight:nil];
+    
     if([self.delegate respondsToSelector:@selector(btnDeletePressed:forCell:)])
         [self.delegate btnDeletePressed:sender forCell:self];
 }

@@ -3129,8 +3129,8 @@
         <image name="social_vk" width="50" height="50"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="IIy-0p-1am"/>
         <segue reference="aEt-nq-vd2"/>
         <segue reference="WiY-M2-USX"/>
-        <segue reference="loN-XW-8FV"/>
     </inferredMetricsTieBreakers>
 </document>

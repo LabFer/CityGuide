@@ -106,7 +106,7 @@
     }
     
     _connectionCount = 0;
-    NSString *urlFormat = @"%@?method=%@&token=%@&type=%@";
+    NSString *urlFormat = @"%@?method=%@&token=%@&typeDevice=%@";
     NSURL *registrationURL = [NSURL URLWithString:[NSString stringWithFormat:urlFormat, URL_API, @"putToken", tokenString, DEVICE_KEY]];
     NSLog(@"%@", registrationURL);
     

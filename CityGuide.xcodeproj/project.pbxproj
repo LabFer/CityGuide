@@ -1077,7 +1077,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_LIBTOOLFLAGS = "$(OTHER_LDFLAGS)";
 				PRODUCT_NAME = CityGuide;
-				PROVISIONING_PROFILE = "c77d0ec7-217e-4947-9e27-a8166e450abc";
+				PROVISIONING_PROFILE = "06096cf6-3955-4e0f-a482-b8dd24a9493b";
 			};
 			name = Debug;
 		};
@@ -1103,7 +1103,7 @@
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_LIBTOOLFLAGS = "$(OTHER_LDFLAGS)";
 				PRODUCT_NAME = CityGuide;
-				PROVISIONING_PROFILE = "c77d0ec7-217e-4947-9e27-a8166e450abc";
+				PROVISIONING_PROFILE = "06096cf6-3955-4e0f-a482-b8dd24a9493b";
 			};
 			name = Release;
 		};

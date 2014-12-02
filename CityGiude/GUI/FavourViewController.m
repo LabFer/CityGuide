@@ -140,7 +140,7 @@
     [cell.subTitleLabel setText:place.address];
     //@property (weak, nonatomic) IBOutlet UIImageView *placeImage; FIXME: add image for place
     
-    [cell.distanceLabel setText:@"10 км"]; //FIXME add distance for place
+    [cell.distanceLabel setText:[self radiantToMeters]]; //FIXME add distance for place
     
     if(place.promoted.boolValue){
         cell.cellContentView.backgroundColor = kPromotedPlaceCellColor;
@@ -169,6 +169,10 @@
     cell.delegate = self;
     //[cell.btnDelete addTarget:self action:@selector(deletePlace:) forControlEvents:UIControlEventTouchUpInside];
 
+}
+
+-(NSString*)radiantToMeters{
+    return @"10km";
 }
 
 - (void)configureCategoryCell:(FavourCategoryCell *)cell atIndexPath:(NSIndexPath *)indexPath {
