@@ -19,8 +19,6 @@
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
 
-#define kMapboxMapID  @"bboytx.k5gobg2j"
-
 @implementation PlaceViewController{
     UIUserSettings *_userSettings;
     NSString *_sortKeys;
@@ -60,7 +58,11 @@
     
     [self setNavBarButtons];
 
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithMapID:kMapboxMapID];
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
+    NSError *error;
+    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
+    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+    
     [self.mapView.tileSource setCacheable:YES];
 }
 

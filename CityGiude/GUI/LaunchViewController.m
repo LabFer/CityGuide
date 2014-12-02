@@ -15,6 +15,7 @@
     [super viewDidLoad];
     
     [SyncEngine sharedEngine].delegate = self;
+    [[SyncEngine sharedEngine] downloadMapCache];
     [[SyncEngine sharedEngine] downloadJSONDataFromServer];
 }
 

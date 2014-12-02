@@ -1,0 +1,8 @@
+{
+    "tilejson": "2.1.0",
+    "tiles": [ "https://api.tiles.mapbox.com/v4/bboytx.k5gobg2j/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYmJveXR4IiwiYSI6IkJxRVFQZDAifQ.GGvwr7W57hPj_POE3Ey8tg" ],
+    "minzoom": 13,
+    "maxzoom": 15,
+    "bounds": [60.514242, 56.772081, 60.660497, 56.905416],
+    "center": [56.82, 60.6, 14]
+}

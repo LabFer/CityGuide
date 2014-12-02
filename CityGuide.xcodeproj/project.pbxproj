@@ -92,6 +92,7 @@
 		71E155371A1AD52A00CD7A26 /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155361A1AD52A00CD7A26 /* Comments.m */; };
 		935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB891A1B845D0079EDC3 /* Crashlytics.framework */; };
 		935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB8A1A1B845D0079EDC3 /* Fabric.framework */; };
+		93809D1A1A2DC0A300820E24 /* mapbox.json in Resources */ = {isa = PBXBuildFile; fileRef = 93809D191A2DC0A300820E24 /* mapbox.json */; };
 		93E2B7931A1B160700AAB446 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7921A1B160700AAB446 /* libsqlite3.dylib */; };
 		93E2B7951A1B160D00AAB446 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7941A1B160D00AAB446 /* QuartzCore.framework */; };
 		93E2B7971A1B161100AAB446 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7961A1B161100AAB446 /* CoreLocation.framework */; };
@@ -278,6 +279,7 @@
 		852D0FFD12D5CC13B5191CFB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		935FDB891A1B845D0079EDC3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		935FDB8A1A1B845D0079EDC3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		93809D191A2DC0A300820E24 /* mapbox.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = mapbox.json; sourceTree = "<group>"; };
 		93E2B78D1A1B15F200AAB446 /* libMapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMapbox.a; path = Mapbox/libMapbox.a; sourceTree = "<group>"; };
 		93E2B7921A1B160700AAB446 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		93E2B7941A1B160D00AAB446 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -402,6 +404,7 @@
 		714DE9C71A0FB28F00E4FB3D /* CityGiude */ = {
 			isa = PBXGroup;
 			children = (
+				93809D191A2DC0A300820E24 /* mapbox.json */,
 				719B06C41A179A0C001B402F /* ClientServer */,
 				719B06C01A175A40001B402F /* CoreData */,
 				714DEA081A1057C700E4FB3D /* Generated */,
@@ -790,6 +793,7 @@
 			files = (
 				714DE9D71A0FB28F00E4FB3D /* Main.storyboard in Resources */,
 				714DE9DC1A0FB28F00E4FB3D /* LaunchScreen.xib in Resources */,
+				93809D1A1A2DC0A300820E24 /* mapbox.json in Resources */,
 				714DE9D91A0FB28F00E4FB3D /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

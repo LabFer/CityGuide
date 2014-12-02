@@ -12,7 +12,6 @@
 
 #import "AppDelegate.h"
 
-#define kMapboxMapID  @"bboytx.k5gobg2j"
 
 //#import "UIViewController+MMDrawerController.h"
 //#import "MMDrawerBarButtonItem.h"
@@ -41,7 +40,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithMapID:kMapboxMapID];
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
+    NSError *error;
+    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
+    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+
     
     RMAnnotation *annotation = [RMAnnotation  annotationWithMapView:self.mapView
                                                          coordinate:CLLocationCoordinate2DMake([self.mapPlace.lattitude doubleValue], [self.mapPlace.longitude doubleValue])

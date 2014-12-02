@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import "AppDelegate.h"
+#import <Mapbox.h>
 
-@interface SyncEngine : NSObject
+@interface SyncEngine : NSObject <RMTileCacheBackgroundDelegate>
 
 @property (atomic, readonly) BOOL syncInProgress;
 @property (nonatomic, assign) id delegate;
@@ -30,6 +31,7 @@
 
 -(BOOL)allowUseInternetConnection;
 -(void)resumeDownloadingFile;
+-(void)downloadMapCache;
 
 //-(void)downloadFile:(ChildBook*)aBook indexPath:(NSIndexPath*)idx;
 

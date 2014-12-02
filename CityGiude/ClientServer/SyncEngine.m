@@ -98,6 +98,57 @@
 //    [self finishSync];
 }
 
+
+-(void)downloadMapCache{
+    
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
+    NSError *error;
+    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
+    NSLog(@"Cache error %@",error);
+    
+    RMMapboxSource *tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+    [tileSource setCacheable:YES];
+    
+    //    NSString* documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    //    NSString* foofile = [documentsPath stringByAppendingPathComponent:@"RMTileCache.db"];
+    //    BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:foofile];
+    
+    
+    RMTileCache *dCache = [[RMTileCache alloc] init];
+    
+    for (id cache in dCache.tileCaches)
+    {
+        if ([cache isKindOfClass:[RMDatabaseCache class]])
+        {
+            RMDatabaseCache *dbCache = (RMDatabaseCache *)cache;
+            NSLog(@"current cache size: %lld", dbCache.fileSize);
+            [dCache setBackgroundCacheDelegate:self];
+            NSInteger minZoom = tileSource.minZoom;
+            NSInteger maxZoom = tileSource.maxZoom; // here I am fetching all but this might be too much
+            [dCache beginBackgroundCacheForTileSource:tileSource
+                                            southWest:CLLocationCoordinate2DMake(56.759286, 60.447637)
+                                            northEast:CLLocationCoordinate2DMake(56.905416, 60.660497)
+                                              minZoom:minZoom
+                                              maxZoom:maxZoom];
+            
+            break;
+        }
+    }
+
+}
+
+- (void)tileCache:(RMTileCache *)tileCache didBeginBackgroundCacheWithCount:(NSUInteger)tileCount forTileSource:(id<RMTileSource>)tileSource {
+    NSLog(@"Caching started");
+}
+
+- (void)tileCache:(RMTileCache *)tileCache didBackgroundCacheTile:(RMTile)tile withIndex:(NSUInteger)tileIndex ofTotalTileCount:(NSUInteger)totalTileCount
+{
+    NSLog(@"Caching Tile %lu of Total %lu", tileIndex, totalTileCount);
+}
+
+- (void)tileCacheDidFinishBackgroundCache:(RMTileCache *)tileCache {
+    NSLog(@"Cache loading has been finished");
+}
 -(void)downloadArticleFromServer{
     
 //    //NSString *strURL = URL_API;
