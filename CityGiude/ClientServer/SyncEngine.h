@@ -23,6 +23,7 @@
 -(void)downloadJSONDataFromServer;
 -(void)downloadBannersFromServer;
 -(void)downloadArticleFromServer;
+-(void)downloadMapCache;
 
 -(void)reloadCollectionView;
 
@@ -30,8 +31,7 @@
 -(NSNumber*)getTimeStamp;
 
 -(BOOL)allowUseInternetConnection;
--(void)resumeDownloadingFile;
--(void)downloadMapCache;
+
 
 //-(void)downloadFile:(ChildBook*)aBook indexPath:(NSIndexPath*)idx;
 

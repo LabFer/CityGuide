@@ -2,3 +2,5 @@ platform :ios, '7.0'
 
 pod 'AFNetworking'
 pod 'Mapbox-iOS-SDK'
+pod 'Facebook-iOS-SDK'
+pod 'VK-ios-sdk'

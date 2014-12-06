@@ -11,5 +11,11 @@
 @interface MenuTableViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) NSMutableArray *navigationControllerArray;
+@property (weak, nonatomic) IBOutlet UIImageView *userPhotoImage;
+@property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *authLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *authImage;
+@property (weak, nonatomic) IBOutlet UIImageView *userPhoto;
+@property (strong, nonatomic) IBOutlet UITableView *menuTableView;
 
 @end

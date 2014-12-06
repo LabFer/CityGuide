@@ -90,6 +90,15 @@
     return backBtn;
 }
 
+-(BOOL)isUserAuthorized{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+    if(userProfile) return YES; // user has authorized
+    
+    return NO;
+}
+
 
 
 @end

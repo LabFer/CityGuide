@@ -7,11 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AppDelegate.h"
+#import "VKSdk.h"
 
-@interface AuthUserViewController : UIViewController
-- (IBAction)btnResponcePressed:(id)sender;
-- (IBAction)btnMailPressed:(id)sender;
-- (IBAction)btnAboutProgrammPressed:(id)sender;
+@interface AuthUserViewController : UIViewController <VKSdkDelegate>
+
+@property (nonatomic, strong) AppDelegate *appDelegate;
+
+
+- (IBAction)btnFBpressed:(id)sender;
+- (IBAction)btnTWpressed:(id)sender;
+- (IBAction)btnVKpressed:(id)sender;
 
 
 @end

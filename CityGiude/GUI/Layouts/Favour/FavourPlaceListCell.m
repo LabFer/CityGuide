@@ -18,7 +18,7 @@
     self.btnDelete.hidden = YES;
     
     //add Swipe right to here
-//    NSLog(@"add swipe gesture");
+    NSLog(@"add swipe gesture");
     UISwipeGestureRecognizer *leftSwipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeLeft:)];
     [leftSwipe setDirection:UISwipeGestureRecognizerDirectionLeft];
     leftSwipe.delegate = self;
@@ -33,7 +33,7 @@
 }
 -(void)handleSwipeRight:(UISwipeGestureRecognizer *)swipe {
 
-//    NSLog(@"handleSwipeRight");
+    NSLog(@"handleSwipeRight");
     [UIView animateWithDuration:.25 animations:^
      {
          //self.cellContentView.alpha = 1;
@@ -44,7 +44,7 @@
 
 -(void)handleSwipeLeft:(UISwipeGestureRecognizer *)swipe {
 
-//    NSLog(@"handleSwipeLeft");
+    NSLog(@"handleSwipeLeft");
     [self.btnDelete setHidden:NO];
     [UIView animateWithDuration:.25 animations:^
      {

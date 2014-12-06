@@ -23,4 +23,6 @@
 -(UIBarButtonItem*)setupConfirmButtonItem:(UIViewController*)viewController;
 -(UIBarButtonItem*)setupResponseButtonItem:(UIViewController*)viewController;
 
+-(BOOL)isUserAuthorized;
+
 @end

@@ -17,6 +17,7 @@
 
 #import "SubCategoryCollectionViewController.h"
 #import "PlaceViewController.h"
+#import "PlaceDetailViewController.h"
 
 #import "UIViewController+MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
@@ -69,7 +70,7 @@
     [self setNavBarButtons];
     
     // ====== SETUP BANNER PAGEVIEW CONTROLLER=====
-    self.pageContent = [[NSArray alloc] initWithObjects:@"1", @"2", @"3", @"4", @"5", nil];
+    self.pageContent = [[DBWork shared] getArrayOfBanners];
     
     NSDictionary *options = [NSDictionary dictionaryWithObject: [NSNumber numberWithInteger:UIPageViewControllerSpineLocationMin] forKey: UIPageViewControllerOptionSpineLocationKey];
     
@@ -168,7 +169,7 @@
     // Create a new view controller and pass suitable data.
     BannerContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"BannerContentViewController"];
     //    pageContentViewController.imageFile = self.pageImages[index];
-    pageContentViewController.titleText = self.pageContent[index];
+    pageContentViewController.aBanner = self.pageContent[index];
     pageContentViewController.pageIndex = index;
     
     return pageContentViewController;
@@ -178,7 +179,7 @@
 -(NSUInteger)indexOfViewController:(BannerContentViewController*)viewController{
     
     //NSLog(@"");
-    return [_pageContent indexOfObject:viewController.titleText];
+    return [_pageContent indexOfObject:viewController.aBanner];
 }
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
@@ -212,7 +213,7 @@
     NSUInteger currentIndex = [self indexOfViewController:(BannerContentViewController *)self.pageController.viewControllers[0]];
     
     BOOL forward = true;
-    
+    NSLog(@"updatePage. currentIndex: %lu; count: %lu", currentIndex, [self.pageContent count]);
     if((currentIndex + 1) >= [self.pageContent count]){
         currentIndex = 0;
         forward = false;
@@ -259,15 +260,16 @@
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
 
-    NSLog(@"didSelectItemAtIndexPath = %li", indexPath.item);
+//    NSLog(@"didSelectItemAtIndexPath = %li", indexPath.item);
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
-//    
+    
 //    NSLog(@"category.places.count = %lu", category.places.count);
     if(category.places.count == 0)
         [self performSegueWithIdentifier:@"segueFromCategoryToSubcategory" sender:category];
     else
         [self performSegueWithIdentifier:@"segueFromCategoryToPlaces" sender:category];
 }
+
 
 #pragma mark UICollectionViewDataSource
 
@@ -348,6 +350,9 @@
     
     _headerView = headerView;
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleHeaderTap:)];
+    [headerView addGestureRecognizer:tap];
+    
     
 
     reusableView = headerView;
@@ -369,6 +374,10 @@
     else if ([[segue identifier] isEqualToString:@"segueFromCategoryToPlaces"]){
         PlaceViewController *placeVC = (PlaceViewController*)[segue destinationViewController];
         placeVC.aCategory = (Categories*)sender;
+    }
+    else if([[segue identifier] isEqualToString:@"segueFromCategoryToPlaceDetail"]){
+        PlaceDetailViewController *subVC = (PlaceDetailViewController*)[segue destinationViewController];
+        subVC.aPlace = (Places*)sender;
     }
 }
 
@@ -394,6 +403,33 @@
     
     //self.someLabel.text = title;
     
+}
+
+
+#pragma mark - Gesture recognizer
+- (void)handleHeaderTap:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    BannerContentViewController* bannerVC = (BannerContentViewController *)self.pageController.viewControllers[0];
+    Banners *aBanner = bannerVC.aBanner;
+    NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
+    
+    if([aBanner.type isEqualToString:@"place"]){ //goto place
+        NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
+        Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
+        [self performSegueWithIdentifier:@"segueFromCategoryToPlaceDetail" sender:aPlace];//segueFromCategoryToPlaceDetail
+    
+    }
+    else if([aBanner.type isEqualToString:@"event"]){ //goto event
+        //segueFromCategoryToDiscountDetail
+    }
+    else if([aBanner.type isEqualToString:@"url"]){ //goto external url
+        NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
+        NSLog(@"Banner. Open URL: %@", web);
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
+    }
+    else if([aBanner.type isEqualToString:@"text"]){ //goto text
+    
+    }
 }
 
 

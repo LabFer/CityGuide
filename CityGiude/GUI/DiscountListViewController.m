@@ -12,10 +12,13 @@
 #import "BannerContentViewController.h"
 #import "UIUserSettings.h"
 #import "CategoryListFlowLayout.h"
+#import "PlaceDetailViewController.h"
 
 #import "UIViewController+MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "MenuTableViewController.h"
+
+#import "DBWork.h"
 
 @implementation DiscountListViewController{
     UIUserSettings *_userSettings;
@@ -36,7 +39,7 @@
     [self setNavBarButtons];
     
     // ====== SETUP BANNER PAGEVIEW CONTROLLER=====
-    self.pageContent = [[NSArray alloc] initWithObjects:@"1", @"2", @"3", @"4", @"5", nil];
+    self.pageContent = [[DBWork shared] getArrayOfBanners];
     
     NSDictionary *options = [NSDictionary dictionaryWithObject: [NSNumber numberWithInteger:UIPageViewControllerSpineLocationMin] forKey: UIPageViewControllerOptionSpineLocationKey];
     
@@ -64,7 +67,7 @@
 
 -(void)viewWillAppear:(BOOL)animated{
     [self setupPageIndicator];
-    self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
+    self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
@@ -162,6 +165,9 @@
     
     _headerView = headerView;
     
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleHeaderTap:)];
+    [headerView addGestureRecognizer:tap];
+    
     return headerView;
 }
 
@@ -177,7 +183,7 @@
     // Create a new view controller and pass suitable data.
     BannerContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"BannerContentViewController"];
     //    pageContentViewController.imageFile = self.pageImages[index];
-    pageContentViewController.titleText = self.pageContent[index];
+    pageContentViewController.aBanner = self.pageContent[index];
     pageContentViewController.pageIndex = index;
     
     return pageContentViewController;
@@ -187,7 +193,7 @@
 -(NSUInteger)indexOfViewController:(BannerContentViewController*)viewController{
     
     //NSLog(@"");
-    return [_pageContent indexOfObject:viewController.titleText];
+    return [_pageContent indexOfObject:viewController.aBanner];
 }
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
@@ -221,7 +227,7 @@
     NSUInteger currentIndex = [self indexOfViewController:(BannerContentViewController *)self.pageController.viewControllers[0]];
     
     BOOL forward = true;
-    
+    NSLog(@"updatePage. currentIndex: %lu; count: %lu", currentIndex, [self.pageContent count]);
     if((currentIndex + 1) >= [self.pageContent count]){
         currentIndex = 0;
         forward = false;
@@ -263,6 +269,49 @@
         _headerView.pageControl.currentPage =  newIndex;
     }
 }
+
+#pragma mark - Gesture recognizer
+- (void)handleHeaderTap:(UITapGestureRecognizer *)gestureRecognizer {
+    
+    BannerContentViewController* bannerVC = (BannerContentViewController *)self.pageController.viewControllers[0];
+    Banners *aBanner = bannerVC.aBanner;
+    NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
+    
+    if([aBanner.type isEqualToString:@"place"]){ //goto place
+        NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
+        Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
+        [self performSegueWithIdentifier:@"segueFromDiscountToPlaceDetail" sender:aPlace];
+        
+    }
+    else if([aBanner.type isEqualToString:@"event"]){ //goto event
+        [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:self];
+    }
+    else if([aBanner.type isEqualToString:@"url"]){ //goto external url
+        NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
+        NSLog(@"Banner. Open URL: %@", web);
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
+    }
+    else if([aBanner.type isEqualToString:@"text"]){ //goto text
+        
+    }
+}
+
+#pragma mark - Storyboard Navigation - Segue handler
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+    
+    if([[segue identifier] isEqualToString:@"segueFromDiscountListToDiscountDetail"]){
+//        SubCategoryCollectionViewController *subVC = (SubCategoryCollectionViewController*)[segue destinationViewController];
+//        subVC.aCategory = (Categories*)sender;
+//        subVC.delegate = self;
+        
+    }
+    else if([[segue identifier] isEqualToString:@"segueFromDiscountToPlaceDetail"]){
+        PlaceDetailViewController *subVC = (PlaceDetailViewController*)[segue destinationViewController];
+        subVC.aPlace = (Places*)sender;
+    }
+}
+
 
 
 

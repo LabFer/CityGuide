@@ -7,6 +7,8 @@
 //
 
 #import "BannerContentViewController.h"
+#import "UIImageView+AFNetworking.h"
+#import "Constants.h"
 
 @interface BannerContentViewController ()
 
@@ -17,7 +19,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    [self.bannerImageView setImage:[UIImage imageNamed:@"banner"]];
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, self.aBanner.picture];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    //NSLog(@"%@\n%@", urlStr, imgUrl);
+    //[cell.placeImage setImageWithURL:imgUrl];
+    [self.bannerImageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"banner"]];
 }
 
 - (void)didReceiveMemoryWarning {

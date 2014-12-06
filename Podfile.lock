@@ -20,6 +20,9 @@ PODS:
   - AFNetworking/UIKit (2.5.0):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - Bolts (1.1.3)
+  - Facebook-iOS-SDK (3.21.0):
+    - Bolts (~> 1.0)
   - FMDB (2.3):
     - FMDB/standard
   - FMDB/common (2.3)
@@ -33,17 +36,23 @@ PODS:
     - GRMustache (= 6.8.3)
     - SMCalloutView (= 2.0)
   - SMCalloutView (2.0)
+  - VK-ios-sdk (1.0.8.6)
 
 DEPENDENCIES:
   - AFNetworking
+  - Facebook-iOS-SDK
   - Mapbox-iOS-SDK
+  - VK-ios-sdk
 
 SPEC CHECKSUMS:
   AFNetworking: 0f54cb5d16ce38c1b76948faffb8d5fb705021c7
+  Bolts: 3db0a875235e0c9042b013af13af0f00f79b102c
+  Facebook-iOS-SDK: 9f2273a2dcdf911045cc2916cc9f6f5cf568d70e
   FMDB: 31ec26773c7f7b7890a6038235a1f2bbd933a7cb
   GRMustache: ab96109b7ba4b9568425bea40d6cd2cdc7582b6c
   JRSwizzle: 30da7a2c539a4ebf954b16d15f6dd8221c9f6fa5
   Mapbox-iOS-SDK: f3c46afe1af0d8ea7863b33ba9e96d94606d4784
   SMCalloutView: c1906604d47c058400ade5c9d52ab98aa77b7e76
+  VK-ios-sdk: 2388a23081481384b1ad67d9e988d4dd9f8973d3
 
 COCOAPODS: 0.34.0

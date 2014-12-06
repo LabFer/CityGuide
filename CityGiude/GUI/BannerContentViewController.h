@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Banners.h"
 
 @interface BannerContentViewController : UIViewController
 
@@ -15,6 +16,7 @@
 @property NSUInteger pageIndex;
 @property NSString *titleText;
 @property NSString *imageFile;
+@property (nonatomic, strong) Banners *aBanner;
 
 @property(nonatomic, strong) id dataObject;
 

@@ -10,7 +10,10 @@
 #import "Constants.h"
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
+#import <TwitterKit/TwitterKit.h>
 #import "DBWork.h"
+
+#import "VKSdk.h"
 //#import "CBSHKConfigurator.h"
 //#import "SHKConfiguration.h"
 
@@ -40,7 +43,9 @@
 //    CBSHKConfigurator *configurator = [[CBSHKConfigurator alloc] init];
 //    [SHKConfiguration sharedInstanceWithConfigurator:configurator];
     
-    [Fabric with:@[CrashlyticsKit]];
+    [[Twitter sharedInstance] startWithConsumerKey:kTwitterConsumerKey consumerSecret:kTwitterConsumerSecret];
+    [Fabric with:@[CrashlyticsKit, [Twitter sharedInstance]]];
+    
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)])
     {
@@ -72,6 +77,12 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    if ([FBSession activeSession].state == FBSessionStateCreatedTokenLoaded) {
+        [self openActiveSessionWithPermissions:nil allowLoginUI:NO];
+    }
+    
+    [FBAppCall handleDidBecomeActive];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -177,5 +188,34 @@
     }
     
     return pushEnabled;
+}
+
+#pragma mark - Facebook Login
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    
+    // attempt to extract a token from the url
+    [VKSdk processOpenURL:url fromApplication:sourceApplication];
+    
+    return [FBAppCall handleOpenURL:url sourceApplication:sourceApplication];
+}
+
+-(void)openActiveSessionWithPermissions:(NSArray *)permissions allowLoginUI:(BOOL)allowLoginUI{
+    [FBSession openActiveSessionWithReadPermissions:permissions
+                                       allowLoginUI:allowLoginUI
+                                  completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
+                                      
+                                      // Create a NSDictionary object and set the parameter values.
+                                      NSDictionary *sessionStateInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                                                        session, @"session",
+                                                                        [NSNumber numberWithInteger:status], @"state",
+                                                                        error, @"error",
+                                                                        nil];
+                                      
+                                      // Create a new notification, add the sessionStateInfo dictionary to it and post it.
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:kFacebookNotification
+                                                                                          object:nil
+                                                                                        userInfo:sessionStateInfo];
+                                      
+                                  }];
 }
 @end

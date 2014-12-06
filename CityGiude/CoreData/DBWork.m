@@ -10,6 +10,7 @@
 #import "Constants.h"
 #import "Categories.h"
 #import "Places.h"
+#import "Banners.h"
 
 @implementation DBWork
 
@@ -115,6 +116,62 @@ static DBWork* shared = NULL;
     
     Places *place = frc.fetchedObjects.lastObject;
     if(place) return YES;
+    
+    return NO;
+}
+
+-(Places*)getPlaceByplaceID:(NSNumber*)placeID{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", placeID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataPlacesEntity sortKey:@"name" predicate:predicate sectionName:nil delegate:self];
+    
+    Places *place = frc.fetchedObjects.lastObject;
+    
+    return place;
+}
+
+#pragma mark - Banners
+-(void)insertNewBanner:(NSDictionary *)aBanner{
+    
+    if([self isBannerExist:[[NSNumberFormatter alloc] numberFromString:[aBanner objectForKey:@"banerID"]]])
+        return;
+    
+    Banners *banner = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataBannersEntity inManagedObjectContext:self.managedObjectContext];
+    
+    banner.bannerID = [[NSNumberFormatter alloc] numberFromString:[aBanner objectForKey:@"banerID"]];
+    banner.bannerName = [aBanner objectForKey:@"banerName"];
+    banner.showName = [[NSNumberFormatter alloc] numberFromString:[aBanner objectForKey:@"showName"]];
+    banner.type = [aBanner objectForKey:@"type"];
+    banner.picture = [aBanner objectForKey:@"picture"];
+    banner.url = [aBanner objectForKey:@"url"];
+    banner.position = [[NSNumberFormatter alloc] numberFromString:[aBanner objectForKey:@"position"]];
+
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Whoops, couldn't save banner: %@", [error localizedDescription]);
+    }
+    
+}
+
+-(void)insertBannersFromArray:(NSArray *)anArray{
+    [anArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self insertNewBanner:obj];
+    }];
+}
+
+-(NSArray*)getArrayOfBanners{
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataBannersEntity sortKey:@"bannerName" predicate:nil sectionName:nil delegate:self];
+    return frc.fetchedObjects;
+}
+
+-(BOOL)isBannerExist:(NSNumber *)bannerID{
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"bannerID == %@", bannerID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataBannersEntity sortKey:@"bannerID" predicate:predicate sectionName:nil delegate:self];
+    
+    Banners *banner = frc.fetchedObjects.lastObject;
+    if(banner) return YES;
     
     return NO;
 }

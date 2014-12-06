@@ -8,11 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
+#import <FacebookSDK/FacebookSDK.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) NSArray *testArray;
+
+-(void)openActiveSessionWithPermissions:(NSArray *)permissions allowLoginUI:(BOOL)allowLoginUI;
 
 //@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 //@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;

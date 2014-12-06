@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/BannerContentViewController.m"
-            timestampString = "437276453.397244"
+            timestampString = "439306705.477939"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "20"
-            endingLineNumber = "20"
+            startingLineNumber = "22"
+            endingLineNumber = "22"
             landmarkName = "-viewDidLoad"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/ClientServer/SyncEngine.m"
-            timestampString = "438070620.809141"
+            timestampString = "439306057.618875"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "213"
-            endingLineNumber = "213"
+            startingLineNumber = "263"
+            endingLineNumber = "263"
             landmarkName = "@implementation SyncEngine"
             landmarkType = "3">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/CoreData/DBWork.m"
-            timestampString = "437837507.782242"
+            timestampString = "439306057.618875"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "30"
-            endingLineNumber = "30"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
             landmarkName = "-inserDataFromDictionary:"
             landmarkType = "5">
          </BreakpointContent>
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/MainViewController.m"
-            timestampString = "439183184.594582"
+            timestampString = "439313667.646686"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "382"
-            endingLineNumber = "382"
+            startingLineNumber = "391"
+            endingLineNumber = "391"
             landmarkName = "-collectionViewCellButtonPressed:"
             landmarkType = "5">
          </BreakpointContent>

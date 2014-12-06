@@ -41,6 +41,7 @@
 -(void)insertPlacesFromArray:(NSArray*)anArray;
 -(void)insertNewPlace:(NSDictionary*)aPlace;
 -(BOOL)isPlaceExist:(NSNumber*)placeID;
+-(Places*)getPlaceByplaceID:(NSNumber*)placeID;
 
 -(NSSet*)insertNewKeysFromArray:(NSArray*)anArray;
 -(BOOL)isKeyExist:(NSString*)keyName;
@@ -54,6 +55,9 @@
 -(BOOL)isGalleryExist:(NSString*)smallImg;
 -(Gallery*)getGalleryBySmallImg:(NSString*)smallImg;
 
+-(void)insertBannersFromArray:(NSArray*)anArray;
+-(NSArray*)getArrayOfBanners;
+-(BOOL)isBannerExist:(NSNumber *)bannerID;
 
 
 //==========

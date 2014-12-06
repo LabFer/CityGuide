@@ -48,6 +48,12 @@
 #define COCOAPODS_VERSION_MINOR_AFNetworking_UIKit 5
 #define COCOAPODS_VERSION_PATCH_AFNetworking_UIKit 0
 
+// Bolts
+#define COCOAPODS_POD_AVAILABLE_Bolts
+#define COCOAPODS_VERSION_MAJOR_Bolts 1
+#define COCOAPODS_VERSION_MINOR_Bolts 1
+#define COCOAPODS_VERSION_PATCH_Bolts 3
+
 // FMDB
 #define COCOAPODS_POD_AVAILABLE_FMDB
 #define COCOAPODS_VERSION_MAJOR_FMDB 2
@@ -65,6 +71,12 @@
 #define COCOAPODS_VERSION_MAJOR_FMDB_standard 2
 #define COCOAPODS_VERSION_MINOR_FMDB_standard 3
 #define COCOAPODS_VERSION_PATCH_FMDB_standard 0
+
+// Facebook-iOS-SDK
+#define COCOAPODS_POD_AVAILABLE_Facebook_iOS_SDK
+#define COCOAPODS_VERSION_MAJOR_Facebook_iOS_SDK 3
+#define COCOAPODS_VERSION_MINOR_Facebook_iOS_SDK 21
+#define COCOAPODS_VERSION_PATCH_Facebook_iOS_SDK 0
 
 // GRMustache
 #define COCOAPODS_POD_AVAILABLE_GRMustache
@@ -89,4 +101,11 @@
 #define COCOAPODS_VERSION_MAJOR_SMCalloutView 2
 #define COCOAPODS_VERSION_MINOR_SMCalloutView 0
 #define COCOAPODS_VERSION_PATCH_SMCalloutView 0
+
+// VK-ios-sdk
+#define COCOAPODS_POD_AVAILABLE_VK_ios_sdk
+// This library does not follow semantic-versioning,
+// so we were not able to define version macros.
+// Please contact the author.
+// Version: 1.0.8.6.
 

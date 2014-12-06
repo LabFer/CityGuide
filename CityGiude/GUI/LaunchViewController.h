@@ -11,4 +11,16 @@
 @interface LaunchViewController : UIViewController
 
 -(void)startMainScreen;
+-(void)startCacheMap;
+-(void)setStatusLabelText:(NSString*)text;
+-(void)setSubStatusLabelText:(NSString*)text;
+-(void)setProgressValueMb:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected;
+-(void)setProgressValue:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected;
+
+@property (weak, nonatomic) IBOutlet UIView *statusView;
+@property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
+@property (weak, nonatomic) IBOutlet UILabel *progressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *substatusLabel;
+
 @end

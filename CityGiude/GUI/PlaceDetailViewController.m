@@ -15,11 +15,16 @@
 #import "DBWork.h"
 #import "UIImageView+AFNetworking.h"
 
+#import <TwitterKit/TwitterKit.h>
+#import <FacebookSDK/FacebookSDK.h>
+
 //#import "SHK.h"
 //#import "SHKItem.h"
 //#import "SHKSharer.h"
 //#import "SHKVkontakte.h"
 #import "Social/Social.h"
+
+static NSArray  * SCOPE = nil;
 
 @implementation PlaceDetailViewController{
     UIUserSettings *_userSettings;
@@ -30,11 +35,12 @@
 -(void)viewDidLoad{
 
     _userSettings = [[UIUserSettings alloc] init];
+    SCOPE = @[VK_PER_FRIENDS, VK_PER_WALL, VK_PER_AUDIO, VK_PER_PHOTOS, VK_PER_NOHTTPS, VK_PER_EMAIL, VK_PER_MESSAGES];
     
     [super viewDidLoad];
     
     [self setNavBarButtons];
-    NSLog(@"======= Gallery ====== : %li", self.aPlace.gallery.count);
+    NSLog(@"======= Gallery ====== : %lu", self.aPlace.gallery.count);
     
     [self configurePlaceGalleryPreview];
     
@@ -454,25 +460,34 @@
     SLComposeViewController *facebookSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
 
     [self shareWith:facebookSheet initText:@"" initURL:nil];
+
 }
 
 -(void)btnVKPressed:(UIButton*)btn{
-// NSLog(@"btnVKPressed");
-//    //NSString *tmp = [NSString stringWithFormat:SHARE_TEXT_VK, shareBookName];
-//    SHKItem *item = [SHKItem text:@""];
-//    
-//    SHKSharer *vk = [[SHKVkontakte alloc] init];
-//    vk.shareDelegate = self;
-//    [vk loadItem:item];
-//    [vk share];
+    
+    [VKSdk initializeWithDelegate:self andAppId:kVkontakteID];
+    
+    [VKSdk initializeWithDelegate:self andAppId:kVkontakteID];
+    if(![VKSdk wakeUpSession]){
+        [self authorizeVK];
+    }
+    else{
+        [self showVkontakteShareController];
+    }
 }
 
 -(void)btnTWPressed:(UIButton*)btn{
-   NSLog(@"btnTWPressed");
-    SLComposeViewController *tweetSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-    
-    [self shareWith:tweetSheet initText:@"" initURL:nil];
+    NSLog(@"btnTWPressed");
 
+    TWTRComposer *composer = [[TWTRComposer alloc] init];
+    [composer showWithCompletion:^(TWTRComposerResult result) {
+        if (result == TWTRComposerResultCancelled) {
+            NSLog(@"Tweet composition cancelled");
+        }
+        else {
+            NSLog(@"Sending Tweet!");
+        }
+    }];
 }
 
 -(void)btnMailPressed:(UIButton*)btn{
@@ -628,5 +643,43 @@
 //    [self sendDidFinish];
 //    
 //}
+
+#pragma mark - VK SDK Delegate
+-(void)authorizeVK{
+    [VKSdk authorize:SCOPE revokeAccess:YES];
+}
+
+-(void)showVkontakteShareController{
+    VKShareDialogController *shareVK = [[VKShareDialogController alloc] init];
+    [shareVK presentIn:self];
+}
+
+- (void)vkSdkNeedCaptchaEnter:(VKError *)captchaError {
+    VKCaptchaViewController *vc = [VKCaptchaViewController captchaControllerWithError:captchaError];
+    [vc presentIn:self];
+}
+
+- (void)vkSdkTokenHasExpired:(VKAccessToken *)expiredToken {
+    NSLog(@"vkSdkTokenHasExpired: %@", expiredToken);
+}
+
+- (void)vkSdkReceivedNewToken:(VKAccessToken *)newToken {
+    NSLog(@"vkSdkReceivedNewToken: %@", newToken);
+    [self showVkontakteShareController];
+}
+
+- (void)vkSdkShouldPresentViewController:(UIViewController *)controller {
+    NSLog(@"vkSdkShouldPresentViewController: %@", controller);
+    [self presentViewController:controller animated:YES completion:nil];
+}
+
+- (void)vkSdkAcceptedUserToken:(VKAccessToken *)token {
+    NSLog(@"vkSdkAcceptedUserToken: %@", token);
+    
+}
+- (void)vkSdkUserDeniedAccess:(VKError *)authorizationError {
+    NSLog(@"vkSdkUserDeniedAccess: %@", authorizationError);
+    //    [[[UIAlertView alloc] initWithTitle:nil message:@"Access denied" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
+}
 
 @end

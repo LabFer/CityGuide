@@ -18,10 +18,11 @@
 #import "ShareCell.h"
 #import "InfoCell.h"
 #import "CommonCell.h"
+#import "VKSdk.h"
 
 //#import "SHKSharerDelegate.h"
 
-@interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
+@interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, VKSdkDelegate>
 
 @property (nonatomic, strong) PlaceDetailedMainCell *prototypeMainCell;
 @property (nonatomic, strong) PlaceDetailedMainCellNoImage *prototypeMainCellNoImage;

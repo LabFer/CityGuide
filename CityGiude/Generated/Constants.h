@@ -95,6 +95,8 @@ typedef enum {
 #define kTextViewCollapse @"Свернуть"
 #define kActionSheetPhoneTitle @"Позвонить"
 #define kActionSheetPhoneCancel @"Отмена"
+#define kAuthLogIn @"Авторизация"
+#define kAuthLogOut @"Выход"
 
 // ============ Email ===============
 #define kMailSubject @"Отзыв о программе CityGuide"
@@ -114,5 +116,29 @@ typedef enum {
 #define kSortKeyDB @"position"
 
 #define kImageViewCornerRadius 5
+
+// ============ Notifications =======
+#define kFacebookNotification @"SessionStateChangeNotification"
+
+// ============ Social ========
+
+#define kSocialUserProfile @"socialUserProfile"
+#define kSocialType @"socialType"
+#define kSocialUserID @"userID"
+#define kSocialUserEmail @"userEmail"
+#define kSocialUserFirstName @"userFirstName"
+#define kSocialUserLastName @"userLastName"
+#define kSocialUserPhoto @"userPhoto"
+
+#define kSocialFacebookProfile @"facebookProfile"
+#define kSocialTwitterProfile @"twitterProfile"
+#define kSocialVKontakteProfile @"vkontakteProfile"
+
+// ============ App Secret Keys =====
+#define kTwitterConsumerKey @"vXCMRNxTZDcb05NO5JRAeyT5h"
+#define kTwitterConsumerSecret @"tVnBULG79hvmyzA8xLOr5IFuSXwqU6QQcEFPgTgLBH7thtmzUZ" 
+
+#define kVkontakteID @"4666988"
+#define kVkontakteKey @"4oX8h783YywrJLfiIlqO"
 
 #endif
