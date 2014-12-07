@@ -145,6 +145,9 @@
     if(place.promoted.boolValue){
         cell.cellContentView.backgroundColor = kPromotedPlaceCellColor;
     }
+    else{
+        cell.cellContentView.backgroundColor = [UIColor whiteColor];
+    }
     
     NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
@@ -239,8 +242,10 @@
     layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
     [self.listCollectionView setCollectionViewLayout:layout];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
+    //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
 //    self.frcPlaces = nil;
+    NSArray *arr = [[DBWork shared] getFavourPlace];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortPlaces predicate:predicate sectionName:nil delegate:self];
 }
 
@@ -251,7 +256,8 @@
     layout.itemSize = CGSizeMake(sizeOfItems, 80.0f); //size of each cell
     [self.listCollectionView setCollectionViewLayout:layout];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
+    NSArray *arr = [[DBWork shared] getFavourCategory];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
 //    self.frcPlaces = nil;
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortCategory predicate:predicate sectionName:nil delegate:self];
 }
@@ -285,14 +291,18 @@
     NSIndexPath *indexPath = [self.listCollectionView indexPathForCell:aCell];
     
     Places *place = self.frcPlaces.fetchedObjects[indexPath.item];
-    place.favour = [NSNumber numberWithBool:NO];
-    [[DBWork shared] saveContext];
-    
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
+//    place.favour = [NSNumber numberWithBool:NO];
+//    [[DBWork shared] saveContext];
+    [[DBWork shared] removePlaceFromFavour:place.id];
+    //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
     //    NSLog(@"Places predicate: %@", predicate);
     //self.frcPlaces = nil;
+    
+    NSArray *arr = [[DBWork shared] getFavourPlace];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortPlaces predicate:predicate sectionName:nil delegate:self];
-    [self.listCollectionView reloadData];
+    //[self.listCollectionView reloadData];
+    [self.listCollectionView deleteItemsAtIndexPaths:@[indexPath]];
 }
 
 #pragma mark - FavourCategoryCellDelegate
@@ -301,14 +311,20 @@
     NSIndexPath *indexPath = [self.listCollectionView indexPathForCell:aCell];
     
     Categories *category = self.frcPlaces.fetchedObjects[indexPath.item];
-    category.favour = [NSNumber numberWithBool:NO];
-    [[DBWork shared] saveContext];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
+    //category.favour = [NSNumber numberWithBool:NO];
+    [[DBWork shared] removeCategoryFromFavour:category.id];
+    
+    //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
     //    NSLog(@"Places predicate: %@", predicate);
     //self.frcPlaces = nil;
+    NSArray *arr = [[DBWork shared] getFavourCategory];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
+
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortCategory predicate:predicate sectionName:nil delegate:self];
-    [self.listCollectionView reloadData];
+    
+    //[self.listCollectionView reloadData];
+    [self.listCollectionView deleteItemsAtIndexPaths:@[indexPath]];
 }
 
 #pragma mark - Gesture recognizer

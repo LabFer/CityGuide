@@ -19,11 +19,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, self.aBanner.picture];
-    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    //NSLog(@"%@\n%@", urlStr, imgUrl);
-    //[cell.placeImage setImageWithURL:imgUrl];
-    [self.bannerImageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"banner"]];
+    
+    if([self.dataObject isKindOfClass:[Banners class]]){
+        Banners *aBanner = (Banners*)self.dataObject;
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, aBanner.picture];
+        NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [self.bannerImageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"banner"]];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

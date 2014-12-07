@@ -18,11 +18,14 @@
 
 +(SyncEngine*)sharedEngine;
 
+
+
 -(void)startSync;
 -(void)finishSync;
 -(void)downloadJSONDataFromServer;
 -(void)downloadBannersFromServer;
 -(void)downloadArticleFromServer;
+-(void)downloadZipFile:(NSString*)filePath;
 -(void)downloadMapCache;
 
 -(void)reloadCollectionView;

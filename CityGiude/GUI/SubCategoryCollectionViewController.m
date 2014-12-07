@@ -141,7 +141,7 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    if(category.favour.boolValue)
+    if([[DBWork shared] isCategoryFavour:category.id])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -151,7 +151,7 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    if(category.favour.boolValue)
+    if([[DBWork shared] isCategoryFavour:category.id])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -189,9 +189,12 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     //NSLog(@"button pressed: %@, %@", indexPath, category.name);
     
-    //if(category.favour.boolValue)
-    category.favour = [NSNumber numberWithBool:!category.favour.boolValue];
-    [[DBWork shared] saveContext];
+    if([[DBWork shared] isCategoryFavour:category.id]){
+        [[DBWork shared] removeCategoryFromFavour:category.id];
+    }
+    else{
+        [[DBWork shared] setCategoryToFavour:category.id];
+    }
     
     [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObjects:indexPath, nil]];
     

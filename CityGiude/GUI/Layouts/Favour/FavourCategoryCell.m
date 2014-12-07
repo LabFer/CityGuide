@@ -57,8 +57,15 @@
 
 - (IBAction)btnDeleteCategoryPressed:(id)sender {
     NSLog(@"Cell brnDeletePressed");
+    
+    //[self handleSwipeRight:nil];
+//    [self.btnDeleteCategory setHidden:YES];
+//    self.cellContentView.frame = self.bounds;
+    
     if([self.delegate respondsToSelector:@selector(btnDeleteCategoryPressed:forCell:)])
         [self.delegate btnDeleteCategoryPressed:sender forCell:self];
+    
+    
 }
 
 + (NSString *)reuseId

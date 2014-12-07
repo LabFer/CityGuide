@@ -1184,7 +1184,7 @@
                                                 <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B8u-oL-EeV">
                                                     <rect key="frame" x="0.0" y="0.0" width="320" height="115"/>
                                                     <subviews>
-                                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="1hZ-b5-3Dr">
+                                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="1hZ-b5-3Dr">
                                                             <rect key="frame" x="15" y="13" width="90" height="90"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="90" id="ZTB-Xc-6yF"/>
@@ -1209,7 +1209,7 @@
                                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
-                                                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lEd-pF-5VK" customClass="RateView">
+                                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lEd-pF-5VK" customClass="RateView">
                                                             <rect key="frame" x="113" y="88" width="80" height="15"/>
                                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             <constraints>
@@ -1233,14 +1233,26 @@
                                                         <constraint firstItem="ljX-ll-fJ5" firstAttribute="leading" secondItem="SJG-ig-hBc" secondAttribute="trailing" constant="8" id="Drg-te-aDT"/>
                                                         <constraint firstAttribute="centerY" secondItem="1hZ-b5-3Dr" secondAttribute="centerY" id="Hyv-vf-o52"/>
                                                         <constraint firstItem="xCh-27-nGQ" firstAttribute="top" secondItem="sds-yL-RqI" secondAttribute="bottom" id="JQT-X6-rwO"/>
+                                                        <constraint firstAttribute="trailing" secondItem="xCh-27-nGQ" secondAttribute="trailing" constant="20" id="ORo-mm-hph"/>
                                                         <constraint firstItem="sds-yL-RqI" firstAttribute="top" secondItem="1hZ-b5-3Dr" secondAttribute="top" id="QgK-WA-S6T"/>
                                                         <constraint firstAttribute="trailing" secondItem="uUe-wG-9cq" secondAttribute="trailing" constant="8" id="TUU-6A-Mqy"/>
+                                                        <constraint firstItem="uUe-wG-9cq" firstAttribute="leading" secondItem="xCh-27-nGQ" secondAttribute="trailing" constant="20" id="W1b-6K-AgI"/>
                                                         <constraint firstAttribute="centerY" secondItem="uUe-wG-9cq" secondAttribute="centerY" id="Y0c-MG-STc"/>
+                                                        <constraint firstAttribute="trailing" secondItem="sds-yL-RqI" secondAttribute="trailing" constant="20" id="Zqr-13-jtE"/>
+                                                        <constraint firstAttribute="trailing" secondItem="sds-yL-RqI" secondAttribute="trailing" constant="20" id="aRp-Un-GUL"/>
                                                         <constraint firstItem="1hZ-b5-3Dr" firstAttribute="leading" secondItem="B8u-oL-EeV" secondAttribute="leading" constant="15" id="hdp-5L-opY"/>
                                                         <constraint firstItem="SJG-ig-hBc" firstAttribute="bottom" secondItem="ljX-ll-fJ5" secondAttribute="bottom" id="i6M-8z-QbF"/>
                                                         <constraint firstItem="ljX-ll-fJ5" firstAttribute="bottom" secondItem="1hZ-b5-3Dr" secondAttribute="bottom" id="jpL-9r-I4h"/>
                                                         <constraint firstItem="sds-yL-RqI" firstAttribute="leading" secondItem="xCh-27-nGQ" secondAttribute="leading" id="tBv-YJ-FjI"/>
+                                                        <constraint firstAttribute="trailing" secondItem="xCh-27-nGQ" secondAttribute="trailing" constant="20" id="tot-2z-HKY"/>
                                                     </constraints>
+                                                    <variation key="default">
+                                                        <mask key="constraints">
+                                                            <exclude reference="Zqr-13-jtE"/>
+                                                            <exclude reference="tot-2z-HKY"/>
+                                                            <exclude reference="W1b-6K-AgI"/>
+                                                        </mask>
+                                                    </variation>
                                                 </view>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="cell_separator" translatesAutoresizingMaskIntoConstraints="NO" id="8g1-VU-2Dk">
                                                     <rect key="frame" x="0.0" y="115" width="320" height="1"/>
@@ -1250,11 +1262,21 @@
                                         </view>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <constraints>
+                                            <constraint firstItem="8g1-VU-2Dk" firstAttribute="top" secondItem="B8u-oL-EeV" secondAttribute="bottom" id="1b5-y3-KeO"/>
                                             <constraint firstItem="8g1-VU-2Dk" firstAttribute="leading" secondItem="I8T-L0-9vc" secondAttribute="leading" id="Idx-mS-Hs3"/>
                                             <constraint firstAttribute="trailing" secondItem="8g1-VU-2Dk" secondAttribute="trailing" id="Ryo-o0-JKO"/>
+                                            <constraint firstItem="B8u-oL-EeV" firstAttribute="top" secondItem="I8T-L0-9vc" secondAttribute="top" id="YwF-5L-j3Q"/>
+                                            <constraint firstItem="B8u-oL-EeV" firstAttribute="top" secondItem="I8T-L0-9vc" secondAttribute="top" id="c54-3j-F9N"/>
                                             <constraint firstAttribute="bottom" secondItem="8g1-VU-2Dk" secondAttribute="bottom" constant="1" id="fdJ-wn-Klv"/>
+                                            <constraint firstAttribute="bottom" secondItem="B8u-oL-EeV" secondAttribute="bottom" id="mL2-8V-moF"/>
                                         </constraints>
                                         <size key="customSize" width="320" height="115"/>
+                                        <variation key="default">
+                                            <mask key="constraints">
+                                                <exclude reference="c54-3j-F9N"/>
+                                                <exclude reference="1b5-y3-KeO"/>
+                                            </mask>
+                                        </variation>
                                         <connections>
                                             <outlet property="btnDelete" destination="Tt4-JL-1bS" id="ptV-GJ-4y2"/>
                                             <outlet property="cellContentView" destination="B8u-oL-EeV" id="Pyb-UG-0lv"/>
@@ -1531,7 +1553,7 @@
         <!--Place View Controller-->
         <scene sceneID="QjD-Ti-QRM">
             <objects>
-                <viewController id="3iL-Iz-J49" customClass="PlaceViewController" sceneMemberID="viewController">
+                <viewController restorationIdentifier="PlaceViewController" storyboardIdentifier="PlaceViewController" id="3iL-Iz-J49" customClass="PlaceViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="dnE-UM-TjE"/>
                         <viewControllerLayoutGuide type="bottom" id="87I-65-bZb"/>
@@ -3250,7 +3272,10 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="JdY-bw-FzX"/>
+<<<<<<< Updated upstream
         <segue reference="7SO-WS-NjM"/>
+=======
+>>>>>>> Stashed changes
         <segue reference="loN-XW-8FV"/>
         <segue reference="PDh-vM-kIP"/>
     </inferredMetricsTieBreakers>

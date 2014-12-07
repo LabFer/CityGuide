@@ -27,7 +27,7 @@
         <attribute name="parent_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="photo" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="sort" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Attributes" inverseName="category" inverseEntity="Attributes" syncable="YES"/>
+        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attributes" inverseName="category" inverseEntity="Attributes" syncable="YES"/>
         <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="category" inverseEntity="Places" syncable="YES"/>
     </entity>
     <entity name="Comments" representedClassName="Comments" syncable="YES">
@@ -39,6 +39,26 @@
         <attribute name="user_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="user_name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="user_photo" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="Discounts" representedClassName="Discounts" syncable="YES">
+        <attribute name="dateEnd" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="dateStart" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="descript" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="discountID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="image" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="nameType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="placeID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="slider" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="viewCount" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="viewItem" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="Favourites" representedClassName="Favourites" syncable="YES">
+        <attribute name="favourID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="favourType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="parentID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
     </entity>
     <entity name="Gallery" representedClassName="Gallery" syncable="YES">
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -76,20 +96,22 @@
         <attribute name="work_time_description" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="work_time_end" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="work_time_start" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Attributes" inverseName="places" inverseEntity="Attributes" syncable="YES"/>
+        <relationship name="attributes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Attributes" inverseName="places" inverseEntity="Attributes" syncable="YES"/>
         <relationship name="category" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Categories" inverseName="places" inverseEntity="Categories" syncable="YES"/>
-        <relationship name="gallery" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Gallery" inverseName="places" inverseEntity="Gallery" syncable="YES"/>
-        <relationship name="keys" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Keys" inverseName="places" inverseEntity="Keys" syncable="YES"/>
-        <relationship name="phones" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Phones" inverseName="places" inverseEntity="Phones" syncable="YES"/>
+        <relationship name="gallery" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Gallery" inverseName="places" inverseEntity="Gallery" syncable="YES"/>
+        <relationship name="keys" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Keys" inverseName="places" inverseEntity="Keys" syncable="YES"/>
+        <relationship name="phones" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Phones" inverseName="places" inverseEntity="Phones" syncable="YES"/>
     </entity>
     <elements>
         <element name="Attributes" positionX="151" positionY="207" width="128" height="163"/>
         <element name="Banners" positionX="126" positionY="180" width="128" height="150"/>
-        <element name="Categories" positionX="115" positionY="-18" width="128" height="180"/>
+        <element name="Categories" positionX="115" positionY="-18" width="128" height="178"/>
         <element name="Comments" positionX="286" positionY="-0" width="128" height="163"/>
         <element name="Gallery" positionX="117" positionY="144" width="128" height="103"/>
         <element name="Keys" positionX="126" positionY="153" width="128" height="88"/>
         <element name="Phones" positionX="108" positionY="135" width="128" height="88"/>
-        <element name="Places" positionX="-63" positionY="-18" width="128" height="403"/>
+        <element name="Places" positionX="-63" positionY="-18" width="128" height="405"/>
+        <element name="Discounts" positionX="108" positionY="135" width="128" height="238"/>
+        <element name="Favourites" positionX="117" positionY="144" width="128" height="90"/>
     </elements>
 </model>

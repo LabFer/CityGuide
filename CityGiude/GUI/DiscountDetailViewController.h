@@ -7,9 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Discounts.h"
 
 @interface DiscountDetailViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIWebView *discountDetailWebView;
+
+@property (nonatomic, strong) Discounts *aDiscount;
 
 @end

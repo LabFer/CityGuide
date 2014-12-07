@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Places.h"
 
 @interface DiscountListViewController : UIViewController <UICollectionViewDelegate, UICollectionViewDataSource, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
@@ -19,5 +20,8 @@
 @property (nonatomic, retain) NSArray *pageContent;
 @property (nonatomic, strong) UIPageViewController *pageController;
 @property (nonatomic, retain) NSTimer *pageTimer;
+
+@property (nonatomic, strong) Places *aPlace;
+@property (nonatomic, strong) NSFetchedResultsController *frcDiscounts;
 
 @end

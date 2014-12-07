@@ -151,7 +151,7 @@
                 newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
                 break;
             case 4: //goto catalog screen
-                newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
+                newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"PlaceViewController"];
                 break;
             case 5:
                 newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"DiscountListViewController"];

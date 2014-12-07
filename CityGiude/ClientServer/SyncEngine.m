@@ -56,38 +56,46 @@
         
     }); //TODO: add notification for sync complete
 }
+#pragma mark - Delegate Methods
+-(void)updateStatusLabels:(NSString*)statusText withSubstatus:(NSString*)substatusTest{
+    if([self.delegate isKindOfClass:[LaunchViewController class]]){
+        [self.delegate performSelector:@selector(setUpdateStatusText:withSubstatus:) withObject:statusText withObject:substatusTest];
+    }
+}
+
+#pragma mark - Check New Data On Server
 
 -(void)downloadJSONDataFromServer{
-
     NSNumber *timeStamp = [self getTimeStamp];
     NSLog(@"timeStamp: %@", timeStamp);
     
     // ======== Get data from server ========
-
-//    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:DEVICE_KEY, @"type", timeStamp, @"time", @"books", @"method", nil];
-    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithLong:1212333333], @"time", @"update", @"method", nil];
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:timeStamp, @"time", @"update", @"method", nil];
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    if([self.delegate isKindOfClass:[LaunchViewController class]]){
-        [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Загрузка"];
-        [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Запрос данных с сервера"];
-    }
+    [self updateStatusLabels:@"Загрузка" withSubstatus:@"Запрос обновлений с сервера"];
     
     [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSLog(@"JSON: %@", responseObject);
-        
-        NSLog(@"Total JSON complete!");
-        [self downloadZipFile:[(NSDictionary*)responseObject objectForKey:@"data"]];
+        if(timeStamp.integerValue == 0){
+            if([self.delegate isKindOfClass:[LaunchViewController class]]){
+                LaunchViewController *launchScreen = (LaunchViewController *)self.delegate;
+                launchScreen.statusView.hidden = NO;
+            }
+            [self downloadZipFile:[(NSDictionary*)responseObject objectForKey:@"data"]];
+        }
+        else{
+            if([self.delegate isKindOfClass:[LaunchViewController class]])
+                [self.delegate performSelector:@selector(successCheckNewData:) withObject:(NSDictionary*)responseObject];
+        }
 
-                
+        NSLog(@"Total JSON complete!");
+        
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-        if([self.delegate isKindOfClass:[LaunchViewController class]]){
-            [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Загрузка"];
-            [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Ошибка запроса данных"];
-        }
+        [self updateStatusLabels:@"Загрузка" withSubstatus:@"Ошибка запроса обновлений"];
         if([self.delegate isKindOfClass:[LaunchViewController class]])
-            [self.delegate performSelector:@selector(startMainScreen)];
+            [self.delegate performSelector:@selector(errorDownloadJSONFromServer)];
     }];
     
 
@@ -135,11 +143,9 @@
 }
 
 - (void)tileCache:(RMTileCache *)tileCache didBeginBackgroundCacheWithCount:(NSUInteger)tileCount forTileSource:(id<RMTileSource>)tileSource {
+    
     NSLog(@"Caching started");
-    if([self.delegate isKindOfClass:[LaunchViewController class]]){
-        [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Загрузка"];
-        [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Загрузка карты"];
-    }
+    [self updateStatusLabels:@"Загрузка" withSubstatus:@"Загрузка карты"];
 }
 
 - (void)tileCache:(RMTileCache *)tileCache didBackgroundCacheTile:(RMTile)tile withIndex:(NSUInteger)tileIndex ofTotalTileCount:(NSUInteger)totalTileCount
@@ -155,8 +161,8 @@
 - (void)tileCacheDidFinishBackgroundCache:(RMTileCache *)tileCache {
     NSLog(@"Cache loading has been finished");
     
+    [self updateStatusLabels:@"Загрузка" withSubstatus:@"Загрузка карты завершена"];
     if([self.delegate isKindOfClass:[LaunchViewController class]]){
-        [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Загрузка карты завершена"];
         [self.delegate performSelector:@selector(startMainScreen)];
     }
 }
@@ -170,10 +176,7 @@
     //NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys: @"banner", @"method", nil];
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    if([self.delegate isKindOfClass:[LaunchViewController class]]){
-        [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Загрузка"];
-        [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Загрузка баннеров"];
-    }
+    [self updateStatusLabels:@"Загрузка" withSubstatus:@"Загрузка баннеров"];
     
     [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSLog(@"Banner JSON: %@", responseObject);
@@ -185,19 +188,15 @@
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
-        if([self.delegate isKindOfClass:[LaunchViewController class]]){
-            [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Загрузка"];
-            [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Ошибка загрузки баннеров"];
-        }
+        [self updateStatusLabels:@"Загрузка" withSubstatus:@"Ошибка загрузки баннеров"];
         if([self.delegate isKindOfClass:[LaunchViewController class]])
-            [self.delegate performSelector:@selector(startMainScreen)];
+            [self.delegate performSelector:@selector(errorUpdateDataFromServer)];
     }];
     
     
     
     //    [self finishSync];
 }
-
 
 -(void)downloadArticleFromServer{
     
@@ -225,10 +224,11 @@
 }
 
 -(void)setTimeStamp:(NSNumber *)timeStamp{
+    
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     [userDefaults setObject:timeStamp forKey:@"timeStamp"];
     [userDefaults synchronize];
-    //NSLog(@"Set timeStamp: %@", timeStamp);
+    NSLog(@"Set timeStamp: %@", timeStamp);
 }
 
 -(NSNumber*)getTimeStamp{
@@ -301,10 +301,7 @@
     
     AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:path shouldResume:YES];
     
-    if([self.delegate isKindOfClass:[LaunchViewController class]]){
-        [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Загрузка"];
-        [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Загрузка данных с сервера"];
-    }
+    [self updateStatusLabels:@"Загрузка" withSubstatus:@"Загрузка архива с сервера"];
     
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
             //NSLog(@"Successfully downloaded file to %@", path);
@@ -337,18 +334,12 @@
                     NSLog(@"jsonData. Unable to delete JSON file %@, reason: %@", json, error);
                 }
         
-                if([self.delegate isKindOfClass:[LaunchViewController class]]){
-                    
-                    [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Обработка"];
-                    [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Обработка данных"];
-                }
+                [self updateStatusLabels:@"Обработка" withSubstatus:@"Обработка данных"];
                 
                 [[DBWork shared] inserDataFromDictionary:jsonData[0]];
                 NSLog(@"Inserting data is completed!!!");
-                if([self.delegate isKindOfClass:[LaunchViewController class]]){
-                    [self.delegate performSelector:@selector(setStatusLabelText:) withObject:@"Обработка"];
-                    [self.delegate performSelector:@selector(setSubStatusLabelText:) withObject:@"Обработка данных завершена"];
-                }
+                [self updateStatusLabels:@"Обработка" withSubstatus:@"Обработка данных завершена"];
+                
             }
             else{
                 BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
@@ -363,15 +354,12 @@
             }
         
             [self downloadBannersFromServer];
-
-
-            //NSLog(@"complete operation: %@, %@", json, allCourses);
-        
-
         
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
             NSLog(@"Download zip file error: %@", error.userInfo);
-
+            [self updateStatusLabels:@"Загрузка" withSubstatus:@"Ошибка запроса обновлений"];
+            if([self.delegate isKindOfClass:[LaunchViewController class]])
+                [self.delegate performSelector:@selector(errorUpdateDataFromServer)];
     }];
 
     [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile){

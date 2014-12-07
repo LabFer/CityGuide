@@ -13,16 +13,20 @@
 #import "UIUserSettings.h"
 #import "CategoryListFlowLayout.h"
 #import "PlaceDetailViewController.h"
+#import "DiscountDetailViewController.h"
 
 #import "UIViewController+MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "MenuTableViewController.h"
 
 #import "DBWork.h"
+#import "Discounts.h"
+#import "UIImageView+AFNetworking.h"
 
 @implementation DiscountListViewController{
     UIUserSettings *_userSettings;
     BannerHeaderCollectionView *_headerView;
+    NSString *_sortKeys;
 }
 
 -(void)viewDidLoad{
@@ -36,10 +40,24 @@
     [self.discountListCollectionView setCollectionViewLayout:layout];
     self.discountListCollectionView.backgroundColor = [UIColor whiteColor];
     
+    NSString *str = @"";
+    NSPredicate *predicate = nil;
+    if(self.aPlace){
+        str = [NSString stringWithFormat:@"placeID == %@", self.aPlace.id];
+        predicate = [NSPredicate predicateWithFormat:str];
+    }
+    
+    _sortKeys = @"discountID";
+    self.frcDiscounts = [[DBWork shared] fetchedResultsController:kCoreDataDiscountEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
+    
+    
+    
     [self setNavBarButtons];
     
     // ====== SETUP BANNER PAGEVIEW CONTROLLER=====
     self.pageContent = [[DBWork shared] getArrayOfBanners];
+    if(self.pageContent.count == 0)
+        self.pageContent = @[@""];
     
     NSDictionary *options = [NSDictionary dictionaryWithObject: [NSNumber numberWithInteger:UIPageViewControllerSpineLocationMin] forKey: UIPageViewControllerOptionSpineLocationKey];
     
@@ -77,34 +95,20 @@
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
     
-    //    MenuTableViewController *lc =  (MenuTableViewController *)self.mm_drawerController.leftDrawerViewController;
-    //    lc.previousDisplayMode = UICatalog;
-    
     MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
     leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
     
     [self.navigationItem setLeftBarButtonItem:leftDrawerButton animated:YES];
     
-    //    self.navigationController.navigationBar.topItem.title = kAppMainTitle;
-    //    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    //    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"navbar"] forBarMetrics:UIBarMetricsDefault];
-    
     self.navigationItem.title = kNavigationTitleDiscount;
     
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
-    
-    
-    
+ 
 }
 
 -(void)menuDrawerButtonPress:(id)sender{
-    //    if(_isSearchBarShown){
-    //        [_searchView resignFirstResponder];
-    //    }
-    
-    //    LeftSideBarViewController *lc =  (LeftSideBarViewController *)self.mm_drawerController.leftDrawerViewController;
-    //    lc.delegate = self;
+
     [self.mm_drawerController setMaximumLeftDrawerWidth:280.0f];
     [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
 }
@@ -112,7 +116,8 @@
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:indexPath];
+    Discounts *aDiscount = self.frcDiscounts.fetchedObjects[indexPath.row];
+    [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:aDiscount];
 
 }
 
@@ -126,8 +131,8 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    
-    return 5;//[self.frcCategories.fetchedObjects count];
+    NSLog(@"self.frcDiscounts.fetchedObjects count: %lu", [self.frcDiscounts.fetchedObjects count]);
+    return [self.frcDiscounts.fetchedObjects count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -145,7 +150,57 @@
 }
 
 -(void)configureCell:(DiscountListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
+    Discounts *discount = self.frcDiscounts.fetchedObjects[indexPath.row];
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, discount.image];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSLog(@"%@\n%@", urlStr, imgUrl);
+    //[cell.placeImage setImageWithURL:imgUrl];
+    [cell.discountImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    
+    cell.discountImage.layer.cornerRadius = kImageViewCornerRadius;
+    cell.discountImage.clipsToBounds = YES;
+    
+    cell.discountText.text = discount.text;
+    cell.discountTitle.text = discount.name;
+    cell.discountTime.text = [self timeDifferenceToString:discount.dateEnd];
+}
 
+-(NSString*)timeDifferenceToString:(NSNumber*)endTime{
+
+    
+    // Get the system calendar
+    NSCalendar *sysCalendar = [NSCalendar currentCalendar];
+    
+    // Create the NSDates
+    NSDate *currentDate = [NSDate date];
+    NSDate *endDate = [NSDate dateWithTimeIntervalSince1970:endTime.doubleValue];
+    
+    // Get conversion to months, days, hours, minutes
+    unsigned int unitFlags = NSHourCalendarUnit | NSMinuteCalendarUnit | NSDayCalendarUnit | NSMonthCalendarUnit;
+    
+    NSDateComponents *breakdownInfo = [sysCalendar components:unitFlags fromDate:currentDate  toDate:endDate  options:0];
+    
+//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    [dateFormatter setDateFormat:@"yyyy-MM-dd 'at' HH:mm"];
+//    NSLog(@"currentDate: %@", [dateFormatter stringFromDate:currentDate]);
+//    NSLog(@"endDate: %@", [dateFormatter stringFromDate:endDate]);
+    
+//    NSLog(@"Break down: %ld min : %ld hours : %ld days : %ld months", [breakdownInfo minute], [breakdownInfo hour], [breakdownInfo day], [breakdownInfo month]);
+    
+    NSString *resultString = @"";
+    if([breakdownInfo month] != 0){
+        resultString = [NSString stringWithFormat:@" Осталось %li месяца %li дней", [breakdownInfo month], [breakdownInfo day]];
+    }
+    else{
+        if([breakdownInfo day] != 0){
+            resultString = [NSString stringWithFormat:@"Осталось %li дней", [breakdownInfo day]];
+        }
+        else{
+            resultString = [NSString stringWithFormat:@"Осталось %li часов %li минут", [breakdownInfo hour], [breakdownInfo minute]];
+        }
+    }
+    
+    return resultString;
 }
 
 #pragma mark CollectionView Header
@@ -183,7 +238,7 @@
     // Create a new view controller and pass suitable data.
     BannerContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"BannerContentViewController"];
     //    pageContentViewController.imageFile = self.pageImages[index];
-    pageContentViewController.aBanner = self.pageContent[index];
+    pageContentViewController.dataObject = self.pageContent[index];
     pageContentViewController.pageIndex = index;
     
     return pageContentViewController;
@@ -193,7 +248,7 @@
 -(NSUInteger)indexOfViewController:(BannerContentViewController*)viewController{
     
     //NSLog(@"");
-    return [_pageContent indexOfObject:viewController.aBanner];
+    return [_pageContent indexOfObject:viewController.dataObject];
 }
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
@@ -274,25 +329,28 @@
 - (void)handleHeaderTap:(UITapGestureRecognizer *)gestureRecognizer {
     
     BannerContentViewController* bannerVC = (BannerContentViewController *)self.pageController.viewControllers[0];
-    Banners *aBanner = bannerVC.aBanner;
-    NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
     
-    if([aBanner.type isEqualToString:@"place"]){ //goto place
-        NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
-        Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
-        [self performSegueWithIdentifier:@"segueFromDiscountToPlaceDetail" sender:aPlace];
+    if([bannerVC.dataObject isKindOfClass:[Banners class]]){
+        Banners *aBanner = (Banners*)bannerVC.dataObject;
+        NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
+    
+        if([aBanner.type isEqualToString:@"place"]){ //goto place
+            NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
+            Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
+            [self performSegueWithIdentifier:@"segueFromDiscountToPlaceDetail" sender:aPlace];
         
-    }
-    else if([aBanner.type isEqualToString:@"event"]){ //goto event
-        [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:self];
-    }
-    else if([aBanner.type isEqualToString:@"url"]){ //goto external url
-        NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
-        NSLog(@"Banner. Open URL: %@", web);
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
-    }
-    else if([aBanner.type isEqualToString:@"text"]){ //goto text
+        }
+        else if([aBanner.type isEqualToString:@"event"]){ //goto event
+            [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:self];
+        }
+        else if([aBanner.type isEqualToString:@"url"]){ //goto external url
+            NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
+            NSLog(@"Banner. Open URL: %@", web);
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
+        }
+        else if([aBanner.type isEqualToString:@"text"]){ //goto text
         
+        }
     }
 }
 
@@ -301,10 +359,8 @@
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     
     if([[segue identifier] isEqualToString:@"segueFromDiscountListToDiscountDetail"]){
-//        SubCategoryCollectionViewController *subVC = (SubCategoryCollectionViewController*)[segue destinationViewController];
-//        subVC.aCategory = (Categories*)sender;
-//        subVC.delegate = self;
-        
+        DiscountDetailViewController *subVC = (DiscountDetailViewController*)[segue destinationViewController];
+        subVC.aDiscount = (Discounts*)sender;        
     }
     else if([[segue identifier] isEqualToString:@"segueFromDiscountToPlaceDetail"]){
         PlaceDetailViewController *subVC = (PlaceDetailViewController*)[segue destinationViewController];

@@ -18,12 +18,6 @@
 #import <TwitterKit/TwitterKit.h>
 #import <FacebookSDK/FacebookSDK.h>
 
-//#import "SHK.h"
-//#import "SHKItem.h"
-//#import "SHKSharer.h"
-//#import "SHKVkontakte.h"
-#import "Social/Social.h"
-
 static NSArray  * SCOPE = nil;
 
 @implementation PlaceDetailViewController{
@@ -320,7 +314,7 @@ static NSArray  * SCOPE = nil;
         [detailCell.placeImage setImageWithURL:nil];
         [detailCell.placeImage setImageWithURL:imgUrl];
         
-        if(self.aPlace.favour.boolValue){
+        if([[DBWork shared] isPlaceFavour:self.aPlace.id]){
             [detailCell.btnHeart setImage:[UIImage imageNamed:@"heart-active"] forState:UIControlStateNormal];
         }
         else{
@@ -457,9 +451,60 @@ static NSArray  * SCOPE = nil;
 
 -(void)btnFBPressed:(UIButton*)btn{
     NSLog(@"btnFBPressed");
-    SLComposeViewController *facebookSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
 
-    [self shareWith:facebookSheet initText:@"" initURL:nil];
+    // Check if the Facebook app is installed and we can present the share dialog
+    
+    FBLinkShareParams *params = [[FBLinkShareParams alloc] init];
+    params.link = [NSURL URLWithString:@"https://developers.facebook.com/docs/ios/share/"];
+    
+    // If the Facebook app is installed and we can present the share dialog
+    if ([FBDialogs canPresentShareDialogWithParams:params]) {
+        
+        // Present share dialog
+        [FBDialogs presentShareDialogWithLink:nil
+                                      handler:^(FBAppCall *call, NSDictionary *results, NSError *error) {
+                                          if(error) {
+                                              // An error occurred, we need to handle the error
+                                              // See: https://developers.facebook.com/docs/ios/errors
+                                              NSLog(@"Error publishing story: %@", error.description);
+                                          } else {
+                                              // Success
+                                              NSLog(@"result %@", results);
+                                          }
+                                      }];
+        
+        // If the Facebook app is NOT installed and we can't present the share dialog
+    } else {
+        // FALLBACK: publish just a link using the Feed dialog
+        // Show the feed dialog
+        [FBWebDialogs presentFeedDialogModallyWithSession:nil
+                                               parameters:nil
+                                                  handler:^(FBWebDialogResult result, NSURL *resultURL, NSError *error) {
+                                                      if (error) {
+                                                          // An error occurred, we need to handle the error
+                                                          // See: https://developers.facebook.com/docs/ios/errors
+                                                          NSLog(@"Error publishing story: %@", error.description);
+                                                      } else {
+                                                          if (result == FBWebDialogResultDialogNotCompleted) {
+                                                              // User cancelled.
+                                                              NSLog(@"User cancelled.");
+                                                          } else {
+                                                              // Handle the publish feed callback
+                                                              NSDictionary *urlParams = [self parseURLParams:[resultURL query]];
+                                                              
+                                                              if (![urlParams valueForKey:@"post_id"]) {
+                                                                  // User cancelled.
+                                                                  NSLog(@"User cancelled.");
+                                                                  
+                                                              } else {
+                                                                  // User clicked the Share button
+                                                                  NSString *result = [NSString stringWithFormat: @"Posted story, id: %@", [urlParams valueForKey:@"post_id"]];
+                                                                  NSLog(@"result %@", result);
+                                                              }
+                                                          }
+                                                      }
+                                                  }];
+    }
 
 }
 
@@ -514,8 +559,15 @@ static NSArray  * SCOPE = nil;
 
 - (IBAction)btnHeartPressed:(id)sender {
     
-    self.aPlace.favour = [NSNumber numberWithBool:!self.aPlace.favour.boolValue];
-    [[DBWork shared] saveContext];
+    if([[DBWork shared] isPlaceFavour:self.aPlace.id]){
+        [[DBWork shared] removePlaceFromFavour:self.aPlace.id];
+    }
+    else{
+        [[DBWork shared] setPlaceToFavour:self.aPlace.id];
+    }
+    
+//    self.aPlace.favour = [NSNumber numberWithBool:!self.aPlace.favour.boolValue];
+//    [[DBWork shared] saveContext];
     //NSLog(@"self.aPlace.decript.length: %lu", self.aPlace.decript.length);
     [self configureBtnHeart:(UIButton*)sender];
     //[self.tableView reloadRowsAtIndexPaths:@[_mainCellIndexPath] withRowAnimation:UITableViewRowAnimationNone];
@@ -526,7 +578,7 @@ static NSArray  * SCOPE = nil;
     NSString *activeStr = ([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big) ? @"active_heart": @"heart-active";
     NSString *inactiveStr = ([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big) ? @"inactive_heart": @"heart-inactive";
     
-    if(self.aPlace.favour.boolValue){
+    if([[DBWork shared] isPlaceFavour:self.aPlace.id]){
         [btn setImage:[UIImage imageNamed:activeStr] forState:UIControlStateNormal];
     }
     else{
@@ -582,68 +634,6 @@ static NSArray  * SCOPE = nil;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - Social Sharer
--(void)shareWith:(SLComposeViewController*)composeVC initText:(NSString*)text initURL:(NSURL*)url{
-    composeVC.completionHandler = ^(SLComposeViewControllerResult result) {
-        switch(result) {
-                //  This means the user cancelled without sending the Tweet
-            case SLComposeViewControllerResultCancelled:
-                break;
-                //  This means the user hit 'Send'
-            case SLComposeViewControllerResultDone:
-                [self sendDidFinish];
-                break;
-        }
-        
-        //  dismiss the Tweet Sheet
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [self dismissViewControllerAnimated:NO completion:^{
-//                NSLog(@"composeVC has been dismissed.");
-//            }];
-//        });
-    };
-    
-    
-    //  Set the initial body of the Tweet
-    [composeVC setInitialText:text];
-    
-    //  Adds an image to the Tweet.  For demo purposes, assume we have an
-    //  image named 'larry.png' that we wish to attach
-    //        if (![tweetSheet addImage:[UIImage imageNamed:@"larry.png"]]) {
-    //            NSLog(@"Unable to add the image!");
-    //        }
-    
-    //  Add an URL to the Tweet.  You can add multiple URLs.
-    if(url != nil){
-        if (![composeVC addURL:url]){
-            NSLog(@"composeVC: Unable to add the URL!");
-        }
-    }
-    
-    //  Presents the Tweet Sheet to the user
-    [self presentViewController:composeVC animated:NO completion:^{
-        //NSLog(@"composeVC has been presented.");
-    }];
-}
-
--(void)sendDidFinish{
-    NSLog(@"sendDidFinish");
-    [self.tableView reloadData];
-//    for(UIView* v in [self.view subviews]){
-//        if ([v isKindOfClass:[CBShareView class] ]) {
-//            [v removeFromSuperview];
-//            [self downloadMp3ForIndexPath: _currentIndexPath];
-//            _currentIndexPath = nil;
-//        }
-//    }
-}
-
-//-(void)sharerFinishedSending:(SHKSharer *)sharer{
-//    NSLog(@"sharerFinishedSending");
-//    [self sendDidFinish];
-//    
-//}
-
 #pragma mark - VK SDK Delegate
 -(void)authorizeVK{
     [VKSdk authorize:SCOPE revokeAccess:YES];
@@ -681,5 +671,20 @@ static NSArray  * SCOPE = nil;
     NSLog(@"vkSdkUserDeniedAccess: %@", authorizationError);
     //    [[[UIAlertView alloc] initWithTitle:nil message:@"Access denied" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
 }
+
+#pragma mark - Facebook SDK
+// A function for parsing URL parameters returned by the Feed Dialog.
+- (NSDictionary*)parseURLParams:(NSString *)query {
+    NSArray *pairs = [query componentsSeparatedByString:@"&"];
+    NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
+    for (NSString *pair in pairs) {
+        NSArray *kv = [pair componentsSeparatedByString:@"="];
+        NSString *val =
+        [kv[1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        params[kv[0]] = val;
+    }
+    return params;
+}
+
 
 @end

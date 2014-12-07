@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/BannerContentViewController.m"
-            timestampString = "439306705.477939"
+            timestampString = "439635700.86918"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "22"
-            endingLineNumber = "22"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
             landmarkName = "-viewDidLoad"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/ClientServer/SyncEngine.m"
-            timestampString = "439306057.618875"
+            timestampString = "439639206.847252"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "263"
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/CoreData/DBWork.m"
-            timestampString = "439306057.618875"
+            timestampString = "439653403.623401"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "31"
-            endingLineNumber = "31"
+            startingLineNumber = "59"
+            endingLineNumber = "59"
             landmarkName = "-inserDataFromDictionary:"
             landmarkType = "5">
          </BreakpointContent>
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/MainViewController.m"
-            timestampString = "439313667.646686"
+            timestampString = "439635700.86918"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "391"
-            endingLineNumber = "391"
+            startingLineNumber = "393"
+            endingLineNumber = "393"
             landmarkName = "-collectionViewCellButtonPressed:"
             landmarkType = "5">
          </BreakpointContent>

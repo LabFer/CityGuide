@@ -34,10 +34,13 @@ bool opened = false;
     SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
     CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
     layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
+    layout.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 115.0f, 0.0f);
     [self.placeCollectionView setCollectionViewLayout:layout];
     
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
+    NSPredicate *predicate = nil;
+    if(self.aCategory)
+        predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
     _sortKeys = @"promoted,sort,name";
     //NSLog(@"Places predicate: %@", predicate);
     
@@ -211,7 +214,7 @@ bool opened = false;
     self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button =====
     self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
     
-    self.navigationItem.title = self.aCategory.name;
+    self.navigationItem.title = (self.aCategory) ? self.aCategory.name : kNavigationTitlePlace;
     
     // ===== remove shadow =====
 }
@@ -285,7 +288,7 @@ bool opened = false;
 }
 
 -(void)configurePlaceListCell:(PlaceListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
-    Places *place = self.frcPlaces.fetchedObjects[indexPath.row];
+    Places *place = self.frcPlaces.fetchedObjects[indexPath.item];
     [cell.titleLabel setText:place.name];
     [cell.subTitleLabel setText:place.address];
     //@property (weak, nonatomic) IBOutlet UIImageView *placeImage; FIXME: add image for place
@@ -300,10 +303,13 @@ bool opened = false;
     if(place.promoted.boolValue){
         cell.backgroundColor = kPromotedPlaceCellColor;
     }
+    else{
+        cell.backgroundColor = [UIColor whiteColor];
+    }
     
     NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    NSLog(@"%@\n%@", urlStr, imgUrl);
+    NSLog(@"Promoted: %@", place.promoted);
     //[cell.placeImage setImageWithURL:imgUrl];
     [cell.placeImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
     

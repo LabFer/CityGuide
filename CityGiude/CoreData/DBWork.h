@@ -31,6 +31,10 @@
 -(BOOL)isCategoryExist:(NSNumber*)categoryID;
 -(NSSet*)getCategoriesFromArray:(NSArray *)anArray;
 -(Categories*)getCategoryItem:(NSNumber *)categoryID;
+-(void)setCategoryToFavour:(NSNumber*)categoryID;
+-(void)removeCategoryFromFavour:(NSNumber*)categoryID;
+-(BOOL)isCategoryFavour:(NSNumber*)categoryID;
+-(NSArray*)getFavourCategory;
 
 -(void)insertAttributesFromArray:(NSArray*)anArray;
 -(void)insertNewAttribute:(NSDictionary*)anAttribute;
@@ -42,6 +46,10 @@
 -(void)insertNewPlace:(NSDictionary*)aPlace;
 -(BOOL)isPlaceExist:(NSNumber*)placeID;
 -(Places*)getPlaceByplaceID:(NSNumber*)placeID;
+-(void)setPlaceToFavour:(NSNumber*)placeID;
+-(void)removePlaceFromFavour:(NSNumber*)placeID;
+-(BOOL)isPlaceFavour:(NSNumber*)placeID;
+-(NSArray*)getFavourPlace;
 
 -(NSSet*)insertNewKeysFromArray:(NSArray*)anArray;
 -(BOOL)isKeyExist:(NSString*)keyName;
@@ -59,7 +67,9 @@
 -(NSArray*)getArrayOfBanners;
 -(BOOL)isBannerExist:(NSNumber *)bannerID;
 
-
+-(void)insertDiscountsFromArray:(NSArray*)anArray;
+//-(NSArray*)getArrayOfBanners;
+-(BOOL)isDiscountExist:(NSNumber *)discountID;
 //==========
 
 -(void)deleteItems:(NSDictionary*)deleteDict;

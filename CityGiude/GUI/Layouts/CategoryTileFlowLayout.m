@@ -35,7 +35,7 @@
     CGFloat scale = 185.0f / 320.0f; // H/W from initial design
     CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
     self.itemSize = CGSizeMake(160.0f, 160.0f); //size of each cell
-    self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
+    self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 160.0f, 0.0f);
     self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.numberOfColumns = 2;
     self.interItemSpacingY = 0.0f;

@@ -71,6 +71,8 @@
     
     // ====== SETUP BANNER PAGEVIEW CONTROLLER=====
     self.pageContent = [[DBWork shared] getArrayOfBanners];
+    if(self.pageContent.count == 0)
+        self.pageContent = @[@""];
     
     NSDictionary *options = [NSDictionary dictionaryWithObject: [NSNumber numberWithInteger:UIPageViewControllerSpineLocationMin] forKey: UIPageViewControllerOptionSpineLocationKey];
     
@@ -169,7 +171,7 @@
     // Create a new view controller and pass suitable data.
     BannerContentViewController *pageContentViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"BannerContentViewController"];
     //    pageContentViewController.imageFile = self.pageImages[index];
-    pageContentViewController.aBanner = self.pageContent[index];
+    pageContentViewController.dataObject = self.pageContent[index];
     pageContentViewController.pageIndex = index;
     
     return pageContentViewController;
@@ -179,7 +181,7 @@
 -(NSUInteger)indexOfViewController:(BannerContentViewController*)viewController{
     
     //NSLog(@"");
-    return [_pageContent indexOfObject:viewController.aBanner];
+    return [_pageContent indexOfObject:viewController.dataObject];
 }
 
 - (UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController
@@ -314,7 +316,7 @@
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
-    if(category.favour.boolValue)
+    if([[DBWork shared] isCategoryFavour:category.id])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -325,7 +327,7 @@
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
-    if(category.favour.boolValue)
+    if([[DBWork shared] isCategoryFavour:category.id])
        [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -393,9 +395,12 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     //NSLog(@"button pressed: %@, %@", indexPath, category.name);
     
-    //if(category.favour.boolValue)
-    category.favour = [NSNumber numberWithBool:!category.favour.boolValue];
-    [[DBWork shared] saveContext];
+    if([[DBWork shared] isCategoryFavour:category.id]){
+        [[DBWork shared] removeCategoryFromFavour:category.id];
+    }
+    else{
+        [[DBWork shared] setCategoryToFavour:category.id];
+    }
     
     [self.catalogCollectionView reloadItemsAtIndexPaths:[NSArray arrayWithObjects:indexPath, nil]];
     
@@ -410,25 +415,28 @@
 - (void)handleHeaderTap:(UITapGestureRecognizer *)gestureRecognizer {
     
     BannerContentViewController* bannerVC = (BannerContentViewController *)self.pageController.viewControllers[0];
-    Banners *aBanner = bannerVC.aBanner;
-    NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
     
-    if([aBanner.type isEqualToString:@"place"]){ //goto place
-        NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
-        Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
-        [self performSegueWithIdentifier:@"segueFromCategoryToPlaceDetail" sender:aPlace];//segueFromCategoryToPlaceDetail
+    if([bannerVC.dataObject isKindOfClass:[Banners class]]){
+        Banners *aBanner = (Banners*)bannerVC.dataObject;
+        NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
     
-    }
-    else if([aBanner.type isEqualToString:@"event"]){ //goto event
-        //segueFromCategoryToDiscountDetail
-    }
-    else if([aBanner.type isEqualToString:@"url"]){ //goto external url
-        NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
-        NSLog(@"Banner. Open URL: %@", web);
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
-    }
-    else if([aBanner.type isEqualToString:@"text"]){ //goto text
+        if([aBanner.type isEqualToString:@"place"]){ //goto place
+            NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
+            Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
+            [self performSegueWithIdentifier:@"segueFromCategoryToPlaceDetail" sender:aPlace];//segueFromCategoryToPlaceDetail
     
+        }
+        else if([aBanner.type isEqualToString:@"event"]){ //goto event
+            //segueFromCategoryToDiscountDetail
+        }
+        else if([aBanner.type isEqualToString:@"url"]){ //goto external url
+            NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
+            NSLog(@"Banner. Open URL: %@", web);
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
+        }
+        else if([aBanner.type isEqualToString:@"text"]){ //goto text
+    
+        }
     }
 }
 

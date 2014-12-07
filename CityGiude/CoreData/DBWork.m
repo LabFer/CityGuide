@@ -11,6 +11,8 @@
 #import "Categories.h"
 #import "Places.h"
 #import "Banners.h"
+#import "Discounts.h"
+#import "Favourites.h"
 
 @implementation DBWork
 
@@ -26,10 +28,36 @@ static DBWork* shared = NULL;
 }
 
 #pragma mark - CoreData Helper
+
+-(void)removeDataFromDB{
+
+    [self deleteAllItemsInEntity:kCoreDataCategoriesEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataCategoriesEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataPlacesEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataPlacesEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataBannersEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataBannersEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataCommentsEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataCommentsEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataDiscountEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataDiscountEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataAttributesEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataAttributesEntity);
+}
+
 -(void)inserDataFromDictionary:(NSDictionary *)insertDictionary{
     
+    NSLog(@"Try to remove data");
+    [self removeDataFromDB];
+    NSLog(@"Removing data complete!");
+    
     NSLog(@"Try to insert data");
-//    NSLog(@"inserting dictionary: %@", [insertDictionary objectForKey:@"types"]);
+    NSLog(@"inserting dictionary: %@", [insertDictionary objectForKey:@"types"]);
     NSArray *attributesArray = [insertDictionary objectForKey:@"types"];
     [self insertAttributesFromArray:attributesArray];
     
@@ -38,6 +66,9 @@ static DBWork* shared = NULL;
 //
     NSArray *placesArray = [insertDictionary objectForKey:@"place"];
     [self insertPlacesFromArray:placesArray];
+    
+    NSArray *discountsArray = [insertDictionary objectForKey:@"action"];
+    [self insertDiscountsFromArray:discountsArray];
 }
 
 -(NSArray *)sortDescriptorsFromString:(NSString*)sortKeys{
@@ -55,6 +86,72 @@ static DBWork* shared = NULL;
     
     return [NSArray arrayWithArray:sortArray];
 }
+
+#pragma mark - Discounts Entity
+
+-(void)deleteAllItemsInEntity:(NSString*)entityName{
+    NSFetchedResultsController *frc = [self fetchedResultsController:entityName sortKey:nil predicate:nil sectionName:nil delegate:self];
+    
+    NSArray *allObjects = frc.fetchedObjects;
+    for(NSManagedObject *anObject in allObjects){
+        [self.managedObjectContext deleteObject:anObject];
+    }
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error deleting: %@", error.localizedDescription);
+    }
+}
+
+-(void)insertNewDiscount:(NSDictionary *)aDiscount{
+    
+    if([self isDiscountExist:[[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"id"]]])
+        return;
+    
+    Discounts *discount = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataDiscountEntity inManagedObjectContext:self.managedObjectContext];
+    
+    discount.discountID = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"id"]];
+    discount.dateEnd = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"dateEnd"]];
+    discount.dateStart = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"dateStart"]];
+    discount.descript = [aDiscount objectForKey:@"description"];
+    
+    NSArray *img = [aDiscount objectForKey:@"image"];
+    NSLog(@"Discount images: %@, %@", img, img[0]);
+    discount.image = img[0];
+    discount.name = [aDiscount objectForKey:@"name"];
+    discount.nameType = [aDiscount objectForKey:@"nameType"];
+    discount.placeID = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"placeID"]];
+    discount.slider = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"slider"]];
+    discount.text = [aDiscount objectForKey:@"text"];
+    discount.type = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"type"]];
+    discount.viewCount = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"viewCount"]];
+    discount.viewItem = [[NSNumberFormatter alloc] numberFromString:[aDiscount objectForKey:@"viewItem"]];
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+    }
+    
+}
+
+-(void)insertDiscountsFromArray:(NSArray *)anArray{
+    [anArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self insertNewDiscount:obj];
+    }];
+}
+
+-(BOOL)isDiscountExist:(NSNumber *)discountID{
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"discountID == %@", discountID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataDiscountEntity sortKey:@"discountID" predicate:predicate sectionName:nil delegate:self];
+    
+    Discounts *discount = frc.fetchedObjects.lastObject;
+    if(discount) return YES;
+    
+    return NO;
+}
+
 
 
 #pragma mark - Places Entity
@@ -129,6 +226,70 @@ static DBWork* shared = NULL;
     
     return place;
 }
+
+-(BOOL)isPlaceFavour:(NSNumber *)placeID{
+    
+    NSLog(@"isPlaceFavour");
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypePlace, placeID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+    Favourites *favour = frc.fetchedObjects.lastObject;
+    if(favour) return YES;
+    
+    return NO;
+}
+
+-(void)setPlaceToFavour:(NSNumber *)placeID{
+    
+    if([self isPlaceFavour:placeID]) return;
+    
+    NSLog(@"setPlaceToFavour");
+    Favourites *favour = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
+    
+    favour.parentID = placeID;
+    favour.favourType = kCoreDataFavourTypePlace;
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+    }
+    
+}
+
+-(void)removePlaceFromFavour:(NSNumber *)placeID{
+    
+    NSLog(@"removeCategoryFromFavour");
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypePlace, placeID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+    NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
+    
+    if(deleteObject){
+        [self.managedObjectContext deleteObject:deleteObject];
+    }
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error deleting: %@", error.localizedDescription);
+    }
+}
+
+-(NSArray*)getFavourPlace{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@", kCoreDataFavourTypePlace];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+    NSMutableArray *categoryIDs = [[NSMutableArray alloc] initWithCapacity:0];
+    
+    for(Favourites *f in frc.fetchedObjects){
+        [categoryIDs addObject:f.parentID];
+    }
+    
+    return categoryIDs;
+}
+
 
 #pragma mark - Banners
 -(void)insertNewBanner:(NSDictionary *)aBanner{
@@ -350,6 +511,70 @@ static DBWork* shared = NULL;
     
     return NO;
 }
+
+-(BOOL)isCategoryFavour:(NSNumber*)categoryID{
+    
+    NSLog(@"isCategoryFavour");
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypeCategory, categoryID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+    Favourites *favour = frc.fetchedObjects.lastObject;
+    if(favour) return YES;
+    
+    return NO;
+}
+
+-(void)setCategoryToFavour:(NSNumber *)categoryID{
+    
+    if([self isCategoryFavour:categoryID]) return;
+    
+    NSLog(@"setCategoryToFavour");
+    Favourites *favour = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
+    
+    favour.parentID = categoryID;
+    favour.favourType = kCoreDataFavourTypeCategory;
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+    }
+
+}
+
+-(void)removeCategoryFromFavour:(NSNumber *)categoryID{
+
+    NSLog(@"removeCategoryFromFavour");
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypeCategory, categoryID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+    NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
+    
+    if(deleteObject){
+        [self.managedObjectContext deleteObject:deleteObject];
+    }
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Error deleting: %@", error.localizedDescription);
+    }
+}
+
+-(NSArray*)getFavourCategory{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@", kCoreDataFavourTypeCategory];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+    NSMutableArray *categoryIDs = [[NSMutableArray alloc] initWithCapacity:0];
+    
+    for(Favourites *f in frc.fetchedObjects){
+        [categoryIDs addObject:f.parentID];
+    }
+    
+    return categoryIDs;    
+}
+
 
 -(NSSet*)getCategoriesFromArray:(NSArray *)anArray{
     //    NSArray *attrArray = [aPlace objectForKey:@"type"];

@@ -71,6 +71,7 @@ typedef enum {
 #define kNavigationTitleResponse @"ОТЗЫВЫ"
 #define kNavigationTitleNewResponse @"НОВЫЙ ОТЗЫВ"
 #define kNavigationTitleAuth @"АВТОРИЗАЦИЯ"
+#define kNavigationTitlePlace @"ЗАВЕДЕНИЯ"
 
 // ====== CoreData parameters ======
 #define kCoreDataCommentsEntity @"Comments"
@@ -81,10 +82,14 @@ typedef enum {
 #define kCoreDataKeysEntity @"Keys"
 #define kCoreDataPhonesEntity @"Phones"
 #define kCoreDataGalleryEntity @"Gallery"
+#define kCoreDataDiscountEntity @"Discounts"
+#define kCoreDatafavouriteEntity @"Favourites"
 
 #define kCoreDataModelName @"CityGiude"
 #define kCoreDataSQLiteName @"CityGiude.sqlite"
 
+#define kCoreDataFavourTypeCategory @"category"
+#define kCoreDataFavourTypePlace @"place"
 
 // =========== Button titles ========
 #define kFilterAllTime @"Круглосуточно"
@@ -140,5 +145,17 @@ typedef enum {
 
 #define kVkontakteID @"4666988"
 #define kVkontakteKey @"4oX8h783YywrJLfiIlqO"
+
+// =========== Alert View ========
+#define kAlertLater @"Позже"
+#define kAlertRepeat @"Повторить"
+#define kAlertUpdateError @"Возникла ошибка при обновлении данных"
+#define kAlertError @"Ошибка"
+#define kAlertJSONError @"Возникла ошибка при запросе данных с сервера"
+
+#define kAlertUpdateData @"Обновление данных"
+#define kAlertUpdateDataMessage @"Хотите обновить данные?"
+#define kAlertYes @"Да"
+#define kAlertNo @"Нет"
 
 #endif

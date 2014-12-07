@@ -17,10 +17,23 @@
 -(void)setProgressValueMb:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected;
 -(void)setProgressValue:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected;
 
+-(void)setUpdateStatusText:(NSString*)statusLabelText withSubstatus:(NSString*)substatusLabelText;
+
+
+
 @property (weak, nonatomic) IBOutlet UIView *statusView;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
 @property (weak, nonatomic) IBOutlet UILabel *progressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *substatusLabel;
+
+-(void)checkNewDataOnServer;
+-(void)errorDownloadJSONFromServer;
+
+-(void)errorUpdateDataFromServer;
+
+-(void)successCheckNewData:(NSDictionary*)jsonData;
+
+-(void)errorDownloadZipFromServer:(NSString*)filePath;
 
 @end
