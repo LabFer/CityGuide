@@ -9,8 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "Mapbox.h"
 #import "Places.h"
+#import "calloutViewController.h"
+#import "SMCalloutView.h"
 
-@interface PlaceMapViewController : UIViewController
+@interface PlaceMapViewController : UIViewController <SMCalloutViewDelegate, CLLocationManagerDelegate>
 
 @property (strong, nonatomic) IBOutlet RMMapView *mapView;
 @property (strong, nonatomic) Places *mapPlace;

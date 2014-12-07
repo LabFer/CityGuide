@@ -22,27 +22,27 @@
 @implementation PlaceViewController{
     UIUserSettings *_userSettings;
     NSString *_sortKeys;
+    CLLocationManager *locationManager;
 }
 
-@synthesize mapView;
-@synthesize tileCache;
+bool opened = false;
 
 -(void)viewDidLoad{
-
+    
     [super viewDidLoad];
     
     SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
     CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
     layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
     [self.placeCollectionView setCollectionViewLayout:layout];
-
+    
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
     _sortKeys = @"promoted,sort,name";
     //NSLog(@"Places predicate: %@", predicate);
     
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
-
+    
     self.placeCollectionView.backgroundColor = [UIColor whiteColor];
     
     self.listMapButtonView.backgroundColor = kDefaultButtonBarColor;
@@ -57,13 +57,28 @@
     [self setupHousePresentationMode];
     
     [self setNavBarButtons];
-
+    
     NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
     NSError *error;
     NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
     self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
     
     [self.mapView.tileSource setCacheable:YES];
+    
+    
+    self.mapView.showsUserLocation = YES;
+    
+    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
+                   {
+                       weakMap.zoom = 15;
+                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+                   });
+    
+    NSLog(@"User location is %@",self.mapView.userLocation.location);
+    locationManager = [[CLLocationManager alloc] init];
 }
 
 
@@ -90,56 +105,97 @@
         RMAnnotation *annotation = [RMAnnotation annotationWithMapView:self.mapView
                                                             coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue])
                                                               andTitle:place.name];
+        annotation.userInfo = place;
         [self.mapView addAnnotation:annotation];
     }
-    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
-                   {
-                       float degreeRadius = 9000.f / 110000.f; // (9000m / 110km per degree latitude)
-                       
-                       CLLocationCoordinate2D centerCoordinate = CLLocationCoordinate2DMake((minLat+maxLat)/2, (minLong+maxLong)/2);
-                       
-                       RMSphericalTrapezium zoomBounds = {
-                           .southWest = {
-                               .latitude  = centerCoordinate.latitude  - degreeRadius,
-                               .longitude = centerCoordinate.longitude - degreeRadius
-                           },
-                           .northEast = {
-                               .latitude  = centerCoordinate.latitude  + degreeRadius,
-                               .longitude = centerCoordinate.longitude + degreeRadius
-                           }
-                       };
-                       
-                       [weakMap zoomWithLatitudeLongitudeBoundsSouthWest:zoomBounds.southWest
-                                                               northEast:zoomBounds.northEast
-                                                                animated:YES];
-                   });
 }
 
 - (RMMapLayer *)mapView:(RMMapView *)mapView layerForAnnotation:(RMAnnotation *)annotation
 {
-    
-    if (annotation.isUserLocationAnnotation)
-        return nil;
-    
+    if (annotation.isUserLocationAnnotation) return nil;
     RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"marker" ]];
-    
-    marker.canShowCallout = YES;
-    
-//    NSLog(@"Annotation marker is changed");
-//    
-//    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-//    calloutViewController* callout = [storyboard instantiateViewControllerWithIdentifier:@"calloutViewController"];
-//    
-//    NSLog(@"callout: %@",callout.view);
-//    
-//    
-//    marker.leftCalloutAccessoryView = callout.view;
-    
+    marker.canShowCallout = NO;
+    NSLog(@"Annotation marker is changed");
     return marker;
 }
 
+- (void)tapOnAnnotation:(RMAnnotation *)annotation onMap:(RMMapView *)map {
+    if (opened == false) {
+        [self addCustomAnnotation:annotation onMap:map];
+    }
+    else {
+        [self deleteCustomAnnotation:map];
+        [self addCustomAnnotation:annotation onMap:map];
+    }
+}
+
+- (void)singleTapOnMap:(RMMapView *)map at:(CGPoint)point {
+    CALayer *target = [map.layer hitTest:point];
+    // target is the layer that was tapped
+    if ([target isKindOfClass:[CAScrollLayer class]]) { //if ta
+        [self deleteCustomAnnotation:map];
+    }
+    else {
+        while (![[target valueForKey:@"calloutTag"]  isEqual: @"customCallout"]) {
+            target = target.superlayer;
+        }
+        NSLog(@"Place : %@",[target valueForKey:@"place"]);
+    }
+    
+}
+
+- (void)addCustomAnnotation:(RMAnnotation *)annotation onMap:(RMMapView *)map {
+    
+    Places *place = annotation.userInfo;
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    calloutViewController *callout    = [[calloutViewController alloc] init];
+    callout = [storyboard instantiateViewControllerWithIdentifier:@"calloutViewController"];
+    [self.view addSubview:callout.view];
+    callout.view.frame = CGRectMake(0, 0, 320, 115);
+    [callout.name setText:place.name];
+    callout.address.text = place.address;
+    callout.distance.text = [self getDistanceFromUserLocationTo:[[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]]];
+    
+    SMCalloutView *smcallout = [[SMCalloutView alloc] init];
+    smcallout.contentView = callout.view;
+    
+    //smcallout.contentView.frame = CGRectMake(0, 0, 320, 115);
+    smcallout.calloutOffset = CGPointMake(9, -1);
+    
+    [smcallout presentCalloutFromRect:smcallout.frame inLayer:annotation.layer constrainedToLayer:map.layer animated:YES];
+    NSLog(@"annotation clicked: %@",annotation.layer);
+    [annotation.layer setValue:@"customCallout" forKey:@"calloutTag"];
+    [annotation.layer setValue:place forKey:@"place"];
+    opened = true;
+}
+
+- (void)deleteCustomAnnotation:(RMMapView *)map {
+    for (RMAnnotation *annotation in map.annotations) {
+        annotation.layer.sublayers = nil;
+        opened = false;
+    }
+}
+
+-(NSString *)getDistanceFromUserLocationTo:(CLLocation *)coordinate {
+    locationManager.delegate = self;
+    locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    
+    [locationManager startUpdatingLocation];
+    
+    CLLocationDistance distance = [locationManager.location distanceFromLocation:coordinate];
+    NSString *stringDistance;
+    if (distance<1000) {
+        distance = ceil(distance/100)*100;
+        stringDistance = [NSString stringWithFormat:@"%.0f м",distance];
+    }
+    else {
+        distance = ceil(distance/100)/10;
+        stringDistance = [NSString stringWithFormat:@"%.1f км",distance];
+    }
+    
+    return stringDistance;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -158,9 +214,6 @@
     self.navigationItem.title = self.aCategory.name;
     
     // ===== remove shadow =====
-
-    
-    
 }
 
 -(void)goBack{
@@ -236,9 +289,14 @@
     [cell.titleLabel setText:place.name];
     [cell.subTitleLabel setText:place.address];
     //@property (weak, nonatomic) IBOutlet UIImageView *placeImage; FIXME: add image for place
-
-    [cell.distanceLabel setText:@"10 км"]; //FIXME add distance for place
-
+    
+    CLLocation *placeLocation = [[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]];
+    NSLog(@"Place location is %@",placeLocation);
+    
+    NSString *distance = [self getDistanceFromUserLocationTo:placeLocation];
+    
+    [cell.distanceLabel setText:distance]; //FIXME add distance for place
+    
     if(place.promoted.boolValue){
         cell.backgroundColor = kPromotedPlaceCellColor;
     }
@@ -273,15 +331,15 @@
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     
-        if([[segue identifier] isEqualToString:@"segueFromHouseToHouseDetail"]){
-            PlaceDetailViewController *placeVC = (PlaceDetailViewController*)[segue destinationViewController];
-            //AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-            NSIndexPath *idx = (NSIndexPath*)sender;
-            placeVC.aPlace = self.frcPlaces.fetchedObjects[idx.item];
-            
-            //subVC.navigationItem.title = appDelegate.testArray[idx.item];
-            
-        }
+    if([[segue identifier] isEqualToString:@"segueFromHouseToHouseDetail"]){
+        PlaceDetailViewController *placeVC = (PlaceDetailViewController*)[segue destinationViewController];
+        //AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+        NSIndexPath *idx = (NSIndexPath*)sender;
+        placeVC.aPlace = self.frcPlaces.fetchedObjects[idx.item];
+        
+        //subVC.navigationItem.title = appDelegate.testArray[idx.item];
+        
+    }
 }
 
 @end

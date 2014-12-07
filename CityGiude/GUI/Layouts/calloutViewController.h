@@ -11,5 +11,9 @@
 @interface calloutViewController : UIViewController
 
 //@property (strong, nonatomic) IBOutlet UIView *calloutView;
+@property (weak, nonatomic) IBOutlet UILabel *name;
+@property (weak, nonatomic) IBOutlet UIImageView *image;
+@property (weak, nonatomic) IBOutlet UILabel *address;
+@property (weak, nonatomic) IBOutlet UILabel *distance;
 
 @end

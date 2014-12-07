@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="GGT-o9-KY8">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="GGT-o9-KY8">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
@@ -946,7 +946,7 @@
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="4dT-uv-Dxh">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="4dT-uv-Dxh">
                                                     <rect key="frame" x="15" y="14" width="87" height="87"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" secondItem="4dT-uv-Dxh" secondAttribute="height" multiplier="1:1" id="0S5-xo-g4v"/>
@@ -1443,24 +1443,90 @@
                         <rect key="frame" x="0.0" y="0.0" width="300" height="115"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="XGo-iK-sKF">
-                                <rect key="frame" x="8" y="14" width="87" height="87"/>
-                            </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Название возможно в 2 строки" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nDJ-pe-gmQ">
-                                <rect key="frame" x="107" y="20" width="193" height="36"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Название возможно в 2 строки" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nDJ-pe-gmQ">
+                                <rect key="frame" x="103" y="11" width="181" height="42"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="181" id="R2H-ZB-L0r"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="15"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="R2H-ZB-L0r"/>
+                                    </mask>
+                                </variation>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="ул. Морская-набережная, здание 35, 2 этаж" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uUt-gf-Ndx">
+                                <rect key="frame" x="107" y="55" width="177" height="34"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="14"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="10000 км" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="waR-LG-4y8">
+                                <rect key="frame" x="221" y="89" width="63" height="18"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="14"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="house_map_marker" translatesAutoresizingMaskIntoConstraints="NO" id="yYT-om-BdZ">
+                                <rect key="frame" x="206" y="92" width="10" height="15"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="cell_indicator" translatesAutoresizingMaskIntoConstraints="NO" id="TXq-MY-Wcu">
+                                <rect key="frame" x="282" y="51" width="8" height="13"/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="XGo-iK-sKF">
+                                <rect key="frame" x="8" y="14" width="87" height="87"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="90" id="PTl-cl-MBW"/>
+                                    <constraint firstAttribute="height" constant="90" id="n0F-Cu-xsV"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="centerY" secondItem="TXq-MY-Wcu" secondAttribute="centerY" id="2nf-9p-3Zv"/>
+                            <constraint firstItem="XGo-iK-sKF" firstAttribute="centerY" secondItem="TXq-MY-Wcu" secondAttribute="centerY" id="413-88-C1W"/>
+                            <constraint firstItem="XGo-iK-sKF" firstAttribute="top" secondItem="DHf-YA-Von" secondAttribute="topMargin" constant="14" id="5ni-xH-BuO"/>
+                            <constraint firstItem="nDJ-pe-gmQ" firstAttribute="trailing" secondItem="DHf-YA-Von" secondAttribute="trailingMargin" constant="10" id="5qL-7F-8hl"/>
+                            <constraint firstAttribute="trailing" secondItem="waR-LG-4y8" secondAttribute="trailing" constant="10" id="8sW-ah-zol"/>
+                            <constraint firstItem="nDJ-pe-gmQ" firstAttribute="leading" secondItem="XGo-iK-sKF" secondAttribute="trailing" constant="10" id="G6E-9d-16W"/>
+                            <constraint firstItem="XGo-iK-sKF" firstAttribute="leading" secondItem="DHf-YA-Von" secondAttribute="leading" constant="10" id="Gtu-WL-c6e"/>
+                            <constraint firstItem="7Nq-QQ-kUX" firstAttribute="top" secondItem="waR-LG-4y8" secondAttribute="bottom" constant="8" id="N11-de-yzZ"/>
+                            <constraint firstItem="waR-LG-4y8" firstAttribute="leading" secondItem="yYT-om-BdZ" secondAttribute="trailing" constant="10" id="NAV-Xz-H1S"/>
+                            <constraint firstAttribute="centerY" secondItem="XGo-iK-sKF" secondAttribute="centerY" id="Nbe-0p-DQY"/>
+                            <constraint firstItem="nDJ-pe-gmQ" firstAttribute="top" secondItem="XGo-iK-sKF" secondAttribute="top" constant="-3" id="P9Q-x4-8Wx"/>
+                            <constraint firstItem="uUt-gf-Ndx" firstAttribute="trailing" secondItem="DHf-YA-Von" secondAttribute="trailingMargin" id="R0o-7l-BTc"/>
+                            <constraint firstItem="nDJ-pe-gmQ" firstAttribute="top" secondItem="uUt-gf-Ndx" secondAttribute="top" constant="-44" id="TBc-JB-WyN"/>
+                            <constraint firstItem="waR-LG-4y8" firstAttribute="leading" secondItem="yYT-om-BdZ" secondAttribute="trailing" constant="5" id="Z8K-8Y-vWI"/>
+                            <constraint firstAttribute="trailing" secondItem="TXq-MY-Wcu" secondAttribute="trailing" constant="10" id="aFF-kS-DTN"/>
+                            <constraint firstItem="uUt-gf-Ndx" firstAttribute="leading" secondItem="XGo-iK-sKF" secondAttribute="trailing" constant="8" id="biL-6O-2p2"/>
+                            <constraint firstItem="uUt-gf-Ndx" firstAttribute="top" secondItem="nDJ-pe-gmQ" secondAttribute="bottom" constant="10" id="cDX-cW-2ik"/>
+                            <constraint firstItem="waR-LG-4y8" firstAttribute="top" secondItem="uUt-gf-Ndx" secondAttribute="top" constant="34" id="eya-FG-smM"/>
+                            <constraint firstItem="nDJ-pe-gmQ" firstAttribute="bottom" secondItem="uUt-gf-Ndx" secondAttribute="bottom" constant="-36" id="qfi-DG-URT"/>
+                            <constraint firstItem="yYT-om-BdZ" firstAttribute="centerY" secondItem="waR-LG-4y8" secondAttribute="centerY" constant="1.5" id="xMU-q9-XF6"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Nbe-0p-DQY"/>
+                                <exclude reference="qfi-DG-URT"/>
+                                <exclude reference="N11-de-yzZ"/>
+                                <exclude reference="Z8K-8Y-vWI"/>
+                                <exclude reference="2nf-9p-3Zv"/>
+                            </mask>
+                        </variation>
                     </view>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="300" height="115"/>
+                    <connections>
+                        <outlet property="address" destination="uUt-gf-Ndx" id="m6d-NK-n9J"/>
+                        <outlet property="image" destination="XGo-iK-sKF" id="gbR-ok-76Y"/>
+                        <outlet property="name" destination="nDJ-pe-gmQ" id="FCE-So-fF5"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lTD-nk-RbE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2495" y="-190.5"/>
+            <point key="canvasLocation" x="2413" y="-233.5"/>
         </scene>
         <!--Place View Controller-->
         <scene sceneID="QjD-Ti-QRM">
@@ -3183,9 +3249,9 @@
         <image name="social_vk" width="50" height="50"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="7SO-WS-NjM"/>
         <segue reference="JdY-bw-FzX"/>
-        <segue reference="LOI-dS-qXz"/>
+        <segue reference="7SO-WS-NjM"/>
+        <segue reference="loN-XW-8FV"/>
         <segue reference="PDh-vM-kIP"/>
     </inferredMetricsTieBreakers>
 </document>
