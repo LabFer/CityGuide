@@ -68,8 +68,13 @@
 -(BOOL)isBannerExist:(NSNumber *)bannerID;
 
 -(void)insertDiscountsFromArray:(NSArray*)anArray;
-//-(NSArray*)getArrayOfBanners;
+-(void)insertNewDiscount:(NSDictionary *)aDiscount;
 -(BOOL)isDiscountExist:(NSNumber *)discountID;
+
+-(void)insertNewComment:(NSDictionary *)aComment;
+-(void)insertCommentsFromArray:(NSArray *)anArray;
+-(BOOL)isCommentExist:(NSNumber *)commentID;
+
 //==========
 
 -(void)deleteItems:(NSDictionary*)deleteDict;

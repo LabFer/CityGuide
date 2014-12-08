@@ -1,8 +1,8 @@
 //
 //  Comments.m
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 08/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -11,13 +11,12 @@
 
 @implementation Comments
 
-@dynamic comment;
-@dynamic create_at;
+@dynamic text;
+@dynamic date;
 @dynamic id;
-@dynamic place_id;
-@dynamic rate;
-@dynamic user_id;
-@dynamic user_name;
-@dynamic user_photo;
+@dynamic placeID;
+@dynamic rating;
+@dynamic name;
+@dynamic photo;
 
 @end

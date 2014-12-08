@@ -18,6 +18,8 @@
 		7125BD391A28F12600704B21 /* PPImageScrollingCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7125BD351A28F12600704B21 /* PPImageScrollingCellView.m */; };
 		7125BD3A1A28F12600704B21 /* PPImageScrollingTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7125BD371A28F12600704B21 /* PPImageScrollingTableViewCell.m */; };
 		7125BD3D1A29D8F000704B21 /* AboutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7125BD3C1A29D8F000704B21 /* AboutCell.m */; };
+		712C304D1A35ABCE00AE8B5D /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 712C304C1A35ABCE00AE8B5D /* Comments.m */; };
+		712C30511A35B79100AE8B5D /* CommentListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 712C30501A35B79100AE8B5D /* CommentListCell.m */; };
 		713B0D9B1A26B91F0047934D /* RateView.m in Sources */ = {isa = PBXBuildFile; fileRef = 713B0D9A1A26B91F0047934D /* RateView.m */; };
 		714DE9CB1A0FB28F00E4FB3D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 714DE9CA1A0FB28F00E4FB3D /* main.m */; };
 		714DE9CE1A0FB28F00E4FB3D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 714DE9CD1A0FB28F00E4FB3D /* AppDelegate.m */; };
@@ -92,7 +94,6 @@
 		71E1552E1A1AD52A00CD7A26 /* Keys.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E1552D1A1AD52A00CD7A26 /* Keys.m */; };
 		71E155311A1AD52A00CD7A26 /* Banners.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155301A1AD52A00CD7A26 /* Banners.m */; };
 		71E155341A1AD52A00CD7A26 /* Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155331A1AD52A00CD7A26 /* Categories.m */; };
-		71E155371A1AD52A00CD7A26 /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 71E155361A1AD52A00CD7A26 /* Comments.m */; };
 		935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB891A1B845D0079EDC3 /* Crashlytics.framework */; };
 		935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB8A1A1B845D0079EDC3 /* Fabric.framework */; };
 		93809D1A1A2DC0A300820E24 /* mapbox.json in Resources */ = {isa = PBXBuildFile; fileRef = 93809D191A2DC0A300820E24 /* mapbox.json */; };
@@ -138,6 +139,10 @@
 		7125BD371A28F12600704B21 /* PPImageScrollingTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PPImageScrollingTableViewCell.m; sourceTree = "<group>"; };
 		7125BD3B1A29D8F000704B21 /* AboutCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutCell.h; sourceTree = "<group>"; };
 		7125BD3C1A29D8F000704B21 /* AboutCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutCell.m; sourceTree = "<group>"; };
+		712C304B1A35ABCE00AE8B5D /* Comments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Comments.h; sourceTree = "<group>"; };
+		712C304C1A35ABCE00AE8B5D /* Comments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Comments.m; sourceTree = "<group>"; };
+		712C304F1A35B79100AE8B5D /* CommentListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommentListCell.h; sourceTree = "<group>"; };
+		712C30501A35B79100AE8B5D /* CommentListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommentListCell.m; sourceTree = "<group>"; };
 		713B0D991A26B91F0047934D /* RateView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateView.h; sourceTree = "<group>"; };
 		713B0D9A1A26B91F0047934D /* RateView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateView.m; sourceTree = "<group>"; };
 		714DE9C51A0FB28F00E4FB3D /* CityGuide.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CityGuide.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -285,8 +290,6 @@
 		71E155301A1AD52A00CD7A26 /* Banners.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Banners.m; sourceTree = "<group>"; };
 		71E155321A1AD52A00CD7A26 /* Categories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Categories.h; sourceTree = "<group>"; };
 		71E155331A1AD52A00CD7A26 /* Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Categories.m; sourceTree = "<group>"; };
-		71E155351A1AD52A00CD7A26 /* Comments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Comments.h; sourceTree = "<group>"; };
-		71E155361A1AD52A00CD7A26 /* Comments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Comments.m; sourceTree = "<group>"; };
 		852D0FFD12D5CC13B5191CFB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		935FDB891A1B845D0079EDC3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		935FDB8A1A1B845D0079EDC3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
@@ -392,6 +395,15 @@
 			path = PPImageScrollingTableViewCell;
 			sourceTree = "<group>";
 		};
+		712C304E1A35B75200AE8B5D /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				712C304F1A35B79100AE8B5D /* CommentListCell.h */,
+				712C30501A35B79100AE8B5D /* CommentListCell.m */,
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
 		714DE9BC1A0FB28E00E4FB3D = {
 			isa = PBXGroup;
 			children = (
@@ -452,6 +464,7 @@
 		714DE9E51A0FB28F00E4FB3D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				71B678211A34BC3B00053541 /* app icon */,
 				714DE9E61A0FB28F00E4FB3D /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -517,6 +530,7 @@
 		714DE9F81A10512500E4FB3D /* Layouts */ = {
 			isa = PBXGroup;
 			children = (
+				712C304E1A35B75200AE8B5D /* Comments */,
 				7125BD271A28155700704B21 /* DetailedPlace */,
 				719567DB1A222D43000500D6 /* Settings */,
 				719567D11A21F16C000500D6 /* Favour */,
@@ -641,12 +655,12 @@
 				719B06C11A176884001B402F /* DBWork.h */,
 				719B06C21A176884001B402F /* DBWork.m */,
 				714DE9CF1A0FB28F00E4FB3D /* CityGiude.xcdatamodeld */,
+				712C304B1A35ABCE00AE8B5D /* Comments.h */,
+				712C304C1A35ABCE00AE8B5D /* Comments.m */,
 				71B6781E1A348B0300053541 /* Favourites.h */,
 				71B6781F1A348B0300053541 /* Favourites.m */,
 				71B6781B1A3453C600053541 /* Discounts.h */,
 				71B6781C1A3453C600053541 /* Discounts.m */,
-				71E155351A1AD52A00CD7A26 /* Comments.h */,
-				71E155361A1AD52A00CD7A26 /* Comments.m */,
 				71E155321A1AD52A00CD7A26 /* Categories.h */,
 				71E155331A1AD52A00CD7A26 /* Categories.m */,
 				71E1552F1A1AD52A00CD7A26 /* Banners.h */,
@@ -702,6 +716,13 @@
 				71A543731A17A8E7008E54A7 /* zip.h */,
 			);
 			path = minizip;
+			sourceTree = "<group>";
+		};
+		71B678211A34BC3B00053541 /* app icon */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "app icon";
 			sourceTree = "<group>";
 		};
 		93E2B7911A1B15F500AAB446 /* Frameworks */ = {
@@ -891,6 +912,8 @@
 				71A5436A1A17A8D7008E54A7 /* SSZipArchive.m in Sources */,
 				711358B81A122CDB00200D15 /* SubCategoryCollectionViewController.m in Sources */,
 				7152DE211A2CCDEC00E29E1B /* FavourPlaceListCell.m in Sources */,
+				712C304D1A35ABCE00AE8B5D /* Comments.m in Sources */,
+				712C30511A35B79100AE8B5D /* CommentListCell.m in Sources */,
 				7125BD2D1A28D99000704B21 /* PlaceDetailedMainCellNoImage.m in Sources */,
 				71B6781D1A3453C600053541 /* Discounts.m in Sources */,
 				7125BD391A28F12600704B21 /* PPImageScrollingCellView.m in Sources */,
@@ -907,7 +930,6 @@
 				714DEA011A1052B000E4FB3D /* CategoryCell.m in Sources */,
 				714DE9FD1A1051FF00E4FB3D /* CategoryListFlowLayout.m in Sources */,
 				71BA0F1E1A143E7F00C3B6A0 /* MenuTableViewController.m in Sources */,
-				71E155371A1AD52A00CD7A26 /* Comments.m in Sources */,
 				71E155341A1AD52A00CD7A26 /* Categories.m in Sources */,
 				719567CA1A20EF83000500D6 /* AboutUserViewController.m in Sources */,
 				71E1552E1A1AD52A00CD7A26 /* Keys.m in Sources */,

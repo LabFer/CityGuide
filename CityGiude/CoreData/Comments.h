@@ -1,8 +1,8 @@
 //
 //  Comments.h
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 08/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -12,13 +12,12 @@
 
 @interface Comments : NSManagedObject
 
-@property (nonatomic, retain) NSString * comment;
-@property (nonatomic, retain) NSDate * create_at;
+@property (nonatomic, retain) NSString * text;
+@property (nonatomic, retain) NSNumber * date;
 @property (nonatomic, retain) NSNumber * id;
-@property (nonatomic, retain) NSNumber * place_id;
-@property (nonatomic, retain) NSNumber * rate;
-@property (nonatomic, retain) NSNumber * user_id;
-@property (nonatomic, retain) NSString * user_name;
-@property (nonatomic, retain) NSString * user_photo;
+@property (nonatomic, retain) NSNumber * placeID;
+@property (nonatomic, retain) NSNumber * rating;
+@property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSString * photo;
 
 @end

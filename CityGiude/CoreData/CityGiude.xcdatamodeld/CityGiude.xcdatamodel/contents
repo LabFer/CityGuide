@@ -31,14 +31,13 @@
         <relationship name="places" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Places" inverseName="category" inverseEntity="Places" syncable="YES"/>
     </entity>
     <entity name="Comments" representedClassName="Comments" syncable="YES">
-        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="create_at" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="date" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="place_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="rate" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <attribute name="user_id" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="user_name" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="user_photo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="photo" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="placeID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="rating" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Discounts" representedClassName="Discounts" syncable="YES">
         <attribute name="dateEnd" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -106,12 +105,12 @@
         <element name="Attributes" positionX="151" positionY="207" width="128" height="163"/>
         <element name="Banners" positionX="126" positionY="180" width="128" height="150"/>
         <element name="Categories" positionX="115" positionY="-18" width="128" height="178"/>
-        <element name="Comments" positionX="286" positionY="-0" width="128" height="163"/>
+        <element name="Comments" positionX="286" positionY="-0" width="128" height="150"/>
+        <element name="Discounts" positionX="108" positionY="135" width="128" height="238"/>
+        <element name="Favourites" positionX="117" positionY="144" width="128" height="90"/>
         <element name="Gallery" positionX="117" positionY="144" width="128" height="103"/>
         <element name="Keys" positionX="126" positionY="153" width="128" height="88"/>
         <element name="Phones" positionX="108" positionY="135" width="128" height="88"/>
         <element name="Places" positionX="-63" positionY="-18" width="128" height="405"/>
-        <element name="Discounts" positionX="108" positionY="135" width="128" height="238"/>
-        <element name="Favourites" positionX="117" positionY="144" width="128" height="90"/>
     </elements>
 </model>

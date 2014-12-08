@@ -13,6 +13,7 @@
 #import "Banners.h"
 #import "Discounts.h"
 #import "Favourites.h"
+#import "Comments.h"
 
 @implementation DBWork
 
@@ -48,6 +49,9 @@ static DBWork* shared = NULL;
     
     [self deleteAllItemsInEntity:kCoreDataAttributesEntity];
     NSLog(@"Items deleted from: %@", kCoreDataAttributesEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataCommentEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataCommentEntity);
 }
 
 -(void)inserDataFromDictionary:(NSDictionary *)insertDictionary{
@@ -69,6 +73,9 @@ static DBWork* shared = NULL;
     
     NSArray *discountsArray = [insertDictionary objectForKey:@"action"];
     [self insertDiscountsFromArray:discountsArray];
+    
+    NSArray *commentsArray = [insertDictionary objectForKey:@"comments"];
+    [self insertCommentsFromArray:commentsArray];
 }
 
 -(NSArray *)sortDescriptorsFromString:(NSString*)sortKeys{
@@ -87,7 +94,7 @@ static DBWork* shared = NULL;
     return [NSArray arrayWithArray:sortArray];
 }
 
-#pragma mark - Discounts Entity
+
 
 -(void)deleteAllItemsInEntity:(NSString*)entityName{
     NSFetchedResultsController *frc = [self fetchedResultsController:entityName sortKey:nil predicate:nil sectionName:nil delegate:self];
@@ -102,6 +109,8 @@ static DBWork* shared = NULL;
         NSLog(@"Error deleting: %@", error.localizedDescription);
     }
 }
+
+#pragma mark - Discounts Entity
 
 -(void)insertNewDiscount:(NSDictionary *)aDiscount{
     
@@ -148,6 +157,51 @@ static DBWork* shared = NULL;
     
     Discounts *discount = frc.fetchedObjects.lastObject;
     if(discount) return YES;
+    
+    return NO;
+}
+
+
+
+#pragma mark - Comments Entity
+
+-(void)insertNewComment:(NSDictionary *)aComment{
+    
+    if([self isCommentExist:[[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]]])
+        return;
+    
+    Comments *comment = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataCommentEntity inManagedObjectContext:self.managedObjectContext];
+    
+    comment.id = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]];
+    comment.date = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"date"]];
+    comment.name = [aComment objectForKey:@"name"];
+    comment.photo = @"";//[aComment objectForKey:@"photo"];
+    
+    comment.placeID = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"placeID"]];
+    comment.rating = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"rating"]];
+    comment.text = [aComment objectForKey:@"text"];
+    
+    NSError *error;
+    if (![self.managedObjectContext save:&error]) {
+        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+    }
+    
+}
+
+-(void)insertCommentsFromArray:(NSArray *)anArray{
+    [anArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self insertNewComment:obj];
+    }];
+}
+
+-(BOOL)isCommentExist:(NSNumber *)commentID{
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", commentID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCommentEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    
+    Comments *comment = frc.fetchedObjects.lastObject;
+    if(comment) return YES;
     
     return NO;
 }

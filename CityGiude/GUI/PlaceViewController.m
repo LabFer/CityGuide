@@ -144,6 +144,7 @@ bool opened = false;
             target = target.superlayer;
         }
         NSLog(@"Place : %@",[target valueForKey:@"place"]);
+        [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:[target valueForKey:@"place"]];
     }
     
 }
@@ -329,7 +330,8 @@ bool opened = false;
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:indexPath];
+    Places *aPlace = self.frcPlaces.fetchedObjects[indexPath.item];
+    [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:aPlace];
 }
 
 
@@ -340,8 +342,8 @@ bool opened = false;
     if([[segue identifier] isEqualToString:@"segueFromHouseToHouseDetail"]){
         PlaceDetailViewController *placeVC = (PlaceDetailViewController*)[segue destinationViewController];
         //AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-        NSIndexPath *idx = (NSIndexPath*)sender;
-        placeVC.aPlace = self.frcPlaces.fetchedObjects[idx.item];
+        //NSIndexPath *idx = (NSIndexPath*)sender;
+        placeVC.aPlace = (Places*)sender;
         
         //subVC.navigationItem.title = appDelegate.testArray[idx.item];
         

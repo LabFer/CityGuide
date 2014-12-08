@@ -84,6 +84,7 @@ typedef enum {
 #define kCoreDataGalleryEntity @"Gallery"
 #define kCoreDataDiscountEntity @"Discounts"
 #define kCoreDatafavouriteEntity @"Favourites"
+#define kCoreDataCommentEntity @"Comments"
 
 #define kCoreDataModelName @"CityGiude"
 #define kCoreDataSQLiteName @"CityGiude.sqlite"
