@@ -50,8 +50,8 @@ static DBWork* shared = NULL;
     [self deleteAllItemsInEntity:kCoreDataAttributesEntity];
     NSLog(@"Items deleted from: %@", kCoreDataAttributesEntity);
     
-    [self deleteAllItemsInEntity:kCoreDataCommentEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataCommentEntity);
+    [self deleteAllItemsInEntity:kCoreDataCommentsEntity];
+    NSLog(@"Items deleted from: %@", kCoreDataCommentsEntity);
 }
 
 -(void)inserDataFromDictionary:(NSDictionary *)insertDictionary{
@@ -170,16 +170,16 @@ static DBWork* shared = NULL;
     if([self isCommentExist:[[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]]])
         return;
     
-    Comments *comment = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataCommentEntity inManagedObjectContext:self.managedObjectContext];
+    Comments *comment = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataCommentsEntity inManagedObjectContext:self.managedObjectContext];
     
     comment.id = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]];
     comment.date = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"date"]];
     comment.name = [aComment objectForKey:@"name"];
-    comment.photo = @"";//[aComment objectForKey:@"photo"];
+    comment.photo = [aComment objectForKey:@"photo"];
     
     comment.placeID = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"placeID"]];
     comment.rating = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"rating"]];
-    comment.text = [aComment objectForKey:@"text"];
+    comment.text = [aComment objectForKey:@"text"];;//@"Make a symbolic breakpoint at UIViewAlertForUnsatisfiableConstraints to catch this in the debugger.  The methods in the UIConstraintBasedLayoutDebugging category on UIView listed in <UIKit/UIView.h> may also be helpful.";//
     
     NSError *error;
     if (![self.managedObjectContext save:&error]) {
@@ -198,7 +198,7 @@ static DBWork* shared = NULL;
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", commentID];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCommentEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCommentsEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
     
     Comments *comment = frc.fetchedObjects.lastObject;
     if(comment) return YES;

@@ -7,7 +7,23 @@
 //
 
 #import "CommentListCell.h"
+#import "Constants.h"
 
 @implementation CommentListCell
+
+
++ (NSString *)reuseId
+{
+    return kReuseCommentListCellID;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    [self.contentView layoutIfNeeded];
+    self.commentTextLabel.preferredMaxLayoutWidth = CGRectGetWidth(self.commentTextLabel.frame);
+    self.userNameLabel.preferredMaxLayoutWidth = CGRectGetWidth(self.userNameLabel.frame);
+}
 
 @end

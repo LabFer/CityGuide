@@ -37,6 +37,8 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleFBSessionStateChangeWithNotification:) name:kFacebookNotification object:nil];
     
     [self setNavBarButtons];
+    
+    NSLog(@"AuthUserViewController. Delegate: %@", self.delegate);
 }
 
 #pragma mark - Navigation bar
@@ -74,7 +76,20 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-
+-(void)viewControllerAfterAuth{
+    
+    if([self.delegate isKindOfClass:[MenuTableViewController class]]){
+        
+        MenuTableViewController* menu = (MenuTableViewController*)self.delegate;
+        [menu openMainViewController];
+//        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+//        UIViewController *newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
+//        
+//        UINavigationController *navigationController = (UINavigationController *)[[UINavigationController alloc] initWithRootViewController:(UIViewController *)newViewController];
+//        //[self.mm_drawerController setCenterViewController:navigationController withCloseAnimation:YES completion:nil];
+//        [self.mm_drawerController setCenterViewController:navigationController withFullCloseAnimation:YES completion:nil];
+    }
+}
 #pragma mark - Button Handlers
 
 
@@ -123,6 +138,8 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
                      NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                      [userDefaults setObject:userProfile forKey:kSocialUserProfile];
                      [userDefaults synchronize];
+                     
+                     [self viewControllerAfterAuth];
                      
                  }
              }];
@@ -197,6 +214,7 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
         [userDefaults setObject:userProfile forKey:kSocialUserProfile];
         [userDefaults synchronize];
         
+        [self viewControllerAfterAuth];
         
         
     } errorBlock: ^(NSError *error) {
@@ -237,6 +255,8 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
                                           NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                                           [userDefaults setObject:userProfile forKey:kSocialUserProfile];
                                           [userDefaults synchronize];
+                                          
+                                          [self viewControllerAfterAuth];
 
                                       }
                                       else{
@@ -255,5 +275,7 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
         
     }
 }
+
+//segueFromAuthToResponce
 
 @end

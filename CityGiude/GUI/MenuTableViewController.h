@@ -18,4 +18,6 @@
 @property (weak, nonatomic) IBOutlet UIImageView *userPhoto;
 @property (strong, nonatomic) IBOutlet UITableView *menuTableView;
 
+-(void)openMainViewController;
+
 @end

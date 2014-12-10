@@ -18,6 +18,8 @@
 #import <TwitterKit/TwitterKit.h>
 #import "VKSdk.h"
 
+#import "AuthUserViewController.h"
+
 @implementation MenuTableViewController{
     UIUserSettings *_userSettings;
 }
@@ -172,6 +174,8 @@
                 }
                 else{
                     newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
+                    AuthUserViewController* auth = (AuthUserViewController*)newViewController;
+                    auth.delegate = self;
                 }
                 break;
             default:
@@ -242,6 +246,15 @@
     
     NSLog(@"vkontakteLogOut");
     [VKSdk forceLogout];
+}
+
+-(void)openMainViewController{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    UIViewController *newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
+    
+    UINavigationController *navigationController = (UINavigationController *)[[UINavigationController alloc] initWithRootViewController:(UIViewController *)newViewController];
+    [self.mm_drawerController setCenterViewController:navigationController withCloseAnimation:YES completion:nil];
+//    [self.mm_drawerController setCenterViewController:navigationController withFullCloseAnimation:YES completion:nil];
 }
 
 @end

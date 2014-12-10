@@ -42,6 +42,7 @@
 #define kReusePlaceDetailedCommonCellID @"CommonCell"
 #define kReuseFavourPlaceListCellID @"FavourPlaceListCell"
 #define kReuseFavourCategoryCellID @"FavourCategoryCell"
+#define kReuseCommentListCellID @"CommentListCell"
 
 // ========= Presentation Mode =========
 typedef enum {
@@ -74,7 +75,6 @@ typedef enum {
 #define kNavigationTitlePlace @"ЗАВЕДЕНИЯ"
 
 // ====== CoreData parameters ======
-#define kCoreDataCommentsEntity @"Comments"
 #define kCoreDataCategoriesEntity @"Categories"
 #define kCoreDataPlacesEntity @"Places"
 #define kCoreDataAttributesEntity @"Attributes"
@@ -84,7 +84,7 @@ typedef enum {
 #define kCoreDataGalleryEntity @"Gallery"
 #define kCoreDataDiscountEntity @"Discounts"
 #define kCoreDatafavouriteEntity @"Favourites"
-#define kCoreDataCommentEntity @"Comments"
+#define kCoreDataCommentsEntity @"Comments"
 
 #define kCoreDataModelName @"CityGiude"
 #define kCoreDataSQLiteName @"CityGiude.sqlite"
@@ -96,7 +96,8 @@ typedef enum {
 #define kFilterAllTime @"Круглосуточно"
 #define kFilterWorkNow @"Работает сейчас"
 #define kFilterWebsiteExists @"Есть веб сайт"
-#define kPlaceholderTextView @"Ключевые слова:"
+#define kPlaceholderTextViewKeyWords @"Ключевые слова:"
+#define kPlaceholderTextViewComments @"Комментарий:"
 #define kTextViewShowAll @"Показать все"
 #define kTextViewCollapse @"Свернуть"
 #define kActionSheetPhoneTitle @"Позвонить"

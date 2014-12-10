@@ -10,7 +10,10 @@
 #import "UIUserSettings.h"
 #import "SubCategoryListFlowLayout.h"
 #import "Constants.h"
-#import "PlaceListCell.h"
+#import "UICollectionViewCell+AutoLayoutDynamicHeightCalculation.h"
+#import "DBWork.h"
+#import "Comments.h"
+#import "UIImageView+AFNetworking.h"
 
 @implementation ResponceCollectionViewController{
     UIUserSettings *_userSettings;
@@ -23,17 +26,17 @@
     
     _userSettings = [[UIUserSettings alloc] init];
     
-    SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
-    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
-    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
-    [self.collectionView setCollectionViewLayout:layout];
+//    SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
+//    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
+//    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
+//    //[self.collectionView setCollectionViewLayout:layout];
     
     
-//    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
-//    NSLog(@"Places predicate: %@", predicate);
-//    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:@"sort" predicate:predicate sectionName:nil delegate:self];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID == %@", self.aPlace.id];
+    NSLog(@"!!! Places predicate: %@", predicate);
+    self.frcComments = [[DBWork shared] fetchedResultsController:kCoreDataCommentsEntity sortKey:@"date" predicate:predicate sectionName:nil delegate:self];
     
-    self.collectionView.backgroundColor = [UIColor whiteColor];
+//    self.collectionView.backgroundColor = [UIColor whiteColor];
     
     _userSettings = [[UIUserSettings alloc] init];
     
@@ -63,47 +66,104 @@
      [self performSegueWithIdentifier:@"segueFromResponseListToSendResponse" sender:self];
 }
 
-#pragma mark UICollectionViewDataSource
+#pragma mark UITableViewDataSource
 
--(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
-{
-    //return [[JournalData shared].books numberOfsections];
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return [self.frcComments.fetchedObjects count];
+}
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
 }
 
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-{
+-(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    return 10;//[self.frcPlaces.fetchedObjects count];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
+    CommentListCell* cell = [self.tableView dequeueReusableCellWithIdentifier:[CommentListCell reuseId] forIndexPath:indexPath];
     
-    PlaceListCell *cell = [self.collectionView dequeueReusableCellWithReuseIdentifier:[PlaceListCell reuseId] forIndexPath:indexPath];
-    
-    [self configurePlaceListCell:(PlaceListCell *)cell atIndexPath:indexPath];
-    
-    //NSLog(@"MainViewController indexPath: %li", indexPath.item);
-    //    cell.layer.shouldRasterize = YES;
-    //    cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
-    
+    [self configureCommentListCell:cell atIndexPath:indexPath];
     
     return cell;
 }
 
--(void)configurePlaceListCell:(PlaceListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
-    //Places *place = self.frcPlaces.fetchedObjects[indexPath.row];
-    //[cell.titleLabel setText:place.name];
-    cell.mapMarkerImage.hidden = YES;
-}
 
-#pragma mark - CollectionViewDelegate
--(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+-(void)configureCommentListCell:(CommentListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
+    Comments *comment = self.frcComments.fetchedObjects[indexPath.item];
+
+    cell.userNameLabel.text = comment.name;
     
-   
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, comment.photo];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    [cell.userPhoto setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    
+    cell.commentTextLabel.text = comment.text;
+    
+    NSDate *startDate = [NSDate dateWithTimeIntervalSince1970:comment.date.doubleValue];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"dd.MM.yyyy"];
+    cell.dateLabel.text = [dateFormatter stringFromDate:startDate];
+    
+    // ======= rate view =====
+    cell.rateView.notSelectedImage = [UIImage imageNamed:@"star_grey"];
+    //self.rateView.halfSelectedImage = [UIImage imageNamed:@"kermit_half.png"];
+    cell.rateView.fullSelectedImage = [UIImage imageNamed:@"star_yellow"];
+    cell.rateView.rating = comment.rating.floatValue;
+    cell.rateView.editable = NO;
+    cell.rateView.maxRating = 5;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    //return [self heightForBasicCellAtIndexPath:indexPath];
+    
+    [self configureCommentListCell:self.prototypeCell atIndexPath:indexPath];
+    
+    // Need to set the width of the prototype cell to the width of the table view
+    // as this will change when the device is rotated.
+    
+    self.prototypeCell.bounds = CGRectMake(0.0f, 0.0f, CGRectGetWidth(self.tableView.bounds), CGRectGetHeight(self.prototypeCell.bounds));
+    
+    [self.prototypeCell layoutIfNeeded];
+    
+    CGSize size = [self.prototypeCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    return size.height+1;
+}
+
+-(CGFloat)heightForBasicCellAtIndexPath:(NSIndexPath*)indexPath{
+    static CommentListCell *sizingCell = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        sizingCell = [self.tableView dequeueReusableCellWithIdentifier:[CommentListCell reuseId]];
+    });
+    
+    [self configureCommentListCell:sizingCell atIndexPath:indexPath];
+    return [self calculateHeightForConfiguredSizingCell:sizingCell];
+}
+
+-(CGFloat)calculateHeightForConfiguredSizingCell:(UITableViewCell*)sizingCell{
+    [sizingCell setNeedsLayout];
+    [sizingCell layoutIfNeeded];
+    
+    CGSize size = [sizingCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+    return size.height + 1.0f;
 }
 
 
+
+-(CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+#pragma mark - Accessor
+- (CommentListCell *)prototypeCell
+{
+    if (!_prototypeCell)
+    {
+        _prototypeCell = [self.tableView dequeueReusableCellWithIdentifier:[CommentListCell reuseId]];
+    }
+    return _prototypeCell;
+}
+
+//segueFromResponcesListToAuth
 
 @end

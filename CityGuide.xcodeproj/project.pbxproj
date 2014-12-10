@@ -20,6 +20,8 @@
 		7125BD3D1A29D8F000704B21 /* AboutCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7125BD3C1A29D8F000704B21 /* AboutCell.m */; };
 		712C304D1A35ABCE00AE8B5D /* Comments.m in Sources */ = {isa = PBXBuildFile; fileRef = 712C304C1A35ABCE00AE8B5D /* Comments.m */; };
 		712C30511A35B79100AE8B5D /* CommentListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 712C30501A35B79100AE8B5D /* CommentListCell.m */; };
+		712C305A1A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.m in Sources */ = {isa = PBXBuildFile; fileRef = 712C30591A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.m */; };
+		712C305E1A3613ED00AE8B5D /* ALLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 712C305D1A3613ED00AE8B5D /* ALLabel.m */; };
 		713B0D9B1A26B91F0047934D /* RateView.m in Sources */ = {isa = PBXBuildFile; fileRef = 713B0D9A1A26B91F0047934D /* RateView.m */; };
 		714DE9CB1A0FB28F00E4FB3D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 714DE9CA1A0FB28F00E4FB3D /* main.m */; };
 		714DE9CE1A0FB28F00E4FB3D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 714DE9CD1A0FB28F00E4FB3D /* AppDelegate.m */; };
@@ -143,6 +145,10 @@
 		712C304C1A35ABCE00AE8B5D /* Comments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Comments.m; sourceTree = "<group>"; };
 		712C304F1A35B79100AE8B5D /* CommentListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommentListCell.h; sourceTree = "<group>"; };
 		712C30501A35B79100AE8B5D /* CommentListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommentListCell.m; sourceTree = "<group>"; };
+		712C30581A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UICollectionViewCell+AutoLayoutDynamicHeightCalculation.h"; sourceTree = "<group>"; };
+		712C30591A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UICollectionViewCell+AutoLayoutDynamicHeightCalculation.m"; sourceTree = "<group>"; };
+		712C305C1A3613ED00AE8B5D /* ALLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALLabel.h; sourceTree = "<group>"; };
+		712C305D1A3613ED00AE8B5D /* ALLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALLabel.m; sourceTree = "<group>"; };
 		713B0D991A26B91F0047934D /* RateView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateView.h; sourceTree = "<group>"; };
 		713B0D9A1A26B91F0047934D /* RateView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateView.m; sourceTree = "<group>"; };
 		714DE9C51A0FB28F00E4FB3D /* CityGuide.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CityGuide.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -400,8 +406,19 @@
 			children = (
 				712C304F1A35B79100AE8B5D /* CommentListCell.h */,
 				712C30501A35B79100AE8B5D /* CommentListCell.m */,
+				712C30581A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.h */,
+				712C30591A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.m */,
 			);
 			path = Comments;
+			sourceTree = "<group>";
+		};
+		712C305B1A3613CF00AE8B5D /* ALLabel */ = {
+			isa = PBXGroup;
+			children = (
+				712C305C1A3613ED00AE8B5D /* ALLabel.h */,
+				712C305D1A3613ED00AE8B5D /* ALLabel.m */,
+			);
+			path = ALLabel;
 			sourceTree = "<group>";
 		};
 		714DE9BC1A0FB28E00E4FB3D = {
@@ -473,6 +490,8 @@
 		714DE9F11A0FB29D00E4FB3D /* GUI */ = {
 			isa = PBXGroup;
 			children = (
+				718E02821A10E87A00983653 /* MMDrawerController */,
+				714DE9F81A10512500E4FB3D /* Layouts */,
 				717B6A891A24B9CB00BC4215 /* AuthUserViewController.h */,
 				717B6A8A1A24B9CB00BC4215 /* AuthUserViewController.m */,
 				719567E21A2238CB000500D6 /* MapFilterViewController.h */,
@@ -485,8 +504,6 @@
 				71BA0F151A138A6E00C3B6A0 /* PhotoBrowserViewController.m */,
 				93F954271A1DF8D90080B7E1 /* calloutViewController.h */,
 				93F954281A1DF8D90080B7E1 /* calloutViewController.m */,
-				718E02821A10E87A00983653 /* MMDrawerController */,
-				714DE9F81A10512500E4FB3D /* Layouts */,
 				714DE9F21A0FB3A100E4FB3D /* BannerViewController.h */,
 				714DE9F31A0FB3A100E4FB3D /* BannerViewController.m */,
 				714DE9F51A0FB3B500E4FB3D /* BannerContentViewController.h */,
@@ -548,9 +565,10 @@
 		714DEA081A1057C700E4FB3D /* Generated */ = {
 			isa = PBXGroup;
 			children = (
+				712C305B1A3613CF00AE8B5D /* ALLabel */,
+				71A543661A17A892008E54A7 /* SSZipArchive */,
 				7125BD241A280D4300704B21 /* VALabel.h */,
 				7125BD251A280D4400704B21 /* VALabel.m */,
-				71A543661A17A892008E54A7 /* SSZipArchive */,
 				714DEA091A1057E800E4FB3D /* Constants.h */,
 				718E02931A10F18700983653 /* UIUserSettings.h */,
 				718E02941A10F18700983653 /* UIUserSettings.m */,
@@ -906,6 +924,7 @@
 				719567C01A20D3F3000500D6 /* DiscountListViewController.m in Sources */,
 				71776A871A2ACF5700DCCFBB /* InfoCell.m in Sources */,
 				71E155221A1AD52900CD7A26 /* Phones.m in Sources */,
+				712C305E1A3613ED00AE8B5D /* ALLabel.m in Sources */,
 				718E02911A10E89B00983653 /* MMDrawerVisualState.m in Sources */,
 				716D47531A12FA53006A7BDB /* PlaceListCell.m in Sources */,
 				7114D6C91A17A17C005C59C4 /* LaunchViewController.m in Sources */,
@@ -955,6 +974,7 @@
 				719567C41A20D42E000500D6 /* DiscountListCell.m in Sources */,
 				714DE9CB1A0FB28F00E4FB3D /* main.m in Sources */,
 				7125BD3D1A29D8F000704B21 /* AboutCell.m in Sources */,
+				712C305A1A35D6A500AE8B5D /* UICollectionViewCell+AutoLayoutDynamicHeightCalculation.m in Sources */,
 				71A543761A17A8E7008E54A7 /* unzip.c in Sources */,
 				719567D01A21E51A000500D6 /* FavourViewController.m in Sources */,
 				719567DE1A222D64000500D6 /* SettingsCell.m in Sources */,

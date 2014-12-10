@@ -7,7 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RateView.h"
+#import "ALLabel.h"
 
-@interface CommentListCell : UICollectionViewCell
+@interface CommentListCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UIImageView *userPhoto;
+@property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+
+@property (weak, nonatomic) IBOutlet RateView *rateView;
+@property (weak, nonatomic) IBOutlet UILabel *commentTextLabel;
+
++ (NSString *)reuseId;
 @end

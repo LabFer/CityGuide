@@ -13,7 +13,7 @@
 @interface AuthUserViewController : UIViewController <VKSdkDelegate>
 
 @property (nonatomic, strong) AppDelegate *appDelegate;
-
+@property (nonatomic, assign) id delegate;
 
 - (IBAction)btnFBpressed:(id)sender;
 - (IBAction)btnTWpressed:(id)sender;

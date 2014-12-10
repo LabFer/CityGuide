@@ -24,7 +24,11 @@
     
     // ====== set textview ======
     
-    self.keysTextView.text = kPlaceholderTextView;
+    self.keysTextView.layer.borderWidth = 1.0f;
+    self.keysTextView.layer.borderColor = [[UIColor colorWithRed:220.0f/255.0f green:220.0f/255.0f blue:220.0f/255.0f alpha:1.0f] CGColor];
+    self.keysTextView.layer.cornerRadius = kImageViewCornerRadius;
+    
+    self.keysTextView.text = kPlaceholderTextViewKeyWords;
     self.keysTextView.textColor = [UIColor lightGrayColor]; //optional
     
     self.automaticallyAdjustsScrollViewInsets = NO;
@@ -131,7 +135,7 @@
 #pragma mark - Text View Delegate
 - (void)textViewDidBeginEditing:(UITextView *)textView
 {
-    if ([self.keysTextView.text isEqualToString:kPlaceholderTextView]) {
+    if ([self.keysTextView.text isEqualToString:kPlaceholderTextViewKeyWords]) {
         self.keysTextView.text = @"";
         self.keysTextView.textColor = [UIColor blackColor]; //optional
     }
@@ -141,7 +145,7 @@
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
     if ([self.keysTextView.text isEqualToString:@""]) {
-        self.keysTextView.text = kPlaceholderTextView;
+        self.keysTextView.text = kPlaceholderTextViewKeyWords;
         self.keysTextView.textColor = [UIColor lightGrayColor]; //optional
     }
     [self.keysTextView  resignFirstResponder];

@@ -17,6 +17,7 @@
 
 #import <TwitterKit/TwitterKit.h>
 #import <FacebookSDK/FacebookSDK.h>
+#import "ResponceCollectionViewController.h"
 
 static NSArray  * SCOPE = nil;
 
@@ -406,6 +407,11 @@ static NSArray  * SCOPE = nil;
     else if ([[segue identifier] isEqualToString:@"segueFromPlaceDetailToPhotoBrowser"]){
         PhotoBrowserViewController *placeVC = (PhotoBrowserViewController*)[segue destinationViewController];
         placeVC.aPlace = self.aPlace;
+    }
+    else if([[segue identifier] isEqualToString:@"segueFromPlaceDetailToResponces"]){
+        ResponceCollectionViewController *cv = (ResponceCollectionViewController*)[segue destinationViewController];
+        
+        cv.aPlace = self.aPlace;
     }
 }
 

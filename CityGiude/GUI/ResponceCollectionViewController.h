@@ -7,7 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Places.h"
+#import "CommentListCell.h"
 
-@interface ResponceCollectionViewController : UICollectionViewController
+@interface ResponceCollectionViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, strong) Places *aPlace;
+@property (nonatomic, strong) NSFetchedResultsController *frcComments;
+
+@property (nonatomic, strong) CommentListCell *prototypeCell;
 
 @end
