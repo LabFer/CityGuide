@@ -12,7 +12,7 @@
 #import "calloutViewController.h"
 #import "SMCalloutView.h"
 
-@interface PlaceMapViewController : UIViewController <SMCalloutViewDelegate, CLLocationManagerDelegate>
+@interface PlaceMapViewController : UIViewController <UICollectionViewDelegate, SMCalloutViewDelegate, CLLocationManagerDelegate>
 
 @property (strong, nonatomic) IBOutlet RMMapView *mapView;
 @property (strong, nonatomic) Places *mapPlace;

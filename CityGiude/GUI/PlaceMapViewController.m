@@ -9,6 +9,8 @@
 #import "PlaceMapViewController.h"
 #import "UIUserSettings.h"
 
+#import "AFNetworking.h"
+#import "UIImageView+AFNetworking.h"
 
 #import "AppDelegate.h"
 
@@ -28,6 +30,10 @@
 
 bool openedCallout = false;
 
+- (void)viewWillAppear:(BOOL)animated {
+    
+}
+
 - (void)viewDidLoad {
     
     _userSettings = [[UIUserSettings alloc] init];
@@ -36,25 +42,28 @@ bool openedCallout = false;
     [self.view setBackgroundColor:[UIColor clearColor]];
     
     [self setNavBarButtons];
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
     
+    locationManager = [[CLLocationManager alloc] init];
     NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
     NSError *error;
     NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
     self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+    
+    NSLog(@"self.mapPlace = %@", self.mapPlace);
+
+}
+
+- (void)viewDidAppear:(BOOL)animated {
     RMAnnotation *annotation = [RMAnnotation  annotationWithMapView:self.mapView
                                                          coordinate:CLLocationCoordinate2DMake([self.mapPlace.lattitude doubleValue], [self.mapPlace.longitude doubleValue])
                                                            andTitle:self.mapPlace.name];
     annotation.userInfo = self.mapPlace;
     [self.mapView addAnnotation:annotation];
-    CLLocationCoordinate2D centerCoordinate = annotation.coordinate;
-    self.mapView.centerCoordinate = centerCoordinate;
+    NSLog(@"annotation = %@",annotation);
+    
+    self.mapView.centerCoordinate = annotation.coordinate;
     self.mapView.zoom = 15;
     self.mapView.showsUserLocation = YES;
-    locationManager = [[CLLocationManager alloc] init];
 }
 
 - (RMMapLayer *)mapView:(RMMapView *)mapView layerForAnnotation:(RMAnnotation *)annotation
@@ -92,31 +101,59 @@ bool openedCallout = false;
 }
 
 - (void)addCustomAnnotation:(RMAnnotation *)annotation onMap:(RMMapView *)map {
-    
-    Places *place = annotation.userInfo;
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    calloutViewController *callout    = [[calloutViewController alloc] init];
-    callout = [storyboard instantiateViewControllerWithIdentifier:@"calloutViewController"];
-    [self.view addSubview:callout.view];
-    [callout.name setText:place.name];
-    callout.address.text = place.address;
-    callout.distance.text = [self getDistanceFromUserLocationTo:[[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]]];
-    
-    SMCalloutView *smcallout = [[SMCalloutView alloc] init];
-    smcallout.contentView = callout.view;
-    smcallout.contentView.frame = CGRectMake(0, 0, 300, 115);
-    smcallout.calloutOffset = CGPointMake(9, -1);
-    
-    [smcallout presentCalloutFromRect:smcallout.bounds inLayer:annotation.layer constrainedToLayer:map.layer animated:YES];
-    NSLog(@"annotation clicked: %@",annotation.layer);
-    [annotation.layer setValue:@"customCallout" forKey:@"calloutTag"];
-    [annotation.layer setValue:place forKey:@"place"];
-    openedCallout = true;
+    if (![annotation isUserLocationAnnotation]) {
+        Places *place = annotation.userInfo;
+        
+        UIView *callout = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 306, 100)];
+        
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(7, 7, 86, 86)];
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
+        NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [imageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+        [callout addSubview:imageView];
+        
+        UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(106, 7, 138, 35)];
+        name.adjustsFontSizeToFitWidth = NO;
+        name.numberOfLines = 2;
+        [name setText:place.name];
+        [name setFont:[UIFont fontWithName:@"HelveticaNeue" size:15]];
+        [callout addSubview:name];
+        
+        UILabel *address = [[UILabel alloc] initWithFrame:CGRectMake(106, 42, 138, 34)];
+        address.adjustsFontSizeToFitWidth = NO;
+        address.numberOfLines = 2;
+        address.textColor = [UIColor darkGrayColor];
+        [address setText:place.address];
+        [address setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14]];
+        [callout addSubview:address];
+        
+        UIImageView *posMarkerView = [[UIImageView alloc] initWithFrame:CGRectMake(219, 78, 10, 15)];
+        [posMarkerView setImage:[UIImage imageNamed:@"house_map_marker"]];
+        [callout addSubview:posMarkerView];
+        
+        UILabel *distance = [[UILabel alloc] initWithFrame:CGRectMake(232, 76, 60, 17)];
+        distance.adjustsFontSizeToFitWidth = NO;
+        distance.numberOfLines = 1;
+        [distance setText:[self getDistanceFromUserLocationTo:[[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]]]];
+        [distance setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14]];
+        [callout addSubview:distance];
+        
+        SMCalloutView *smcallout = [[SMCalloutView alloc] init];
+        smcallout.contentView = callout;
+        
+        [smcallout presentCalloutFromRect:annotation.layer.bounds inLayer:annotation.layer constrainedToLayer:map.layer animated:YES];
+        
+        NSLog(@"annotation clicked: %@",annotation.layer);
+        [annotation.layer setValue:@"customCallout" forKey:@"calloutTag"];
+        [annotation.layer setValue:place forKey:@"place"];
+        openedCallout = true;
+    }
 }
 
 - (void)deleteCustomAnnotation:(RMMapView *)map {
     for (RMAnnotation *annotation in map.annotations) {
-        annotation.layer.sublayers = nil;
+        if (![annotation isUserLocationAnnotation])
+            annotation.layer.sublayers = nil;
         openedCallout = false;
     }
 }

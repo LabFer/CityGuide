@@ -7,7 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
+#import "Categories.h"
+#import "SMCalloutView.h"
+#import "Mapbox.h"
+#import "RateView.h"
 
-@interface NearMapViewController : UIViewController
+@interface NearMapViewController : UIViewController <CLLocationManagerDelegate, SMCalloutViewDelegate, RMMapViewDelegate>
+
+@property (strong) IBOutlet RMMapView *mapView;
+
+@property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
+@property (nonatomic, strong) Categories *aCategory;
 
 @end

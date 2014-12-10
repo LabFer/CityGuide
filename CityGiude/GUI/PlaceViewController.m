@@ -27,8 +27,30 @@
 
 bool opened = false;
 
--(void)viewDidLoad{
+-(void)viewWillAppear:(BOOL)animated {
+    locationManager = [[CLLocationManager alloc] init];
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
+    NSError *error;
+    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
+    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
     
+    [self.mapView.tileSource setCacheable:YES];
+    
+    self.mapView.showsUserLocation = YES;
+    
+    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
+                   {
+                       weakMap.zoom = 15;
+                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+                   });
+    
+    NSLog(@"User location is %@",self.mapView.userLocation.location);
+}
+
+-(void)viewDidLoad{
     [super viewDidLoad];
     
     SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
@@ -61,27 +83,7 @@ bool opened = false;
     
     [self setNavBarButtons];
     
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
-    NSError *error;
-    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
-    
-    [self.mapView.tileSource setCacheable:YES];
-    
-    
-    self.mapView.showsUserLocation = YES;
-    
-    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
-                   {
-                       weakMap.zoom = 15;
-                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-                   });
-    
-    NSLog(@"User location is %@",self.mapView.userLocation.location);
-    locationManager = [[CLLocationManager alloc] init];
+   
 }
 
 
@@ -150,32 +152,62 @@ bool opened = false;
 }
 
 - (void)addCustomAnnotation:(RMAnnotation *)annotation onMap:(RMMapView *)map {
+    if (![annotation isUserLocationAnnotation]) {
+        Places *place = annotation.userInfo;
+
+        UIView *callout = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 306, 100)];
+        
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(7, 7, 86, 86)];
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
+        NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [imageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+        [callout addSubview:imageView];
+        
+        UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(106, 7, 138, 35)];
+        name.adjustsFontSizeToFitWidth = NO;
+        name.numberOfLines = 2;
+        [name setText:place.name];
+        [name setFont:[UIFont fontWithName:@"HelveticaNeue" size:15]];
+        [callout addSubview:name];
+        
+        UILabel *address = [[UILabel alloc] initWithFrame:CGRectMake(106, 42, 138, 34)];
+        address.adjustsFontSizeToFitWidth = NO;
+        address.numberOfLines = 2;
+        address.textColor = [UIColor darkGrayColor];
+        [address setText:place.address];
+        [address setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14]];
+        [callout addSubview:address];
+        
+        UIImageView *posMarkerView = [[UIImageView alloc] initWithFrame:CGRectMake(219, 78, 10, 15)];
+        [posMarkerView setImage:[UIImage imageNamed:@"house_map_marker"]];
+        [callout addSubview:posMarkerView];
+        
+        UIImageView *cellIndicatorView = [[UIImageView alloc] initWithFrame:CGRectMake(284, 44, 8, 13)];
+        [cellIndicatorView setImage:[UIImage imageNamed:@"cell_indicator"]];
+        [callout addSubview:cellIndicatorView];
+        
+        UILabel *distance = [[UILabel alloc] initWithFrame:CGRectMake(232, 76, 60, 17)];
+        distance.adjustsFontSizeToFitWidth = NO;
+        distance.numberOfLines = 1;
+        [distance setText:[self getDistanceFromUserLocationTo:[[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]]]];
+        [distance setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14]];
+        [callout addSubview:distance];
     
-    Places *place = annotation.userInfo;
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    calloutViewController *callout    = [[calloutViewController alloc] init];
-    callout = [storyboard instantiateViewControllerWithIdentifier:@"calloutViewController"];
-    [self.view addSubview:callout.view];
-    callout.view.frame = CGRectMake(0, 0, 320, 115);
-    [callout.name setText:place.name];
-    callout.address.text = place.address;
-    callout.distance.text = [self getDistanceFromUserLocationTo:[[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]]];
+        SMCalloutView *smcallout = [[SMCalloutView alloc] init];
+        smcallout.contentView = callout;
     
-    SMCalloutView *smcallout = [[SMCalloutView alloc] init];
-    smcallout.contentView = callout.view;
-    
-    //smcallout.contentView.frame = CGRectMake(0, 0, 320, 115);
-    smcallout.calloutOffset = CGPointMake(9, -1);
-    
-    [smcallout presentCalloutFromRect:smcallout.frame inLayer:annotation.layer constrainedToLayer:map.layer animated:YES];
-    NSLog(@"annotation clicked: %@",annotation.layer);
-    [annotation.layer setValue:@"customCallout" forKey:@"calloutTag"];
-    [annotation.layer setValue:place forKey:@"place"];
-    opened = true;
+        [smcallout presentCalloutFromRect:annotation.layer.bounds inLayer:annotation.layer constrainedToLayer:map.layer animated:YES];
+
+        NSLog(@"annotation clicked: %@",annotation.layer);
+        [annotation.layer setValue:@"customCallout" forKey:@"calloutTag"];
+        [annotation.layer setValue:place forKey:@"place"];
+        opened = true;
+    }
 }
 
 - (void)deleteCustomAnnotation:(RMMapView *)map {
     for (RMAnnotation *annotation in map.annotations) {
+        if (![annotation isUserLocationAnnotation])
         annotation.layer.sublayers = nil;
         opened = false;
     }
