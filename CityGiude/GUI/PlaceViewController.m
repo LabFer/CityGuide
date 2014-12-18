@@ -178,6 +178,15 @@ bool opened = false;
         [address setFont:[UIFont fontWithName:@"HelveticaNeue-Light" size:14]];
         [callout addSubview:address];
         
+        RateView *rateView = [[RateView alloc] initWithFrame:CGRectMake(106, 78, 80, 15)];
+        rateView.notSelectedImage = [UIImage imageNamed:@"star_grey"];
+        //self.rateView.halfSelectedImage = [UIImage imageNamed:@"kermit_half.png"];
+        rateView.fullSelectedImage = [UIImage imageNamed:@"star_yellow"];
+        rateView.rating = place.rate.floatValue;
+        rateView.editable = NO;
+        rateView.maxRating = 5;
+        [callout addSubview:rateView];
+        
         UIImageView *posMarkerView = [[UIImageView alloc] initWithFrame:CGRectMake(219, 78, 10, 15)];
         [posMarkerView setImage:[UIImage imageNamed:@"house_map_marker"]];
         [callout addSubview:posMarkerView];
