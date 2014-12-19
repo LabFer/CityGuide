@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "RateView.h"
+#import "Places.h"
 
-@interface ResponseViewController : UIViewController <UITextViewDelegate, UIScrollViewDelegate>
+@interface ResponseViewController : UIViewController <UITextViewDelegate, UIScrollViewDelegate, UIAlertViewDelegate>
 
 @property (weak, nonatomic) IBOutlet RateView *rateView;
 
@@ -20,5 +21,9 @@
 @property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
 @property (weak, nonatomic) IBOutlet UIScrollView *contentScrollView;
 @property (weak, nonatomic) IBOutlet UIView *scrollContentView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+
+@property (nonatomic, strong) Places *aPlace;
+@property (nonatomic, assign) id delegate;
 
 @end

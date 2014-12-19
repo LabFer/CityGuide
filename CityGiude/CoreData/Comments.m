@@ -2,7 +2,7 @@
 //  Comments.m
 //  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 08/12/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -11,12 +11,12 @@
 
 @implementation Comments
 
-@dynamic text;
 @dynamic date;
-@dynamic id;
-@dynamic placeID;
-@dynamic rating;
+@dynamic commentID;
 @dynamic name;
 @dynamic photo;
+@dynamic placeID;
+@dynamic rating;
+@dynamic text;
 
 @end

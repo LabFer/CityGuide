@@ -11,7 +11,7 @@
 #import "SubCategoryListFlowLayout.h"
 #import "SubCategoryTileFlowLayout.h"
 
-@interface SubCategoryCollectionViewController : UICollectionViewController <UICollectionViewDelegate, UICollectionViewDataSource>
+@interface SubCategoryCollectionViewController : UICollectionViewController <UICollectionViewDelegate, UICollectionViewDataSource, UIAlertViewDelegate>
 
 @property (nonatomic, assign) id delegate;
 @property (nonatomic, strong) Categories *aCategory;

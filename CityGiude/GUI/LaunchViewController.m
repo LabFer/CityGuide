@@ -17,6 +17,7 @@
 
 -(void)viewDidLoad{
     [super viewDidLoad];
+    NSLog(@"LaunchViewController. viewDidLoad");
     
     self.statusView.layer.cornerRadius = kImageViewCornerRadius;
     self.progressBar.progress = 0.0f;
@@ -24,8 +25,11 @@
     [SyncEngine sharedEngine].delegate = self;
     
     self.statusView.hidden = YES;
+    self.activityIndicator.hidden = YES;
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     
     [self checkNewDataOnServer];
+    [[SyncEngine sharedEngine] uploadFavourites];
     
 }
 
@@ -37,10 +41,17 @@
 
 #pragma mark - Check new data
 -(void)checkNewDataOnServer{
+    NSLog(@"checkNewDataOnServer");
+    
+    self.activityIndicator.hidden = NO;
+    [self.activityIndicator startAnimating];
     [[SyncEngine sharedEngine] downloadJSONDataFromServer];
 }
 
 -(void)errorDownloadJSONFromServer{
+    self.activityIndicator.hidden = YES;
+    [self.activityIndicator stopAnimating];
+    
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:kAlertError
                                                     message:kAlertJSONError
                                                    delegate:self
@@ -50,10 +61,10 @@
 }
 
 -(void)successCheckNewData:(NSDictionary*)jsonData{
+    self.activityIndicator.hidden = YES;
+    [self.activityIndicator stopAnimating];
     
-    NSNumber *time = [jsonData objectForKey:@"time"];
-    [[SyncEngine sharedEngine] setTimeStamp:time];
-    
+    NSLog(@"successCheckNewData");
     NSNumber *code = [jsonData objectForKey:@"code"];
     
     if(code.integerValue == 0){
@@ -100,6 +111,8 @@
         }
         else{
             self.statusView.hidden = NO;
+            NSNumber *time = [_downloadDict objectForKey:@"time"];
+            [[SyncEngine sharedEngine] setTimeStamp:time];
             [[SyncEngine sharedEngine] downloadZipFile:[_downloadDict objectForKey:@"data"]];
         }
     }
@@ -108,6 +121,8 @@
 #pragma mark - Main Screen
 -(void)startMainScreen{
 
+    NSLog(@"startMainScreen");
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
     [self performSegueWithIdentifier:@"segueFromLaunchToDrawer" sender:self];
 }
 

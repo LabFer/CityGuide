@@ -35,6 +35,11 @@
 
 -(BOOL)allowUseInternetConnection;
 
+-(void)registerUser;
+
+-(void)uploadFavourites;
+-(void)getFavourites;
+
 
 //-(void)downloadFile:(ChildBook*)aBook indexPath:(NSIndexPath*)idx;
 

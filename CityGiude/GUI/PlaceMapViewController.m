@@ -201,6 +201,7 @@ bool openedCallout = false;
     // ====== setup navbar color ===========
     self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button =====
     self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
+    self.navigationItem.title = self.mapPlace.name;
 }
 
 -(void)goBack{

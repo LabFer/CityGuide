@@ -8,14 +8,16 @@
 
 #import "DBWork.h"
 #import "Constants.h"
-#import "Categories.h"
-#import "Places.h"
-#import "Banners.h"
-#import "Discounts.h"
-#import "Favourites.h"
-#import "Comments.h"
+#import "UIUserSettings.h"
+
 
 @implementation DBWork
+
+typedef enum {
+    ObjectSynced = 0,
+    ObjectCreated,
+    ObjectDeleted,
+} ObjectSyncStatus;
 
 static DBWork* shared = NULL;
 
@@ -33,25 +35,28 @@ static DBWork* shared = NULL;
 -(void)removeDataFromDB{
 
     [self deleteAllItemsInEntity:kCoreDataCategoriesEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataCategoriesEntity);
+    //NSLog(@"Items deleted from: %@", kCoreDataCategoriesEntity);
     
     [self deleteAllItemsInEntity:kCoreDataPlacesEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataPlacesEntity);
-    
-    [self deleteAllItemsInEntity:kCoreDataBannersEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataBannersEntity);
-    
-    [self deleteAllItemsInEntity:kCoreDataCommentsEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataCommentsEntity);
-    
-    [self deleteAllItemsInEntity:kCoreDataDiscountEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataDiscountEntity);
+    //NSLog(@"Items deleted from: %@", kCoreDataPlacesEntity);
     
     [self deleteAllItemsInEntity:kCoreDataAttributesEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataAttributesEntity);
+    //NSLog(@"Items deleted from: %@", kCoreDataAttributesEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataValuesEntity];
+    //NSLog(@"Items deleted from: %@", kCoreDataValuesEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataBannersEntity];
+    //NSLog(@"Items deleted from: %@", kCoreDataBannersEntity);
     
     [self deleteAllItemsInEntity:kCoreDataCommentsEntity];
-    NSLog(@"Items deleted from: %@", kCoreDataCommentsEntity);
+    //NSLog(@"Items deleted from: %@", kCoreDataCommentsEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataDiscountEntity];
+    //NSLog(@"Items deleted from: %@", kCoreDataDiscountEntity);
+    
+    [self deleteAllItemsInEntity:kCoreDataCommentsEntity];
+    //NSLog(@"Items deleted from: %@", kCoreDataCommentsEntity);
 }
 
 -(void)inserDataFromDictionary:(NSDictionary *)insertDictionary{
@@ -61,21 +66,31 @@ static DBWork* shared = NULL;
     NSLog(@"Removing data complete!");
     
     NSLog(@"Try to insert data");
-    NSLog(@"inserting dictionary: %@", [insertDictionary objectForKey:@"types"]);
+    
+    //NSLog(@"Inserting Attributes: %@", [insertDictionary objectForKey:@"types"]);
     NSArray *attributesArray = [insertDictionary objectForKey:@"types"];
     [self insertAttributesFromArray:attributesArray];
+    //NSLog(@"Inserting Attributes complete!");
     
+    //NSLog(@"Inserting Attributes: %@", [insertDictionary objectForKey:@"category"]);
     NSArray *categoryArray = [insertDictionary objectForKey:@"category"];
     [self insertCategoriesFromArray:categoryArray];
+    //NSLog(@"Inserting Category complete!");
 //
+    //NSLog(@"Inserting Attributes: %@", [insertDictionary objectForKey:@"place"]);
     NSArray *placesArray = [insertDictionary objectForKey:@"place"];
     [self insertPlacesFromArray:placesArray];
+    //NSLog(@"Inserting Places complete!");
     
+    //NSLog(@"Inserting Attributes: %@", [insertDictionary objectForKey:@"action"]);
     NSArray *discountsArray = [insertDictionary objectForKey:@"action"];
     [self insertDiscountsFromArray:discountsArray];
+    //NSLog(@"Inserting Discounts complete!");
     
+    //NSLog(@"Inserting comments: %@", [insertDictionary objectForKey:@"comments"]);
     NSArray *commentsArray = [insertDictionary objectForKey:@"comments"];
     [self insertCommentsFromArray:commentsArray];
+    //NSLog(@"Inserting Comments complete!");
 }
 
 -(NSArray *)sortDescriptorsFromString:(NSString*)sortKeys{
@@ -87,6 +102,7 @@ static DBWork* shared = NULL;
         
         BOOL isAscending = YES;
         if([item isEqualToString:@"promoted"]) isAscending = NO;
+        if([item isEqualToString:@"date"]) isAscending = NO;
         NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:item ascending:isAscending];
         [sortArray addObject:sortDescriptor];
     }
@@ -125,7 +141,7 @@ static DBWork* shared = NULL;
     discount.descript = [aDiscount objectForKey:@"description"];
     
     NSArray *img = [aDiscount objectForKey:@"image"];
-    NSLog(@"Discount images: %@, %@", img, img[0]);
+    //NSLog(@"Discount images: %@, %@", img, img[0]);
     discount.image = img[0];
     discount.name = [aDiscount objectForKey:@"name"];
     discount.nameType = [aDiscount objectForKey:@"nameType"];
@@ -167,12 +183,12 @@ static DBWork* shared = NULL;
 
 -(void)insertNewComment:(NSDictionary *)aComment{
     
-    if([self isCommentExist:[[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]]])
-        return;
+    //if([self isCommentExist:[[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]]])
+    //    return;
     
     Comments *comment = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataCommentsEntity inManagedObjectContext:self.managedObjectContext];
     
-    comment.id = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]];
+    comment.commentID = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"id"]];
     comment.date = [[NSNumberFormatter alloc] numberFromString:[aComment objectForKey:@"date"]];
     comment.name = [aComment objectForKey:@"name"];
     comment.photo = [aComment objectForKey:@"photo"];
@@ -196,9 +212,9 @@ static DBWork* shared = NULL;
 
 -(BOOL)isCommentExist:(NSNumber *)commentID{
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", commentID];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"commentID == %@", commentID];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCommentsEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCommentsEntity sortKey:@"commentID" predicate:predicate sectionName:nil delegate:self];
     
     Comments *comment = frc.fetchedObjects.lastObject;
     if(comment) return YES;
@@ -207,17 +223,16 @@ static DBWork* shared = NULL;
 }
 
 
-
 #pragma mark - Places Entity
 
 -(void)insertNewPlace:(NSDictionary *)aPlace{
     
-    if([self isPlaceExist:[[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"id"]]])
-        return;
+    //if([self isPlaceExist:[[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"id"]]])
+    //    return;
     
     Places *place = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataPlacesEntity inManagedObjectContext:self.managedObjectContext];
     
-    place.id = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"id"]];
+    place.placeID = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"id"]];
     place.address = [aPlace objectForKey:@"address"];
     place.longitude = [NSDecimalNumber decimalNumberWithString:[aPlace objectForKey:@"longitude"]];
     place.lattitude = [NSDecimalNumber decimalNumberWithString:[aPlace objectForKey:@"latitude"]];
@@ -233,13 +248,14 @@ static DBWork* shared = NULL;
     place.work_time_description = [aPlace objectForKey:@"work_time_description"];
     place.work_time_start = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"work_time_start"]];
     place.work_time_end = [[NSNumberFormatter alloc] numberFromString:[aPlace objectForKey:@"work_time_end"]];
-    place.decript = [aPlace objectForKey:@"text"];
+    //place.decript = [aPlace objectForKey:@"text"];
+    place.decript = [self stringByStrippingHTML:[aPlace objectForKey:@"text"]];
        
-    place.attributes = [self getAttributesFromArray:[aPlace objectForKey:@"type"]];
+    place.attributes = [self getAttributesArrayForPlaceFromArray:[aPlace objectForKey:@"type"]];
     place.keys = [self insertNewKeysFromArray:[aPlace objectForKey:@"keys"]];
     place.phones = [self insertNewPhonesFromArray:[aPlace objectForKey:@"phone"]];
     place.gallery = [self insertNewGalleryFromArray:[aPlace objectForKey:@"images"]];
-    place.category = [self getCategoriesFromArray:[aPlace objectForKey:@"parentID"]];
+    place.categories = [self getCategoriesFromArray:[aPlace objectForKey:@"parentID"]];
     place.favour = [NSNumber numberWithBool:NO];
     
     //FIXME: what is viewCount, viewItem, text
@@ -261,9 +277,9 @@ static DBWork* shared = NULL;
 
 -(BOOL)isPlaceExist:(NSNumber *)placeID{
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", placeID];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID == %@", placeID];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataPlacesEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataPlacesEntity sortKey:@"placeID" predicate:predicate sectionName:nil delegate:self];
     
     Places *place = frc.fetchedObjects.lastObject;
     if(place) return YES;
@@ -272,7 +288,7 @@ static DBWork* shared = NULL;
 }
 
 -(Places*)getPlaceByplaceID:(NSNumber*)placeID{
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", placeID];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID == %@", placeID];
     
     NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataPlacesEntity sortKey:@"name" predicate:predicate sectionName:nil delegate:self];
     
@@ -283,13 +299,20 @@ static DBWork* shared = NULL;
 
 -(BOOL)isPlaceFavour:(NSNumber *)placeID{
     
-    NSLog(@"isPlaceFavour");
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypePlace, placeID];
+    //NSLog(@"isPlaceFavour");
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourType == %@ AND parentID == %@ AND favourStatus != %@", [userProfile objectForKey:kSocialUserToken], kCoreDataFavourTypePlace, placeID, [NSNumber numberWithInteger:ObjectDeleted]];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
     
-    Favourites *favour = frc.fetchedObjects.lastObject;
-    if(favour) return YES;
+        Favourites *favour = frc.fetchedObjects.lastObject;
+        if(favour) return YES;
+    }
     
     return NO;
 }
@@ -298,52 +321,191 @@ static DBWork* shared = NULL;
     
     if([self isPlaceFavour:placeID]) return;
     
-    NSLog(@"setPlaceToFavour");
-    Favourites *favour = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        //NSLog(@"setPlaceToFavour");
+        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        Favourites *favour = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
     
-    favour.parentID = placeID;
-    favour.favourType = kCoreDataFavourTypePlace;
+        favour.parentID = placeID;
+        favour.favourType = kCoreDataFavourTypePlace;
+        favour.userToken = [userProfile objectForKey:kSocialUserToken];
+        favour.favourStatus = [NSNumber numberWithInteger:ObjectCreated];
     
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        }
     }
     
 }
 
 -(void)removePlaceFromFavour:(NSNumber *)placeID{
     
-    NSLog(@"removeCategoryFromFavour");
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypePlace, placeID];
+    //NSLog(@"removeCategoryFromFavour");
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourType == %@ AND parentID == %@", [userProfile objectForKey:kSocialUserToken], kCoreDataFavourTypePlace, placeID];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
-    
-    NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
-    
-    if(deleteObject){
-        [self.managedObjectContext deleteObject:deleteObject];
-    }
-    
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Error deleting: %@", error.localizedDescription);
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+        
+        Favourites *favour = (Favourites*)[frc fetchedObjects].lastObject;
+        
+        if(favour.favourStatus.integerValue == ObjectCreated){ //if object not sync yet, only created
+            NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
+            
+            if(deleteObject){
+                [self.managedObjectContext deleteObject:deleteObject];
+            }
+        }
+        else{
+            favour.favourStatus = [NSNumber numberWithInteger:ObjectDeleted];
+        }
+        
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        }
+
     }
 }
 
 -(NSArray*)getFavourPlace{
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@", kCoreDataFavourTypePlace];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourType == %@",[userProfile objectForKey:kSocialUserToken], kCoreDataFavourTypePlace];
     
-    NSMutableArray *categoryIDs = [[NSMutableArray alloc] initWithCapacity:0];
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
     
-    for(Favourites *f in frc.fetchedObjects){
-        [categoryIDs addObject:f.parentID];
+        NSMutableArray *categoryIDs = [[NSMutableArray alloc] initWithCapacity:0];
+    
+        for(Favourites *f in frc.fetchedObjects){
+            [categoryIDs addObject:f.parentID];
+        }
+    
+        return categoryIDs;
     }
     
-    return categoryIDs;
+    return [NSArray array];
 }
 
+#pragma mark - Favourites Entity
+-(NSArray*)getUnsyncFavourites{
+    
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourStatus == %@",[userProfile objectForKey:kSocialUserToken], [NSNumber numberWithInteger:ObjectCreated]];
+        
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+        
+        return [frc fetchedObjects];
+    }
+    return [NSArray array];
+}
+
+-(NSArray*)getDeletedFavourites{
+    
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourStatus == %@",[userProfile objectForKey:kSocialUserToken], [NSNumber numberWithInteger:ObjectDeleted]];
+        
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+        
+        return [frc fetchedObjects];
+    }
+    return [NSArray array];
+}
+
+-(void)insertNewFavourite:(NSDictionary*)aFavourite{
+    
+    
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+    
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND parentID == %@ AND favourType == %@", [aFavourite objectForKey:@"usertoken"], [aFavourite objectForKey:@"favoriteid"], [aFavourite objectForKey:@"favoritetype"]];
+    
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:@"favourID" predicate:predicate sectionName:nil delegate:self];
+    
+        Favourites *favourite = frc.fetchedObjects.lastObject;
+        
+        if(!favourite){
+            NSLog(@"A favourite item does not exist: %@. Create new favourite item", aFavourite);
+            favourite = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
+        }
+
+        favourite.favourID = [[NSNumberFormatter alloc] numberFromString:[aFavourite objectForKey:@"id"]];
+        favourite.parentID = [[NSNumberFormatter alloc] numberFromString:[aFavourite objectForKey:@"favoriteid"]];
+        favourite.favourType = [aFavourite objectForKey:@"favoritetype"];
+        favourite.userToken = [aFavourite objectForKey:@"usertoken"];
+        favourite.favourStatus = [NSNumber numberWithInteger:ObjectSynced];
+    
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Whoops, couldn't save favourite: %@", [error localizedDescription]);
+        }
+    }
+    else{
+        NSLog(@"insertNewFavourite. User is not authorized");
+    }
+}
+
+-(void)insertFavouritesFromArray:(NSArray *)anArray{
+    [anArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self insertNewFavourite:obj];
+    }];
+}
+
+-(void)deleteFavouritesFromArray:(NSArray *)anArray{
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        [anArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            //NSDictionary* item = (NSDictionary*)obj;
+            
+            NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+            NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+            
+            NSNumber *favourID = (NSNumber*)obj;//[[NSNumberFormatter alloc] numberFromString:[item objectForKey:@"id"]];
+            
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourID == %@", [userProfile objectForKey:kSocialUserToken], favourID];
+            
+            NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+            
+            NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
+            if(deleteObject){
+                [self.managedObjectContext deleteObject:deleteObject];
+            }
+            
+            NSError *error;
+            if (![self.managedObjectContext save:&error]) {
+                NSLog(@"Error deleting: %@", error.localizedDescription);
+            }
+        }];
+    }
+    else{
+        NSLog(@"insertNewFavourite. User is not authorized");
+    }
+        
+}
 
 #pragma mark - Banners
 -(void)insertNewBanner:(NSDictionary *)aBanner{
@@ -400,12 +562,12 @@ static DBWork* shared = NULL;
             Keys *aKey = nil;
             if([self isKeyExist:keyName]){
                 aKey = [self getKeyByName:keyName];
-                NSLog(@"Key exist: %@", keyName);
+                //NSLog(@"Key exist: %@", keyName);
             }
             else{
                 aKey = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataKeysEntity inManagedObjectContext:self.managedObjectContext];
                 aKey.name = keyName;
-                NSLog(@"Insert new Key: %@", keyName);
+                //NSLog(@"Insert new Key: %@", keyName);
             }
 
             [attrSet addObject:aKey];
@@ -443,12 +605,12 @@ static DBWork* shared = NULL;
             Phones *aPhone = nil;
             if([self isPhoneExist:phoneNum]){
                 aPhone = [self getPhoneByNumber:phoneNum];
-                NSLog(@"Phone exist: %@", phoneNum);
+                //NSLog(@"Phone exist: %@", phoneNum);
             }
             else{
                 aPhone = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataPhonesEntity inManagedObjectContext:self.managedObjectContext];
                 aPhone.phone_number = phoneNum;
-                NSLog(@"Insert new Phone: %@", phoneNum);
+                //NSLog(@"Insert new Phone: %@", phoneNum);
             }
             
             [attrSet addObject:aPhone];
@@ -531,12 +693,13 @@ static DBWork* shared = NULL;
         return;
     
     Categories *category = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataCategoriesEntity inManagedObjectContext:self.managedObjectContext];
-    category.id = [[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"id"]];
+    category.categoryID = [[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"id"]];
     category.name = [aCategory objectForKey:@"name"];
     category.parent_id = [[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"parentID"]];
     category.photo = [aCategory objectForKey:@"photo"];
     category.sort = [[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"position"]];
     category.favour = [NSNumber numberWithBool:NO];
+    category.attributes = [self getAttributeItemForParent:[[NSNumberFormatter alloc] numberFromString:[aCategory objectForKey:@"id"]] forParent:kAttributeParentCategory];
     
 //    @property (nonatomic, retain) NSData * filters; FIXME: replace with real data from server
 //    @property (nonatomic, retain) NSSet *places;
@@ -556,9 +719,9 @@ static DBWork* shared = NULL;
 
 -(BOOL)isCategoryExist:(NSNumber *)categoryID{
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", categoryID];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"categoryID == %@", categoryID];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"categoryID" predicate:predicate sectionName:nil delegate:self];
     
     Categories *cat = frc.fetchedObjects.lastObject;
     if(cat) return YES;
@@ -568,13 +731,20 @@ static DBWork* shared = NULL;
 
 -(BOOL)isCategoryFavour:(NSNumber*)categoryID{
     
-    NSLog(@"isCategoryFavour");
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypeCategory, categoryID];
+    //NSLog(@"isCategoryFavour");
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourType == %@ AND parentID == %@ AND favourStatus != %@", [userProfile objectForKey:kSocialUserToken], kCoreDataFavourTypeCategory, categoryID, [NSNumber numberWithInteger:ObjectDeleted]];
     
-    Favourites *favour = frc.fetchedObjects.lastObject;
-    if(favour) return YES;
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+    
+        Favourites *favour = frc.fetchedObjects.lastObject;
+        if(favour) return YES;
+    }
     
     return NO;
 }
@@ -582,51 +752,80 @@ static DBWork* shared = NULL;
 -(void)setCategoryToFavour:(NSNumber *)categoryID{
     
     if([self isCategoryFavour:categoryID]) return;
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        //NSLog(@"setCategoryToFavour");
+        Favourites *favour = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
     
-    NSLog(@"setCategoryToFavour");
-    Favourites *favour = [NSEntityDescription insertNewObjectForEntityForName:kCoreDatafavouriteEntity inManagedObjectContext:self.managedObjectContext];
+        favour.parentID = categoryID;
+        favour.favourType = kCoreDataFavourTypeCategory;
+        favour.userToken = [userProfile objectForKey:kSocialUserToken];
+        favour.favourStatus = [NSNumber numberWithInteger:ObjectCreated];
     
-    favour.parentID = categoryID;
-    favour.favourType = kCoreDataFavourTypeCategory;
-    
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        }
     }
 
 }
 
 -(void)removeCategoryFromFavour:(NSNumber *)categoryID{
 
-    NSLog(@"removeCategoryFromFavour");
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@ AND parentID == %@", kCoreDataFavourTypeCategory, categoryID];
+    //NSLog(@"removeCategoryFromFavour");
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourType == %@ AND parentID == %@", [userProfile objectForKey:kSocialUserToken], kCoreDataFavourTypeCategory, categoryID];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
     
-    NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
-    
-    if(deleteObject){
-        [self.managedObjectContext deleteObject:deleteObject];
-    }
-    
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Error deleting: %@", error.localizedDescription);
+        Favourites *favour = (Favourites*)[frc fetchedObjects].lastObject;
+        
+        if(favour.favourStatus.integerValue == ObjectCreated){ //if object not sync yet, only created
+            NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
+            
+            if(deleteObject){
+                [self.managedObjectContext deleteObject:deleteObject];
+            }
+        }
+        else{
+            favour.favourStatus = [NSNumber numberWithInteger:ObjectDeleted];
+        }
+        
+        NSError *error;
+        if (![self.managedObjectContext save:&error]) {
+            NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        }
     }
 }
 
 -(NSArray*)getFavourCategory{
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favourType == %@", kCoreDataFavourTypeCategory];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
+
+    UIUserSettings *userSettings = [[UIUserSettings alloc] init];
+    if([userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"userToken == %@ AND favourType == %@", [userProfile objectForKey:kSocialUserToken], kCoreDataFavourTypeCategory];
     
-    NSMutableArray *categoryIDs = [[NSMutableArray alloc] initWithCapacity:0];
+        NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDatafavouriteEntity sortKey:nil predicate:predicate sectionName:nil delegate:self];
     
-    for(Favourites *f in frc.fetchedObjects){
-        [categoryIDs addObject:f.parentID];
+        NSMutableArray *categoryIDs = [[NSMutableArray alloc] initWithCapacity:0];
+    
+        for(Favourites *f in frc.fetchedObjects){
+            [categoryIDs addObject:f.parentID];
+        }
+    
+        return categoryIDs;
     }
-    
-    return categoryIDs;    
+    return [NSArray array];
 }
 
 
@@ -644,68 +843,106 @@ static DBWork* shared = NULL;
 
 -(Categories*)getCategoryItem:(NSNumber *)categoryID{
     NSString *item = [categoryID stringValue];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id==%@", item];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"categoryID == %@", item];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataCategoriesEntity sortKey:@"categoryID" predicate:predicate sectionName:nil delegate:self];
     
     return frc.fetchedObjects.lastObject;
 }
 
 #pragma mark - Attributes Entity
 
--(void)insertNewAttribute:(NSDictionary *)anAttribute{
+// ==== Attributes For Category ======
+-(void)insertNewAttributeForCategory:(NSDictionary *)anAttribute{
     
-    if([self isAttributeExist:[[NSNumberFormatter alloc] numberFromString:[anAttribute objectForKey:@"id"]]])
-        return;
+//    if([self isAttributeExist:[[NSNumberFormatter alloc] numberFromString:[anAttribute objectForKey:@"id"]] forParent:kAttributeParentCategory])
+//        return;
     
     Attributes *attribute = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataAttributesEntity inManagedObjectContext:self.managedObjectContext];
     
-    attribute.id = [[NSNumberFormatter alloc] numberFromString:[anAttribute objectForKey:@"id"]];
+    attribute.attributeID = [[NSNumberFormatter alloc] numberFromString:[anAttribute objectForKey:@"id"]];
     attribute.name = [anAttribute objectForKey:@"name"];
-//    attribute.type = [anAttribute objectForKey:@"type"]; FIXME: replace with real data from server
-//    @property (nonatomic, retain) NSData * value;
-//    @property (nonatomic, retain) NSNumber * require;
-//    @property (nonatomic, retain) NSNumber * filterable;
+    attribute.picture = [anAttribute objectForKey:@"picture"];
+    attribute.parentType = kAttributeParentCategory;
+    attribute.parentID = [[NSNumberFormatter alloc] numberFromString:[anAttribute objectForKey:@"parentID"]];
+    
+    NSString* type = [anAttribute objectForKey:@"type"];
+    attribute.type = type;
+    if([type isEqualToString:@"array"]){
+
+        attribute.values = [self insertNewValuesForAttributeFromArray:[anAttribute objectForKey:@"value"]];
+    }
     
     NSError *error;
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
     }
+
+}
+
+-(NSSet*)insertNewValuesForAttributeFromArray:(NSArray *)anArray{ // need for Category
+    
+    NSMutableArray *attrSet = [[NSMutableArray alloc] initWithCapacity:0];
+    for (NSDictionary *valueDict in anArray) {
+        
+        Values *value = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataValuesEntity inManagedObjectContext:self.managedObjectContext];
+        
+        value.valueID = [[NSNumberFormatter alloc] numberFromString:[valueDict objectForKey:@"valueID"]];
+        value.valueName = [valueDict objectForKey:@"value"];
+
+        [attrSet addObject:value];
+
+    }
+    
+    return [[NSSet alloc] initWithArray:attrSet];
+    
 }
 
 -(void)insertAttributesFromArray:(NSArray*)anArray{
     
     [anArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [self insertNewAttribute:obj];
+        [self insertNewAttributeForCategory:obj];
     }];
 }
 
--(NSSet*)getAttributesFromArray:(NSArray *)anArray{
+// =================
+
+-(NSSet*)getAttributesFromArray:(NSArray *)anArray forParent:(NSString *)parentName{
 //    NSArray *attrArray = [aPlace objectForKey:@"type"];
     
     NSMutableArray *attrSet = [[NSMutableArray alloc] initWithCapacity:0];
     for (NSString *attrID in anArray) {
-        Attributes *attr = [self getAttributeItem:[[NSNumberFormatter alloc] numberFromString:attrID]];
+        Attributes *attr = [self getAttributeItem:[[NSNumberFormatter alloc] numberFromString:attrID] forParent:parentName];
         [attrSet addObject:attr];
     }
     
     return [[NSSet alloc] initWithArray:attrSet];
 }
 
--(Attributes*)getAttributeItem:(NSNumber *)attributeID{
+-(Attributes*)getAttributeItem:(NSNumber *)attributeID forParent:(NSString *)parentName{
     NSString *item = [attributeID stringValue];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id==%@", item];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"parentType == %@ AND attributeID == %@", parentName, item];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataAttributesEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataAttributesEntity sortKey:@"attributeID" predicate:predicate sectionName:nil delegate:self];
     
     return frc.fetchedObjects.lastObject;
 }
 
--(BOOL)isAttributeExist:(NSNumber *)attributeID{
+
+-(NSSet*)getAttributeItemForParent:(NSNumber *)parentID forParent:(NSString *)parentName{
+    NSString *item = [parentID stringValue];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"parentType == %@ AND parentID == %@", parentName, item];
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %@", attributeID];
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataAttributesEntity sortKey:@"attributeID" predicate:predicate sectionName:nil delegate:self];
     
-    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataAttributesEntity sortKey:@"id" predicate:predicate sectionName:nil delegate:self];
+    return [[NSSet alloc] initWithArray:frc.fetchedObjects];
+}
+
+-(BOOL)isAttributeExist:(NSNumber *)attributeID forParent:(NSString *)parentName{
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"parentType == %@ AND attributeID == %@", parentName, attributeID];
+    
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataAttributesEntity sortKey:@"attributeID" predicate:predicate sectionName:nil delegate:self];
     
     Attributes *attr = frc.fetchedObjects.lastObject;
     if(attr) return YES;
@@ -713,137 +950,64 @@ static DBWork* shared = NULL;
     return NO;
 }
 
-
-
-
--(void)deleteItems:(NSDictionary*)deleteDict{
-
-    for(NSDictionary *item in deleteDict){
-        NSString *itemID = [item objectForKey:@"id"];
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"bookID==%@", itemID];
-        
-        NSFetchedResultsController *frc = [self fetchedResultsController:@"ChildBook" sortKey:@"name" predicate:predicate sectionName:nil delegate:self];
-        
-        NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
-        
-        if(deleteObject)
-            [self.managedObjectContext deleteObject:deleteObject];
-    }
+-(NSSet*)getAttributesArrayForPlaceFromArray:(NSDictionary*)attrArray{
     
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Error deleting: %@", error.localizedDescription);
-    }
-}
-
--(void)deleteItem:(NSNumber *)itemID{
+    NSMutableArray *attrSet = [[NSMutableArray alloc] initWithCapacity:0];
+    //NSLog(@"Place type arr: %@", attrArray);
     
-    NSString *item = [itemID stringValue];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"bookID==%@", item];
+    for (id key in attrArray) { // go throught all dicts in array
+        //NSLog(@"Place type arr: %@", [attrArray objectForKey:key]);
+        NSDictionary* attrDict = [attrArray objectForKey:key];
+        //NSLog(@"Place type dict: %@", attrDict);
+        Attributes *categoryAttribute = [self getAttributeItem:[[NSNumberFormatter alloc] numberFromString:[attrDict objectForKey:@"typeID"]] forParent:kAttributeParentCategory]; // get existing for category attribute
         
-    NSFetchedResultsController *frc = [self fetchedResultsController:@"ChildBook" sortKey:@"name" predicate:predicate sectionName:nil delegate:self];
-        
-    NSManagedObject *deleteObject = frc.fetchedObjects.lastObject;
-        
-    if(deleteObject){
-        [self.managedObjectContext deleteObject:deleteObject];
-    }
-    
-    NSError *error;
-    if (![self.managedObjectContext save:&error]) {
-        NSLog(@"Error deleting: %@", error.localizedDescription);
-    }
-}
-
--(NSArray*)arrayWithObjects{
-    return [[self fetchedResultsController:@"ChildBook" sortKey:@"created" predicate:nil sectionName:nil delegate:self] fetchedObjects];
-}
-
--(void)updateDataFromArray:(NSArray *)updateArray{
-    
-    [updateArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        
-        NSString *str = [NSString stringWithFormat:@"bookID == %@", [obj objectForKey:@"id"]];
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:str];
-
-        NSFetchedResultsController *frc = [self fetchedResultsController:@"ChildBook" sortKey:@"bookID" predicate:predicate sectionName:nil delegate:nil];
-        
-        
-//        ChildBook *bookInfo = [frc fetchedObjects].lastObject;
-//        NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
-//
-//        bookInfo.position = [obj objectForKey:@"position"];
-//        bookInfo.parentID = [f numberFromString:[obj objectForKey:@"ParentID"]];
-//        bookInfo.remoteID = [f numberFromString:[obj objectForKey:@"RemoteID"]];
-//        bookInfo.name = [obj objectForKey:@"name"];
-//        bookInfo.text = [obj objectForKey:@"text"];
-//        bookInfo.picture = [obj objectForKey:@"picture"];
-//        bookInfo.created = [obj objectForKey:@"created"];
-//        bookInfo.modified = [obj objectForKey:@"modified"];
-//        bookInfo.anotation = [obj objectForKey:@"annotation"];
-//        bookInfo.bookDescription = [obj objectForKey:@"description"];
-//        bookInfo.keywords = [obj objectForKey:@"keywords"];
-//        bookInfo.title = [obj objectForKey:@"title"];
-//        bookInfo.price = [obj objectForKey:@"price"];
-//        bookInfo.old_price = [obj objectForKey:@"old_price"];
-//        bookInfo.date_start = [obj objectForKey:@"date_start"];
-//        bookInfo.view = [f numberFromString:[obj objectForKey:@"view"]];
-//        bookInfo.pay = [f numberFromString:[obj objectForKey:@"pay"]];
-//        bookInfo.social = [f numberFromString:[obj objectForKey:@"social"]];
-//        bookInfo.file = [obj objectForKey:@"file"];
-        
-        //NSLog(@"updated book: bookID: %@; bookName: %@ж URL: %@", bookInfo.bookID, bookInfo.name, bookInfo.file);
-        
-        NSError *error;
-        if (![self.managedObjectContext save:&error]) {
-            NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
+        if(categoryAttribute){ // if attribute exists add attribute to place
+            Attributes *placeAttribute = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataAttributesEntity inManagedObjectContext:self.managedObjectContext]; //insert new attribute for place
+            
+            placeAttribute.attributeID = [[NSNumberFormatter alloc] numberFromString:[attrDict objectForKey:@"typeID"]];
+            placeAttribute.value = [attrDict objectForKey:@"value"];
+            placeAttribute.parentID = [[NSNumberFormatter alloc] numberFromString:[attrDict objectForKey:[attrDict objectForKey:@"placeID"]]];
+            placeAttribute.name = [attrDict objectForKey:@"name"];
+            placeAttribute.parentType = kAttributeParentPlace;
+            placeAttribute.parentID = [[NSNumberFormatter alloc] numberFromString:[attrDict objectForKey:@"placeID"]];
+            
+            NSString *type = [attrDict objectForKey:@"type"];
+            if(![type isKindOfClass:[NSNull class]]){
+                placeAttribute.type = type;
+            
+                if([type isEqualToString:@"array"]){ // if attribute type is array
+                    NSArray* arr = [attrDict objectForKey:@"valueID"]; // get aaray of ids
+                
+                    NSMutableSet *valueSet = [[NSMutableSet alloc] initWithCapacity:0]; // container for values
+                    for(NSString* valueID in arr){
+                        Values *existValue = [self getValuesItemByID:[[NSNumberFormatter alloc] numberFromString:valueID]]; // get existing value
+                        Values *valueForPlace = [NSEntityDescription insertNewObjectForEntityForName:kCoreDataValuesEntity inManagedObjectContext:self.managedObjectContext]; //create new value for place
+                        valueForPlace.valueID = existValue.valueID;
+                        valueForPlace.valueName = existValue.valueName;
+                    
+                        [valueSet addObject:valueForPlace]; //add value to container
+                    
+                    }
+                
+                    placeAttribute.values = [[NSSet alloc] initWithSet:valueSet]; // add values to attribute
+                }
+            }
+            
+            [attrSet addObject:placeAttribute]; //add attribute to place set
         }
-    }];
-}
-
--(void)inserDataFromArray:(NSArray *)insertArray{
-    
-    [insertArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        ChildBook *bookInfo = [NSEntityDescription
-//                               insertNewObjectForEntityForName:@"ChildBook"
-//                               inManagedObjectContext:self.managedObjectContext];
-//        
-//        NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
-//        
-//        
-//        bookInfo.bookID = [f numberFromString:[obj objectForKey:@"id"]];
-//        bookInfo.position = [obj objectForKey:@"position"];
-//        bookInfo.parentID = [f numberFromString:[obj objectForKey:@"ParentID"]];
-//        bookInfo.remoteID = [f numberFromString:[obj objectForKey:@"RemoteID"]];
-//        bookInfo.name = [obj objectForKey:@"name"];
-//        bookInfo.text = [obj objectForKey:@"text"];
-//        bookInfo.picture = [obj objectForKey:@"picture"];
-//        bookInfo.created = [obj objectForKey:@"created"];
-//        bookInfo.modified = [obj objectForKey:@"modified"];
-//        bookInfo.anotation = [obj objectForKey:@"annotation"];
-//        bookInfo.bookDescription = [obj objectForKey:@"description"];
-//        bookInfo.keywords = [obj objectForKey:@"keywords"];
-//        bookInfo.title = [obj objectForKey:@"title"];
-//        bookInfo.price = [obj objectForKey:@"price"];
-//        bookInfo.old_price = [obj objectForKey:@"old_price"];
-//        bookInfo.date_start = [obj objectForKey:@"date_start"];
-//        bookInfo.view = [f numberFromString:[obj objectForKey:@"view"]];
-//        bookInfo.pay = [f numberFromString:[obj objectForKey:@"pay"]];
-//        bookInfo.social = [f numberFromString:[obj objectForKey:@"social"]];
-//        bookInfo.file = [obj objectForKey:@"file"];
-//        bookInfo.isDownloaded = [NSNumber numberWithBool:NO];
-//        
-        //NSLog(@"bookID: %@; bookName: %@ж URL: %@", bookInfo.bookID, bookInfo.name, bookInfo.file);
         
-        NSError *error;
-        if (![self.managedObjectContext save:&error]) {
-            NSLog(@"Whoops, couldn't save: %@", [error localizedDescription]);
-        }
-    }];
+    }
+    
+    return [[NSSet alloc] initWithArray:attrSet];
 }
 
--(void)deleteDataFromArray:(NSArray *)deleteArray{
-
+-(Values*)getValuesItemByID:(NSNumber*)valueID{
+    NSString *item = [valueID stringValue];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"valueID == %@", item];
+        
+    NSFetchedResultsController *frc = [self fetchedResultsController:kCoreDataValuesEntity sortKey:@"valueID" predicate:predicate sectionName:nil delegate:self];
+        
+        return frc.fetchedObjects.lastObject;
 }
 
 #pragma mark - Core Data stack
@@ -905,6 +1069,13 @@ static DBWork* shared = NULL;
             abort();
         }
     }
+}
+
+-(NSString *) stringByStrippingHTML:(NSString*)aString {
+    
+    NSAttributedString *resultString = [[NSAttributedString alloc] initWithData:[aString dataUsingEncoding:NSUTF8StringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType, NSCharacterEncodingDocumentAttribute: [NSNumber numberWithInt:NSUTF8StringEncoding]} documentAttributes:nil error:nil];
+    
+    return resultString.string;
 }
 
 

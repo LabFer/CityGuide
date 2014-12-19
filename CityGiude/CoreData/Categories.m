@@ -1,8 +1,8 @@
 //
 //  Categories.m
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -13,14 +13,14 @@
 
 @implementation Categories
 
+@dynamic favour;
 @dynamic filters;
-@dynamic id;
+@dynamic categoryID;
 @dynamic name;
 @dynamic parent_id;
 @dynamic photo;
 @dynamic sort;
-@dynamic attributes;
 @dynamic places;
-@dynamic favour;
+@dynamic attributes;
 
 @end

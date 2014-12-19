@@ -94,7 +94,7 @@
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
     NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
-    if(userProfile) return YES; // user has authorized
+    if(userProfile && ![[userProfile objectForKey:kSocialUserToken] isEqualToString:@""]) return YES; // user has authorized
     
     return NO;
 }

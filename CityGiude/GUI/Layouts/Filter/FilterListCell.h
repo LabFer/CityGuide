@@ -7,11 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Attributes.h"
 
 @interface FilterListCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UILabel *filterTitle;
 @property (weak, nonatomic) IBOutlet UILabel *filterValuesTitle;
+
+@property (strong, nonatomic) Attributes *anAttribute;
 
 
 + (NSString *)reuseId;

@@ -21,11 +21,16 @@
 @interface AppDelegate (){
     int _connectionCount;
 }
-
 @end
 
 @implementation AppDelegate
 
+@synthesize netStatus, hostReach;
+
++(void)initialize{
+    //configure iLink
+    //[iLink sharedInstance].globalPromptForUpdate = NO; // If you don't want iLink to prompt user to update when the app is old
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
@@ -33,15 +38,8 @@
     [[UINavigationBar appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
                                                            [UIColor whiteColor], NSForegroundColorAttributeName,
                                                            [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0], NSFontAttributeName, nil]];
-    //[[UINavigationBar appearance]setShadowImage:[[UIImage alloc] init]];
-    
-    
-    self.testArray = @[@"Категория №1", @"Категория №2", @"Категория №3", @"Категория №4", @"Категория №5", @"Категория №6"];
     
     NSLog(@"Cache directory: %@", CACHE_DIR);
-    
-//    CBSHKConfigurator *configurator = [[CBSHKConfigurator alloc] init];
-//    [SHKConfiguration sharedInstanceWithConfigurator:configurator];
     
     [[Twitter sharedInstance] startWithConsumerKey:kTwitterConsumerKey consumerSecret:kTwitterConsumerSecret];
     [Fabric with:@[CrashlyticsKit, [Twitter sharedInstance]]];
@@ -57,6 +55,11 @@
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
          (UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert)];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+    self.hostReach = [Reachability reachabilityForInternetConnection];
+    [hostReach startNotifier];
+    [self updateInterfaceWithReachability:self.hostReach];
     
     return YES;
 }
@@ -204,18 +207,57 @@
                                        allowLoginUI:allowLoginUI
                                   completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
                                       
-                                      // Create a NSDictionary object and set the parameter values.
-                                      NSDictionary *sessionStateInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                                                        session, @"session",
-                                                                        [NSNumber numberWithInteger:status], @"state",
-                                                                        error, @"error",
-                                                                        nil];
+                // Create a NSDictionary object and set the parameter values.
+                NSDictionary *sessionStateInfo = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                                  session, @"session",
+                                                  [NSNumber numberWithInteger:status], @"state",
+                                                  error, @"error", nil];
                                       
-                                      // Create a new notification, add the sessionStateInfo dictionary to it and post it.
-                                      [[NSNotificationCenter defaultCenter] postNotificationName:kFacebookNotification
-                                                                                          object:nil
-                                                                                        userInfo:sessionStateInfo];
+                // Create a new notification, add the sessionStateInfo dictionary to it and post it.
+                [[NSNotificationCenter defaultCenter] postNotificationName:kFacebookNotification
+                                                                    object:nil
+                                                                    userInfo:sessionStateInfo];
                                       
-                                  }];
+                }];
+}
+
+#pragma mark - Reachability
+
+- (void) updateInterfaceWithReachability:(Reachability*)curReach {
+    
+    self.netStatus = [curReach currentReachabilityStatus];
+    
+//    if([self.window.rootViewController isKindOfClass:[UINavigationController class]]){
+//        UINavigationController *nav = (UINavigationController *)self.window.rootViewController;
+//        if([[nav visibleViewController] isKindOfClass:[ReadScreenController class]]){
+//            return;
+//        }
+//    }
+//    
+//    if(self.netStatus != NotReachable && [[SyncEngine sharedEngine] allowUseInternetConnection]){
+//        [[SyncEngine sharedEngine] startSync];
+//        [[SyncEngine sharedEngine] downloadArticleFromServer];
+//    }
+//    else{
+//        [[SyncEngine sharedEngine] reloadCollectionView];
+//    }
+}
+
+- (void) reachabilityChanged:(NSNotification*)note {
+    Reachability* curReach = [note object];
+    NSParameterAssert([curReach isKindOfClass: [Reachability class]]);
+    [self updateInterfaceWithReachability: curReach];
+}
+
+#pragma mark - iLink
+- (void)iLinkDidFindiTunesInfo{
+    NSLog(@"App local URL: %@", [iLink sharedInstance].iLinkGetAppURLforLocal );
+    NSLog(@"App sharing URL: %@", [iLink sharedInstance].iLinkGetAppURLforSharing );
+    NSLog(@"App rating URL: %@", [iLink sharedInstance].iLinkGetRatingURL );
+    NSLog(@"App Developer URL: %@", [iLink sharedInstance].iLinkGetDeveloperURLforSharing);
+    NSLog(@"App appStoreCountry: %@", [iLink sharedInstance].appStoreCountry);
+    
+    [[iLink sharedInstance] iLinkOpenDeveloperPage]; // Would open developer page on the App Store
+    [[iLink sharedInstance] iLinkOpenAppPageInAppStoreWithAppleID:553834731]; // Would open a different app then the current, For example the paid version. Just put the Apple ID of that app.
 }
 @end

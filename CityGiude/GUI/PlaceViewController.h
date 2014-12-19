@@ -27,11 +27,20 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *segmentController;
 
 @property (weak, nonatomic) IBOutlet UIView *listMapButtonView;
-@property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
+//@property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
+@property (nonatomic, strong) NSArray *frcPlaces;
+
 @property (nonatomic, strong) Categories *aCategory;
+@property (nonatomic, strong) NSDictionary* filterDictionary;
+
+
 - (IBAction)segmentValueChanged:(id)sender;
 
 - (IBAction)buttonListPressed:(id)sender;
 - (IBAction)buttonMappPressed:(id)sender;
+
+-(void)createPlaceList;
+-(void)createMap;
+
 
 @end

@@ -85,12 +85,16 @@ typedef enum {
 #define kCoreDataDiscountEntity @"Discounts"
 #define kCoreDatafavouriteEntity @"Favourites"
 #define kCoreDataCommentsEntity @"Comments"
+#define kCoreDataValuesEntity @"Values"
 
 #define kCoreDataModelName @"CityGiude"
 #define kCoreDataSQLiteName @"CityGiude.sqlite"
 
 #define kCoreDataFavourTypeCategory @"category"
 #define kCoreDataFavourTypePlace @"place"
+
+#define kAttributeParentCategory @"category"
+#define kAttributeParentPlace @"place"
 
 // =========== Button titles ========
 #define kFilterAllTime @"Круглосуточно"
@@ -136,6 +140,8 @@ typedef enum {
 #define kSocialUserFirstName @"userFirstName"
 #define kSocialUserLastName @"userLastName"
 #define kSocialUserPhoto @"userPhoto"
+#define kSocialUserPhone @"userPhone"
+#define kSocialUserToken @"userToken"
 
 #define kSocialFacebookProfile @"facebookProfile"
 #define kSocialTwitterProfile @"twitterProfile"
@@ -159,5 +165,19 @@ typedef enum {
 #define kAlertUpdateDataMessage @"Хотите обновить данные?"
 #define kAlertYes @"Да"
 #define kAlertNo @"Нет"
+#define kAlertAuthEnter @"Войти"
+#define kAlertCancel @"Отмена"
+#define kAlertRegisterUserSuccess @"Регистрация пользователя прошла успешно"
+#define kAlertRegisterUserError @"Сервер не доступен\nРегистрация пользователя не удалась"
+
+// =========== Application Messages =====
+#define kApplicationTitle @"CityGiude"
+#define kCommentMessage @"Отзывы доступны только онлайн"
+#define kCommentsNoRating @"Отзыв не может быть отправлен без рейтинга (хотя бы одна звездочка)"
+#define kCommentsNoText @"Отзыв не может быть отправлен без текста"
+#define kCommentSuccess @"Спасибо за ваш отзыв.\nПосле модерации он будет добавлен в список"
+#define kCommentError @"Не удалось отправить отзыв.\nПопробуйте позже"
+#define kCommentNeedAuth @"Комментировать могут только авторизованные пользователи. Хотите авторизоваться?"
+#define kFavourNeedAuth @"Добавлять в Избранное могут только авторизованные пользователи. Хотите авторизоваться?"
 
 #endif

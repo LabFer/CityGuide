@@ -12,14 +12,11 @@
 
 -(void)startMainScreen;
 -(void)startCacheMap;
--(void)setStatusLabelText:(NSString*)text;
--(void)setSubStatusLabelText:(NSString*)text;
 -(void)setProgressValueMb:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected;
 -(void)setProgressValue:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected;
 
 -(void)setUpdateStatusText:(NSString*)statusLabelText withSubstatus:(NSString*)substatusLabelText;
-
-
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 @property (weak, nonatomic) IBOutlet UIView *statusView;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
@@ -33,7 +30,5 @@
 -(void)errorUpdateDataFromServer;
 
 -(void)successCheckNewData:(NSDictionary*)jsonData;
-
--(void)errorDownloadZipFromServer:(NSString*)filePath;
 
 @end

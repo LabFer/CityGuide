@@ -109,14 +109,14 @@
     
     NSString *resultString = @"";
     if([breakdownInfo month] != 0){
-        resultString = [NSString stringWithFormat:@"Осталось %li месяцев %li дней", [breakdownInfo month], [breakdownInfo day]];
+        resultString = [NSString stringWithFormat:@"Осталось %li месяцев %li дней", (long)[breakdownInfo month], (long)[breakdownInfo day]];
     }
     else{
         if([breakdownInfo day] != 0){
-            resultString = [NSString stringWithFormat:@"Осталось %li дней", [breakdownInfo day]];
+            resultString = [NSString stringWithFormat:@"Осталось %li дней", (long)[breakdownInfo day]];
         }
         else{
-            resultString = [NSString stringWithFormat:@"Осталось %li часов %li минут", [breakdownInfo hour], [breakdownInfo minute]];
+            resultString = [NSString stringWithFormat:@"Осталось %li часов %li минут", (long)[breakdownInfo hour], (long)[breakdownInfo minute]];
         }
     }
     

@@ -2,7 +2,7 @@
 //  Favourites.h
 //  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 07/12/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -12,8 +12,9 @@
 
 @interface Favourites : NSManagedObject
 
-@property (nonatomic, retain) NSString * favourType;
 @property (nonatomic, retain) NSNumber * favourID;
+@property (nonatomic, retain) NSString * favourType;
 @property (nonatomic, retain) NSNumber * parentID;
-
+@property (nonatomic, retain) NSString * userToken;
+@property (nonatomic, retain) NSNumber * favourStatus;//needSync;
 @end

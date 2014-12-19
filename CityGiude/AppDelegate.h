@@ -9,8 +9,10 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import <FacebookSDK/FacebookSDK.h>
+#import "Reachability.h"
+#import "iLink.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, iLinkDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) NSArray *testArray;
@@ -24,7 +26,10 @@
 //- (void)saveContext;
 //- (NSURL *)applicationDocumentsDirectory;
 
+@property (assign, nonatomic) NetworkStatus netStatus;
+@property (strong, nonatomic) Reachability  *hostReach;
 
+- (void)updateInterfaceWithReachability: (Reachability*) curReach;
 
 
 @end

@@ -1,38 +1,37 @@
 //
 //  Attributes.h
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class Categories, Places;
+@class Categories, Places, Values;
 
 @interface Attributes : NSManagedObject
 
+@property (nonatomic, retain) NSNumber * attributeID;
 @property (nonatomic, retain) NSNumber * filterable;
-@property (nonatomic, retain) NSNumber * id;
 @property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSString * picture;
 @property (nonatomic, retain) NSNumber * require;
 @property (nonatomic, retain) NSString * type;
-@property (nonatomic, retain) NSData * value;
-@property (nonatomic, retain) NSSet *category;
-@property (nonatomic, retain) NSSet *places;
+@property (nonatomic, retain) NSString * value;
+@property (nonatomic, retain) NSString * parentType;
+@property (nonatomic, retain) NSNumber * parentID;
+@property (nonatomic, retain) Places *places;
+@property (nonatomic, retain) NSSet *values;
+@property (nonatomic, retain) Categories *category;
 @end
 
 @interface Attributes (CoreDataGeneratedAccessors)
 
-- (void)addCategoryObject:(Categories *)value;
-- (void)removeCategoryObject:(Categories *)value;
-- (void)addCategory:(NSSet *)values;
-- (void)removeCategory:(NSSet *)values;
-
-- (void)addPlacesObject:(Places *)value;
-- (void)removePlacesObject:(Places *)value;
-- (void)addPlaces:(NSSet *)values;
-- (void)removePlaces:(NSSet *)values;
+- (void)addValuesObject:(Values *)value;
+- (void)removeValuesObject:(Values *)value;
+- (void)addValues:(NSSet *)values;
+- (void)removeValues:(NSSet *)values;
 
 @end

@@ -1,8 +1,8 @@
 //
 //  Banners.m
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -11,8 +11,8 @@
 
 @implementation Banners
 
-@dynamic bannerName;
 @dynamic bannerID;
+@dynamic bannerName;
 @dynamic picture;
 @dynamic position;
 @dynamic showName;

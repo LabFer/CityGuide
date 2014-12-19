@@ -158,7 +158,7 @@
             target = target.superlayer;
         }
         NSLog(@"Place : %@",[target valueForKey:@"place"]);
-        [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:[target valueForKey:@"place"]];
+        //[self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:[target valueForKey:@"place"]];
     }
     
 }

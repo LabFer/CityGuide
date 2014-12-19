@@ -2,7 +2,7 @@
 //  Discounts.m
 //  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 07/12/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -16,9 +16,9 @@
 @dynamic descript;
 @dynamic discountID;
 @dynamic image;
-@dynamic placeID;
 @dynamic name;
 @dynamic nameType;
+@dynamic placeID;
 @dynamic slider;
 @dynamic text;
 @dynamic type;

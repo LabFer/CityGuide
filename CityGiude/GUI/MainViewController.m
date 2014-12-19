@@ -27,6 +27,7 @@
 #import "Places.h"
 #import "DBWork.h"
 
+#import "AuthUserViewController.h"
 
 #import "AppDelegate.h"
 
@@ -215,7 +216,7 @@
     NSUInteger currentIndex = [self indexOfViewController:(BannerContentViewController *)self.pageController.viewControllers[0]];
     
     BOOL forward = true;
-    NSLog(@"updatePage. currentIndex: %lu; count: %lu", currentIndex, [self.pageContent count]);
+    //NSLog(@"updatePage. currentIndex: %lu; count: %lu", currentIndex, [self.pageContent count]);
     if((currentIndex + 1) >= [self.pageContent count]){
         currentIndex = 0;
         forward = false;
@@ -316,7 +317,7 @@
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
-    if([[DBWork shared] isCategoryFavour:category.id])
+    if([[DBWork shared] isCategoryFavour:category.categoryID])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -327,7 +328,7 @@
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
-    if([[DBWork shared] isCategoryFavour:category.id])
+    if([[DBWork shared] isCategoryFavour:category.categoryID])
        [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -395,19 +396,29 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     //NSLog(@"button pressed: %@, %@", indexPath, category.name);
     
-    if([[DBWork shared] isCategoryFavour:category.id]){
-        [[DBWork shared] removeCategoryFromFavour:category.id];
+    if([[DBWork shared] isCategoryFavour:category.categoryID]){
+        [[DBWork shared] removeCategoryFromFavour:category.categoryID];
     }
     else{
-        [[DBWork shared] setCategoryToFavour:category.id];
+        if([_userSettings isUserAuthorized]){
+            [self setCategoryToFavour:category];
+        }
+        else{
+            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                              message:kFavourNeedAuth
+                                                             delegate:self
+                                                    cancelButtonTitle:kAlertCancel
+                                                    otherButtonTitles:kAlertAuthEnter, nil];
+            [message show];
+        }
     }
     
     [self.catalogCollectionView reloadItemsAtIndexPaths:[NSArray arrayWithObjects:indexPath, nil]];
     
-    //NSString *title = self.strings[indexPath.row];
-    
-    //self.someLabel.text = title;
-    
+}
+
+-(void)setCategoryToFavour:(Categories*)category{
+    [[DBWork shared] setCategoryToFavour:category.categoryID];
 }
 
 
@@ -438,6 +449,22 @@
     
         }
     }
+}
+
+#pragma mark - Alert Delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"alertView: %@", alertView.message);
+    
+    if(buttonIndex != [alertView cancelButtonIndex]){
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        AuthUserViewController* auth = [storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
+        auth.delegate = self;
+        auth.needToSetFavour = YES;
+        [self presentViewController:auth animated:YES completion:nil];
+        
+        //[self performSegueWithIdentifier:@"segueFromResponcesListToAuth" sender:self];
+    }
+    
 }
 
 

@@ -1,8 +1,8 @@
 //
 //  Places.m
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -10,6 +10,7 @@
 #import "Attributes.h"
 #import "Categories.h"
 #import "Gallery.h"
+#import "Keys.h"
 #import "Phones.h"
 
 
@@ -18,7 +19,8 @@
 @dynamic address;
 @dynamic categories_ids;
 @dynamic decript;
-@dynamic id;
+@dynamic favour;
+@dynamic placeID;
 @dynamic lattitude;
 @dynamic longitude;
 @dynamic name;
@@ -33,11 +35,10 @@
 @dynamic work_time_description;
 @dynamic work_time_end;
 @dynamic work_time_start;
-@dynamic attributes;
-@dynamic category;
-@dynamic phones;
 @dynamic gallery;
 @dynamic keys;
-@dynamic favour;
+@dynamic phones;
+@dynamic categories;
+@dynamic attributes;
 
 @end

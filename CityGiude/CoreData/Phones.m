@@ -1,8 +1,8 @@
 //
 //  Phones.m
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -12,7 +12,7 @@
 
 @implementation Phones
 
-@dynamic id;
+@dynamic phoneID;
 @dynamic phone_number;
 @dynamic places;
 

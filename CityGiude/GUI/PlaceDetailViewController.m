@@ -18,6 +18,7 @@
 #import <TwitterKit/TwitterKit.h>
 #import <FacebookSDK/FacebookSDK.h>
 #import "ResponceCollectionViewController.h"
+#import "AuthUserViewController.h"
 
 static NSArray  * SCOPE = nil;
 
@@ -35,7 +36,7 @@ static NSArray  * SCOPE = nil;
     [super viewDidLoad];
     
     [self setNavBarButtons];
-    NSLog(@"======= Gallery ====== : %lu", self.aPlace.gallery.count);
+    NSLog(@"======= Gallery ====== : %lu", (unsigned long)self.aPlace.gallery.count);
     
     [self configurePlaceGalleryPreview];
     
@@ -88,15 +89,15 @@ static NSArray  * SCOPE = nil;
 }
 
 -(NSString*)getStringCategories{
-    if([self.aPlace.category allObjects].count == 0)
+    if([self.aPlace.categories allObjects].count == 0)
         return @"";
     
-    Categories *aCategory = [self.aPlace.category allObjects][0];
+    Categories *aCategory = [self.aPlace.categories allObjects][0];
     NSMutableString *aStr =  [NSMutableString stringWithString:aCategory.name];
     
-    for(int i = 1; i < [self.aPlace.category allObjects].count; i++){
+    for(int i = 1; i < [self.aPlace.categories allObjects].count; i++){
         [aStr appendString:@", "];
-        aCategory = [self.aPlace.category allObjects][i];
+        aCategory = [self.aPlace.categories allObjects][i];
         [aStr appendString:aCategory.name];
         
     }
@@ -315,7 +316,7 @@ static NSArray  * SCOPE = nil;
         [detailCell.placeImage setImageWithURL:nil];
         [detailCell.placeImage setImageWithURL:imgUrl];
         
-        if([[DBWork shared] isPlaceFavour:self.aPlace.id]){
+        if([[DBWork shared] isPlaceFavour:self.aPlace.placeID]){
             [detailCell.btnHeart setImage:[UIImage imageNamed:@"heart-active"] forState:UIControlStateNormal];
         }
         else{
@@ -565,11 +566,22 @@ static NSArray  * SCOPE = nil;
 
 - (IBAction)btnHeartPressed:(id)sender {
     
-    if([[DBWork shared] isPlaceFavour:self.aPlace.id]){
-        [[DBWork shared] removePlaceFromFavour:self.aPlace.id];
+    if([[DBWork shared] isPlaceFavour:self.aPlace.placeID]){
+        [[DBWork shared] removePlaceFromFavour:self.aPlace.placeID];
     }
     else{
-        [[DBWork shared] setPlaceToFavour:self.aPlace.id];
+        if([_userSettings isUserAuthorized]){
+            [self setPlaceToFavour];
+        }
+        else{
+            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                              message:kFavourNeedAuth
+                                                             delegate:self
+                                                    cancelButtonTitle:kAlertCancel
+                                                    otherButtonTitles:kAlertAuthEnter, nil];
+            [message show];
+        }
+
     }
     
 //    self.aPlace.favour = [NSNumber numberWithBool:!self.aPlace.favour.boolValue];
@@ -579,12 +591,16 @@ static NSArray  * SCOPE = nil;
     //[self.tableView reloadRowsAtIndexPaths:@[_mainCellIndexPath] withRowAnimation:UITableViewRowAnimationNone];
 }
 
+-(void)setPlaceToFavour{
+    [[DBWork shared] setPlaceToFavour:self.aPlace.placeID];
+}
+
 -(void)configureBtnHeart:(UIButton*)btn{
     
     NSString *activeStr = ([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big) ? @"active_heart": @"heart-active";
     NSString *inactiveStr = ([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big) ? @"inactive_heart": @"heart-inactive";
     
-    if([[DBWork shared] isPlaceFavour:self.aPlace.id]){
+    if([[DBWork shared] isPlaceFavour:self.aPlace.placeID]){
         [btn setImage:[UIImage imageNamed:activeStr] forState:UIControlStateNormal];
     }
     else{
@@ -598,7 +614,7 @@ static NSArray  * SCOPE = nil;
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:[gestureRecognizer locationInView:self.tableView]];
     
     if(indexPath){
-        NSLog(@"didSelectImageAtIndexPath: %lu", indexPath.row);
+        NSLog(@"didSelectImageAtIndexPath: %lu", (unsigned long)indexPath.row);
         
         switch (indexPath.row) {
             case 1:
@@ -692,5 +708,20 @@ static NSArray  * SCOPE = nil;
     return params;
 }
 
+#pragma mark - Alert Delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"alertView: %@", alertView.message);
+    
+    if(buttonIndex != [alertView cancelButtonIndex]){
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        AuthUserViewController* auth = [storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
+        auth.delegate = self;
+        auth.needToSetFavour = YES;
+        [self presentViewController:auth animated:YES completion:nil];
+        
+        //[self performSegueWithIdentifier:@"segueFromResponcesListToAuth" sender:self];
+    }
+    
+}
 
 @end

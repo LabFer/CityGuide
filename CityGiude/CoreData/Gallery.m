@@ -1,8 +1,8 @@
 //
 //  Gallery.m
-//  CityGiude
+//  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 18/11/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -12,9 +12,9 @@
 
 @implementation Gallery
 
-@dynamic id;
-@dynamic photo_small;
+@dynamic galleryID;
 @dynamic photo_big;
+@dynamic photo_small;
 @dynamic places;
 
 @end

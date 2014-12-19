@@ -20,6 +20,7 @@
 #import "LaunchViewController.h"
 
 #import "SSZipArchive.h"
+#import "UIUserSettings.h"
 
 
 @implementation SyncEngine
@@ -66,6 +67,8 @@
 #pragma mark - Check New Data On Server
 
 -(void)downloadJSONDataFromServer{
+    NSLog(@"downloadJSONDataFromServer");
+    
     NSNumber *timeStamp = [self getTimeStamp];
     NSLog(@"timeStamp: %@", timeStamp);
     
@@ -81,7 +84,11 @@
             if([self.delegate isKindOfClass:[LaunchViewController class]]){
                 LaunchViewController *launchScreen = (LaunchViewController *)self.delegate;
                 launchScreen.statusView.hidden = NO;
+                launchScreen.activityIndicator.hidden = YES;
+                [launchScreen.activityIndicator stopAnimating];
             }
+            NSNumber *time = [(NSDictionary*)responseObject objectForKey:@"time"];
+            [self setTimeStamp:time];
             [self downloadZipFile:[(NSDictionary*)responseObject objectForKey:@"data"]];
         }
         else{
@@ -106,6 +113,7 @@
 #pragma mark - Map Cache
 -(void)downloadMapCache{
     
+    NSLog(@"downloadMapCache");
     NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
     NSError *error;
     NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
@@ -170,6 +178,8 @@
 #pragma mark - Banners
 -(void)downloadBannersFromServer{
     
+    NSLog(@"downloadBannersFromServer");
+    
     // ======== Get data from server ========
     
     NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:DEVICE_KEY, @"typeDevice", @"baner", @"method", nil];
@@ -199,7 +209,7 @@
 }
 
 -(void)downloadArticleFromServer{
-    
+    NSLog(@"downloadArticleFromServer");
 //    //NSString *strURL = URL_API;
 //    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:@"article", @"method", @"3", @"id", nil];
 //    
@@ -254,52 +264,58 @@
 //    appDelegate.window.rootViewController = startController;
 }
 
-//-(BOOL)allowUseInternetConnection{
-//    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-//    NSNumber *shouldUse3G = [userDefaults objectForKey:@"shouldUse3G"];
-//    //NSLog(@"%@", shouldUse3G);
-//    
-//    if(!shouldUse3G){
-//        shouldUse3G = [NSNumber numberWithBool:YES];
-//        [userDefaults setObject:shouldUse3G forKey:@"shouldUse3G"];
-//        [userDefaults synchronize];
-//    }
-//    
-//    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
-//    BOOL allowConnection = YES;
-//    
-//    if(appDelegate.netStatus == NotReachable){
-//        UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"ChildBook"
+-(BOOL)allowUseInternetConnection{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *shouldUse3G = [userDefaults objectForKey:@"shouldUse3G"];
+    //NSLog(@"%@", shouldUse3G);
+    
+    if(!shouldUse3G){
+        shouldUse3G = [NSNumber numberWithBool:YES];
+        [userDefaults setObject:shouldUse3G forKey:@"shouldUse3G"];
+        [userDefaults synchronize];
+    }
+    
+    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    BOOL allowConnection = YES;
+    
+    if(appDelegate.netStatus == NotReachable){
+//        //UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"CityGuide"
 //                                                          message:@"Нет подключения к интернету!"
 //                                                         delegate:nil
 //                                                cancelButtonTitle:@"OK"
 //                                                otherButtonTitles:nil];
-//        [message show];
-//        allowConnection = NO;
-//    }
-//    else if((appDelegate.netStatus == ReachableViaWWAN) && (shouldUse3G.boolValue == NO)){
-//        UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"ChildBook"
+//        //[message show];
+        allowConnection = NO;
+    }
+    else if((appDelegate.netStatus == ReachableViaWWAN) && (shouldUse3G.boolValue == NO)){
+//        //UIAlertView *message = [[UIAlertView alloc] initWithTitle:@"CityGuide"
 //                                                          message:@"Приложение не может использовать GPRS(3G) подключение для загрузки книг. Измените способ подключения к интернету в окне настроек."
 //                                                         delegate:nil
 //                                                cancelButtonTitle:@"OK"
 //                                                otherButtonTitles:nil];
 //        [message show];
-//        allowConnection = NO;
-//    }
-//
-//    
-//    return allowConnection;
-//}
+        allowConnection = NO;
+    }
+
+    
+    return allowConnection;
+}
 
 #pragma mark - FileDownloader
 
 -(void)downloadZipFile:(NSString*)filePath{
     
+    NSLog(@"downloadZipFile");
+    
     NSString *url = [URL_BASE stringByAppendingString:filePath];
+    NSTimeInterval timeInMiliseconds = [[NSDate date] timeIntervalSince1970];
+    url = [url stringByAppendingString:[NSString stringWithFormat:@"?%f", timeInMiliseconds]];
+    NSLog(@"downloadZipFile: %@", url);
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
     NSString *path = [CACHE_DIR stringByAppendingPathComponent:filePath];
     
     AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:path shouldResume:YES];
+    operation.shouldOverwrite = YES;
     
     [self updateStatusLabels:@"Загрузка" withSubstatus:@"Загрузка архива с сервера"];
     
@@ -322,7 +338,7 @@
                                            options:NSJSONReadingMutableContainers
                                            error:&error];
         
-            NSLog(@"jsonData: %@", jsonData);
+            //NSLog(@"jsonData: %@", jsonData);
             if(jsonData){
                 BOOL deleted = [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
                 if (!deleted) {
@@ -382,66 +398,265 @@
     
     
 }
-//-(void)downloadFile:(ChildBook*)aBook indexPath:(NSIndexPath*)idx{
-//    
-//    NSString *str = @"http://childbook.appsgroup.ru/";
-//    NSString *url = [str stringByAppendingString:aBook.file];
-//    NSString *file = [aBook.name stringByAppendingString:@".mp3"];
-//    
-//    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-//    //NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-//    NSString *path = [CACHE_DIR stringByAppendingPathComponent:file];
-//    
-//    //NSArray *param = [NSArray arrayWithObjects:aBook.bookID, path, nil];
-//    if(![self.downloadDictionary objectForKey:aBook.bookID]){
-//        [self.downloadDictionary setObject:path forKey:aBook.bookID];
-//        //NSLog(@"%@", self.downloadDictionary);
-//    }
-//    
-//    AFDownloadRequestOperation *operation = [[AFDownloadRequestOperation alloc] initWithRequest:request targetPath:path shouldResume:YES];
-//    
-//    //NSLog(@"start operation: %@ ==== %@", aBook.bookID, operation.userInfo);
-//    operation.userInfo = [NSDictionary dictionaryWithObject:aBook.bookID forKey:@"bookID"];
-//    
-//    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        //NSLog(@"Successfully downloaded file to %@", path);
-//        //NSLog(@"complete operation: %@", operation);
-//        
-//        [self.delegate performSelector:@selector(downloadComplete:) withObject:[operation.userInfo objectForKey:@"bookID"]];
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        //NSLog(@"Error: %@", error.userInfo);
-//        NSError *e  = [error.userInfo objectForKey:@"NSUnderlyingError"];
-//        if([e code] == 17){
-//            [self.delegate performSelector:@selector(downloadComplete:) withObject:[operation.userInfo objectForKey:@"bookID"]];
-//        }
-//    }];
-//    
-//    [operation setProgressiveDownloadProgressBlock:^(AFDownloadRequestOperation *operation, NSInteger bytesRead, long long totalBytesRead, long long totalBytesExpected, long long totalBytesReadForFile, long long totalBytesExpectedToReadForFile){
-//        
-//        //CGFloat progress = totalBytesReadForFile/totalBytesExpectedToReadForFile;
-//        NSNumber *progress = [NSNumber numberWithFloat:(float)totalBytesReadForFile/totalBytesExpectedToReadForFile];
-//        
-//        //NSLog(@"%@", progress);
-//        
-//        [self.delegate performSelector:@selector(updateDownloadProgress:progress:) withObject:[operation.userInfo objectForKey:@"bookID"]  withObject:progress];
-//    }];
-//    
-//    [operation start];
-//}
 
-//-(void)resumeDownloadingFile{
-//    if(self.downloadDictionary.count){
-//       // NSLog(@"resumeDownloadingFile");
-//        for(NSString *key in [self.downloadDictionary allKeys]) {
-//            NSLog(@"%@", key);
-//            
-//            NSString *str = [NSString stringWithFormat:@"SELF.bookID == %@", key];
-//            NSPredicate *predicate = [NSPredicate predicateWithFormat:str];//@"SELF.isDownloaded.boolValue == YES"];
-//            ChildBook *aBook = [[BooksData shared].books filteredArrayUsingPredicate:predicate].lastObject;
-//            [self downloadFile:aBook indexPath:nil];
-//        }
-//        
-//    }
-//}
+-(void)registerUser{
+
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSMutableDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+    
+    if(userProfile){
+        
+        NSString *socialName = @"";
+        if([[userProfile objectForKey:kSocialType] isEqualToString:kSocialFacebookProfile]){
+            socialName = @"facebook";
+        }
+        else if([[userProfile objectForKey:kSocialType] isEqualToString:kSocialVKontakteProfile]){
+            socialName = @"vkontakte";
+        }
+        else if([[userProfile objectForKey:kSocialType] isEqualToString:kSocialTwitterProfile]){
+            socialName = @"twitter";
+        }
+        
+        NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                    DEVICE_KEY, @"typeDevice",
+                                    [userProfile objectForKey:kSocialUserPhone], @"phone",
+                                    [userProfile objectForKey:kSocialUserEmail], @"email",
+                                    [userProfile objectForKey:kSocialUserPhoto], @"photo",
+                                    [NSString stringWithFormat:@"%@ %@", [userProfile objectForKey:kSocialUserFirstName], [userProfile objectForKey:kSocialUserLastName]], @"name",
+                                    socialName, @"socialName",
+                                    [userProfile objectForKey:kSocialUserID], @"socialID",
+                                    @"userlogin", @"method", nil];
+        
+        //NSString* URL_API = @"http://opros.appsgroup.ru/api/ios_v1/api.php";
+        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+        
+        [manager POST:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            NSLog(@"UserLogin. Validation responceDict: %@", responseObject);
+            NSDictionary *responce = (NSDictionary*)responseObject;
+            NSNumber *code = [responce objectForKey:@"code"];
+            NSLog(@"code: %@", code);
+            if(code.intValue == 0){
+                
+                NSDictionary *updateUser = [NSDictionary dictionaryWithObjectsAndKeys:
+                                            [userProfile objectForKey:kSocialType], kSocialType,
+                                            [userProfile objectForKey:kSocialUserFirstName], kSocialUserFirstName,
+                                            [userProfile objectForKey:kSocialUserLastName], kSocialUserLastName,
+                                            [userProfile objectForKey:kSocialUserID], kSocialUserID,
+                                            [userProfile objectForKey:kSocialUserEmail], kSocialUserEmail,
+                                            [userProfile objectForKey:kSocialUserPhone], kSocialUserPhone,
+                                            [responce objectForKey:@"data"], kSocialUserToken,
+                                            [userProfile objectForKey:kSocialUserPhoto], kSocialUserPhoto, nil];
+                
+                [userDefaults removeObjectForKey:kSocialUserProfile];
+                [userDefaults synchronize];
+                
+                [userDefaults setObject:updateUser forKey:kSocialUserProfile];
+                [userDefaults synchronize];
+                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+                NSLog(@"UserLogin success!");
+                UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                                  message:kAlertRegisterUserSuccess
+                                                                 delegate:nil
+                                                        cancelButtonTitle:@"OK"
+                                                        otherButtonTitles:nil];
+                [message show];
+                [self uploadFavourites];
+            }
+            else{
+                NSLog(@"UserLogin Error: %@", [responseObject objectForKey:@"errorText"]);
+                [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+                UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                                  message:kAlertRegisterUserError
+                                                                 delegate:nil
+                                                        cancelButtonTitle:@"OK"
+                                                        otherButtonTitles:nil];
+                [message show];
+            }
+        }
+        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"UserLogin connection Error: %@", error);
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                              message:kAlertRegisterUserError
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"OK"
+                                                    otherButtonTitles:nil];
+            [message show];
+        }];
+    }
+}
+
+#pragma mark - Favourites
+
+-(void)uploadFavourites{
+    
+    
+    NSArray *favourites = [[DBWork shared] getUnsyncFavourites];
+    
+    NSLog(@"uploadFavourites: %lu", (unsigned long)favourites.count);
+    if(favourites.count == 0){
+        NSLog(@"Have no favourites for upload!");
+        [self getFavourites];
+        return;
+    }
+    
+    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:0];
+    
+    for(Favourites *f in favourites){
+        NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:f.userToken, @"usertoken", f.favourType, @"favoritetype", f.parentID, @"favoriteid", nil];
+        
+        [items addObject:d];
+      
+    }
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:items
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:&error];
+    
+    NSString *JSONString = @"";
+    if (!jsonData) {
+        NSLog(@"uploadFavourites. JSON error: %@", error);
+    }
+    else {
+        JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+        NSLog(@"syncFavourites. JSON OUTPUT: %@",JSONString);
+    }
+    
+//    
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                /*DEVICE_KEY, @"typeDevice",*/
+                                JSONString, @"favorites",
+                                @"addfavorite", @"method", nil];
+    
+    NSLog(@"uploadFavourites. parameters: %@", parameters);
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    
+    [manager POST:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"uploadFavourites. Validation responceDict: %@", responseObject);
+        NSDictionary* arr = (NSDictionary*)responseObject;
+        NSNumber *code = [arr objectForKey:@"code"];
+        if(code.integerValue == 0){
+            NSLog(@"uploadFavourites. Sync OK");
+            [self getFavourites];
+
+        }
+        else{
+            NSLog(@"uploadFavourites. Sync NOT OK");
+            
+        }
+
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"uploadFavourites. Validation connection Error: %@", error);
+    }];
+}
+
+-(void)getFavourites{
+    NSLog(@"getFavourites");
+    
+    
+    UIUserSettings *us = [[UIUserSettings alloc] init];
+    if(![us isUserAuthorized]){
+        NSLog(@"User not authorized");
+        return;
+    }    
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSMutableDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+    NSString *userToken = [userProfile objectForKey:kSocialUserToken];
+    
+    if(![userToken isEqualToString:@""]){
+    
+        // ======== Get data from server ========
+        NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:userToken, @"usertoken", @"getfavorite", @"method", nil];
+    
+        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+        
+        [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            NSLog(@"getFavourites JSON: %@", responseObject);
+            NSDictionary* arr = (NSDictionary*)responseObject;
+            NSNumber *code = [arr objectForKey:@"code"];
+            if(code.integerValue == 0){
+                NSArray *data = [arr objectForKey:@"data"];
+                [[DBWork shared] insertFavouritesFromArray:data];
+                [self deleteFavourites];
+            }
+        
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"getFavourites. Error: %@", error);
+        
+        }];
+    }
+    else{
+        NSLog(@"userToken is empty");
+    }
+    
+}
+
+-(void)deleteFavourites{
+    
+    
+    NSArray *favourites = [[DBWork shared] getDeletedFavourites];
+    
+    NSLog(@"deleteFavourites: %lu", (unsigned long)favourites.count);
+    if(favourites.count == 0){
+        NSLog(@"Have no favourites for deleting!");
+        return;
+    }
+    
+    NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:0];
+    
+    for(Favourites *f in favourites){
+        //NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:f.favourID, @"favoriteid", nil];
+        
+        [items addObject:f.favourID];
+        
+    }
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:items
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:&error];
+    
+    NSString *JSONString = @"";
+    if (!jsonData) {
+        NSLog(@"deleteFavourites. JSON error: %@", error);
+    }
+    else {
+        JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
+        NSLog(@"deleteFavourites. JSON OUTPUT: %@",JSONString);
+    }
+    
+    //
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                /*DEVICE_KEY, @"typeDevice",*/
+                                JSONString, @"delfavid",
+                                @"delfavorite", @"method", nil];
+    
+    //NSLog(@"deteletFavourites. parameters: %@", parameters);
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    
+    [manager POST:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"deleteFavourites. Validation responceDict: %@", responseObject);
+        NSDictionary* arr = (NSDictionary*)responseObject;
+        NSNumber *code = [arr objectForKey:@"code"];
+        if(code.integerValue == 0){
+            NSLog(@"deleteFavourites. Sync OK");
+            
+            [[DBWork shared] deleteFavouritesFromArray:items];
+            
+        }
+        else{
+            NSLog(@"deleteFavourites. Sync NOT OK");
+            
+        }
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"deleteFavourites. Validation connection Error: %@", error);
+    }];
+}
+
 
 @end

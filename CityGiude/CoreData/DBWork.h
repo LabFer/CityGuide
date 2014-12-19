@@ -8,10 +8,19 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+
+#import "Discounts.h"
+#import "Banners.h"
 #import "Attributes.h"
-#import "Keys.h"
 #import "Phones.h"
+#import "Keys.h"
+#import "Categories.h"
+#import "Favourites.h"
+#import "Comments.h"
+#import "Places.h"
 #import "Gallery.h"
+#import "Values.h"
+
 
 @interface DBWork : NSObject
 
@@ -23,7 +32,7 @@
 
 -(void)saveContext;
 
--(void)inserDataFromArray:(NSArray*)insertArray; // insert data for all entities
+
 -(void)inserDataFromDictionary:(NSDictionary*)insertDictionary; // insert data for all entities
 
 -(void)insertCategoriesFromArray:(NSArray*)anArray;
@@ -36,11 +45,13 @@
 -(BOOL)isCategoryFavour:(NSNumber*)categoryID;
 -(NSArray*)getFavourCategory;
 
+-(void)insertNewAttributeForCategory:(NSDictionary *)anAttribute;
+-(NSSet*)insertNewValuesForAttributeFromArray:(NSArray *)anArray;
 -(void)insertAttributesFromArray:(NSArray*)anArray;
--(void)insertNewAttribute:(NSDictionary*)anAttribute;
--(Attributes*)getAttributeItem:(NSNumber*)attributeID;
--(NSSet*)getAttributesFromArray:(NSArray*)anArray;
--(BOOL)isAttributeExist:(NSNumber*)attributeID;
+-(NSSet*)getAttributesFromArray:(NSArray *)anArray forParent:(NSString *)parentName;
+-(Attributes*)getAttributeItem:(NSNumber *)attributeID forParent:(NSString *)parentName;
+-(NSSet*)getAttributeItemForParent:(NSNumber *)parentID forParent:(NSString *)parentName;
+-(BOOL)isAttributeExist:(NSNumber *)attributeID forParent:(NSString *)parentName;
 
 -(void)insertPlacesFromArray:(NSArray*)anArray;
 -(void)insertNewPlace:(NSDictionary*)aPlace;
@@ -75,13 +86,11 @@
 -(void)insertCommentsFromArray:(NSArray *)anArray;
 -(BOOL)isCommentExist:(NSNumber *)commentID;
 
-//==========
-
--(void)deleteItems:(NSDictionary*)deleteDict;
--(void)deleteItem:(NSNumber*)itemID;
--(NSArray*)arrayWithObjects;
-
-
--(void)updateDataFromArray:(NSArray *)insertArray;
+-(NSArray*)getUnsyncFavourites;
+-(NSArray*)getDeletedFavourites;
+-(void)insertNewFavourite:(NSDictionary*)aFavourite;
+-(void)insertFavouritesFromArray:(NSArray*)anArray;
+-(void)deleteFavouritesFromArray:(NSArray*)anArray;
+//-(void)deleteFavouriteItem:(NSDictionary*)aFavourite;
 
 @end

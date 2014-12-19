@@ -14,6 +14,8 @@
 #import "MMDrawerBarButtonItem.h"
 #import "MenuTableViewController.h"
 
+#import "iLink.h"
+
 @implementation AboutUserViewController{
     UIUserSettings *_userSettings;
 }
@@ -43,7 +45,15 @@
     //    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     //    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"navbar"] forBarMetrics:UIBarMetricsDefault];
     
-    self.navigationItem.title = kNavigationTitleAboutUser;
+    if([_userSettings isUserAuthorized]){
+        NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+        NSDictionary *profile = [userDefault objectForKey:kSocialUserProfile];
+        self.navigationItem.title = [NSString stringWithFormat:@"%@ %@", [profile objectForKey:kSocialUserFirstName], [profile objectForKey:kSocialUserLastName]];
+    }
+    else{
+    
+        self.navigationItem.title = kNavigationTitleAboutUser;
+    }
     
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
@@ -65,6 +75,7 @@
 
 #pragma mark - Button Handlers
 - (IBAction)btnResponcePressed:(id)sender {
+    [[iLink sharedInstance] iLinkOpenRatingsPageInAppStore];
 }
 
 - (IBAction)btnMailPressed:(id)sender {

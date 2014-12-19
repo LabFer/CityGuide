@@ -22,12 +22,14 @@
 
 //#import "SHKSharerDelegate.h"
 
-@interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, VKSdkDelegate>
+@interface PlaceDetailViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate, VKSdkDelegate, UIAlertViewDelegate>
 
 @property (nonatomic, strong) PlaceDetailedMainCell *prototypeMainCell;
 @property (nonatomic, strong) PlaceDetailedMainCellNoImage *prototypeMainCellNoImage;
 
 @property (nonatomic, strong) Places *aPlace;
 @property (strong, nonatomic) NSArray *images;
+
+-(void)setPlaceToFavour;
 
 @end

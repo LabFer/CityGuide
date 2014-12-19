@@ -9,6 +9,10 @@
 #import "ResponseViewController.h"
 #import "UIUserSettings.h"
 #import "Constants.h"
+#import "SyncEngine.h"
+#import "AFNetworking.h"
+#import "ResponceCollectionViewController.h"
+#import "AuthUserViewController.h"
 
 @implementation ResponseViewController{
     UIUserSettings *_userSettings;
@@ -43,7 +47,19 @@
     UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
     [self.contentScrollView addGestureRecognizer:gestureRecognizer];
     
+    self.wordCountLabel.text = @"0/1000";
     
+    NSString *userName = @"";
+    
+    if([_userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSMutableDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        userName = [NSString stringWithFormat:@"%@ %@", [userProfile objectForKey:kSocialUserFirstName], [userProfile objectForKey:kSocialUserLastName]];
+    }
+    
+    self.userNameLabel.text =  userName;
+    self.activityIndicator.hidden = YES;
 }
 
 #pragma mark - Navigation bar
@@ -57,12 +73,144 @@
 }
 
 -(void)goBack{
+    
+    NSLog(@"Responce go back");
+//    if([self.delegate isKindOfClass:[AuthUserViewController class]]){
+//        NSInteger index = [self.navigationController.viewControllers indexOfObject:self];
+//        [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:index - 2] animated:YES];
+//    }
+//    else if([self.delegate isKindOfClass:[ResponceCollectionViewController class]]){
+//        [self.navigationController popViewControllerAnimated:YES];
+//    }
+        //[self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
 
 - (IBAction)sendResponseBtnPressed:(id)sender {
+    
+    if(![[SyncEngine sharedEngine] allowUseInternetConnection]){
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                                  message:kCommentMessage
+                                                                 delegate:nil
+                                                        cancelButtonTitle:@"OK"
+                                                        otherButtonTitles:nil];
+        [message show];
+        return;
+    }
+    
+    NSString *commentText = [self.commentTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                             
+    if(commentText == nil || [commentText isEqualToString:@""] || [commentText isEqualToString:kPlaceholderTextViewComments]){
+        
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                          message:kCommentsNoText
+                                                         delegate:nil
+                                                cancelButtonTitle:@"OK"
+                                                otherButtonTitles:nil];
+        [message show];
+        return;
+    }
+    
+    if(self.rateView.rating == 0.0f){
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                          message:kCommentsNoRating
+                                                         delegate:nil
+                                                cancelButtonTitle:@"OK"
+                                                otherButtonTitles:nil];
+        [message show];
+        return;
+    }
+   
+    
+    NSDictionary *aComment = [[NSDictionary alloc] initWithObjectsAndKeys:
+                              self.aPlace.placeID.stringValue, @"placeID",
+                              self.commentTextView.text, @"text",
+                              [NSNumber numberWithFloat:self.rateView.rating].stringValue, @"rating", nil];
+    
+    [self postComment:aComment];
+
 }
+
+#pragma mark - Post Comment
+-(void)postComment:(NSDictionary*)aComment{
+    
+    self.activityIndicator.hidden = NO;
+    [self.activityIndicator startAnimating];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    
+
+    
+    NSString *userToken = @"", *userName = @"";
+    
+    if([_userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSMutableDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
+        userToken = [userProfile objectForKey:kSocialUserToken];
+        userName = [NSString stringWithFormat:@"%@ %@", [userProfile objectForKey:kSocialUserFirstName], [userProfile objectForKey:kSocialUserLastName]];
+        
+    }
+    
+    NSLog(@"userToken = %@, userName = %@", userToken, userName);
+    NSLog(@"aComment: %@", aComment);
+    
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys: DEVICE_KEY, @"typeDevice", userToken, @"usertoken", userName, @"name", [aComment objectForKey:@"placeID"], @"placeID", [aComment objectForKey:@"text"], @"text", [aComment objectForKey:@"rating"], @"rating", @"addcomment", @"method", nil];
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    NSLog(@"Post comment Parameters: %@", parameters);
+    
+    [manager POST:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"Post comment. Validation responceDict: %@", responseObject);
+        NSDictionary *responce = (NSDictionary*)responseObject;
+        NSNumber *code = [responce objectForKey:@"code"];
+        NSLog(@"code: %@", code);
+        if(code.intValue == 0){
+            NSLog(@"Post comment success!");
+            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                              message:kCommentSuccess
+                                                             delegate:self
+                                                    cancelButtonTitle:@"OK"
+                                                    otherButtonTitles:nil];
+            [message show];
+            self.activityIndicator.hidden = YES;
+            [self.activityIndicator stopAnimating];
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+        }
+        else{
+            NSLog(@"Post comment Error: %@", [responseObject objectForKey:@"errorText"]);
+            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                              message:kCommentError
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"OK"
+                                                    otherButtonTitles:nil];
+            [message show];
+            self.activityIndicator.hidden = YES;
+            [self.activityIndicator stopAnimating];
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+        }
+    }
+          failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+              NSLog(@"Post comment connection Error: %@", error);
+              UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                                message:kCommentError
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+              [message show];
+              self.activityIndicator.hidden = YES;
+              [self.activityIndicator stopAnimating];
+              [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+          }];
+}
+
+#pragma mark - Alert Delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"alertView: %@", alertView.message);
+    
+    [self goBack];
+}
+
 
 #pragma mark - Text View Delegate
 - (void)textViewDidBeginEditing:(UITextView *)textView
@@ -75,7 +223,7 @@
 }
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView{
-    NSLog(@"textViewShouldBeginEditing:");
+    //NSLog(@"textViewShouldBeginEditing:");
     return YES;
 }
 
@@ -89,19 +237,19 @@
 }
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)textView{
-    NSLog(@"textViewShouldEndEditing:");
+    //NSLog(@"textViewShouldEndEditing:");
     return YES;
 }
 
 -(void)textViewDidChange:(UITextView *)textView{
     if(self.commentTextView.text.length > 1000) return;
     
-    self.wordCountLabel.text = [NSString stringWithFormat:@"%li/1000", self.commentTextView.text.length];
+    self.wordCountLabel.text = [NSString stringWithFormat:@"%lu/1000", (unsigned long)self.commentTextView.text.length];
 }
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     // Prevent crashing undo bug – see note below.
-    NSLog(@"shouldChangeCharactersInRange");
+    //NSLog(@"shouldChangeCharactersInRange");
     
     if(range.length + range.location > textView.text.length)
     {
@@ -113,7 +261,7 @@
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    NSLog(@"touchesBegan:withEvent:");
+    //NSLog(@"touchesBegan:withEvent:");
     
     UITouch *touch = [[event allTouches] anyObject];
     if ([self.commentTextView isFirstResponder] && [touch view] != self.commentTextView) {
@@ -130,7 +278,7 @@
 #pragma mark - Keyboard
 
 -(void)hideKeyboard{
-    NSLog(@"hideKeyboard:");
+    //NSLog(@"hideKeyboard:");
     [self.commentTextView resignFirstResponder];
 }
 

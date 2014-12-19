@@ -14,6 +14,8 @@
 #import "DBWork.h"
 #import "Comments.h"
 #import "UIImageView+AFNetworking.h"
+#import "ResponseViewController.h"
+#import "AuthUserViewController.h"
 
 @implementation ResponceCollectionViewController{
     UIUserSettings *_userSettings;
@@ -31,8 +33,8 @@
 //    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
 //    //[self.collectionView setCollectionViewLayout:layout];
     
-    
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID == %@", self.aPlace.id];
+#warning FIXME: sort by date
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID == %@", self.aPlace.placeID];
     NSLog(@"!!! Places predicate: %@", predicate);
     self.frcComments = [[DBWork shared] fetchedResultsController:kCoreDataCommentsEntity sortKey:@"date" predicate:predicate sectionName:nil delegate:self];
     
@@ -42,6 +44,12 @@
     
     [self setNavBarButtons];
     
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - Navigation bar
@@ -63,7 +71,21 @@
 }
 
 -(void)responseButtonPressed{
-     [self performSegueWithIdentifier:@"segueFromResponseListToSendResponse" sender:self];
+    
+    if([_userSettings isUserAuthorized]){
+        [self performSegueWithIdentifier:@"segueFromResponseListToSendResponse" sender:self];
+    }
+    else{
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                          message:kCommentNeedAuth
+                                                         delegate:self
+                                                cancelButtonTitle:kAlertCancel
+                                                otherButtonTitles:kAlertAuthEnter, nil];
+        [message show];
+    }
+    
+    
+    
 }
 
 #pragma mark UITableViewDataSource
@@ -91,10 +113,13 @@
 
     cell.userNameLabel.text = comment.name;
     
-    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, comment.photo];
+    NSString *urlStr = [NSString stringWithFormat:@"%@", comment.photo];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     
     [cell.userPhoto setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    
+    cell.userPhoto.layer.cornerRadius = kImageViewCornerRadius;
+    cell.userPhoto.clipsToBounds = YES;
     
     cell.commentTextLabel.text = comment.text;
     
@@ -165,5 +190,37 @@
 }
 
 //segueFromResponcesListToAuth
+
+#pragma mark - Storyboard Navigation - Segue handler
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+    
+    if([[segue identifier] isEqualToString:@"segueFromResponseListToSendResponse"]){
+        ResponseViewController *subVC = (ResponseViewController*)[segue destinationViewController];
+        subVC.aPlace = self.aPlace;
+        subVC.delegate = self;
+    }
+    
+//    else if([[segue identifier] isEqualToString:@"segueFromResponcesListToAuth"]){
+//        AuthUserViewController *subVC = (AuthUserViewController*)[segue destinationViewController];
+//        subVC.delegate = self;
+//        subVC.aPlace = self.aPlace;
+//    }
+}
+
+#pragma mark - Alert Delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"alertView: %@", alertView.message);
+    
+    if(buttonIndex != [alertView cancelButtonIndex]){
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        AuthUserViewController* auth = [storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
+        auth.delegate = self;
+        [self presentViewController:auth animated:YES completion:nil];
+
+        //[self performSegueWithIdentifier:@"segueFromResponcesListToAuth" sender:self];
+    }
+    
+}
 
 @end

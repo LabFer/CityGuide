@@ -220,7 +220,7 @@
 #pragma mark - UISegmentedControl
 - (IBAction)segmentValueChanged:(id)sender {
     
-    NSLog(@"segmentValueChanged: %li", self.segmentControl.selectedSegmentIndex);
+    NSLog(@"segmentValueChanged: %li", (long)self.segmentControl.selectedSegmentIndex);
     [self setTableViewList];
     [self.listCollectionView reloadData];
 }
@@ -245,7 +245,7 @@
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
 //    self.frcPlaces = nil;
     NSArray *arr = [[DBWork shared] getFavourPlace];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID IN %@", arr];
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortPlaces predicate:predicate sectionName:nil delegate:self];
 }
 
@@ -257,7 +257,7 @@
     [self.listCollectionView setCollectionViewLayout:layout];
     
     NSArray *arr = [[DBWork shared] getFavourCategory];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"categoryID IN %@", arr];
 //    self.frcPlaces = nil;
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortCategory predicate:predicate sectionName:nil delegate:self];
 }
@@ -293,13 +293,13 @@
     Places *place = self.frcPlaces.fetchedObjects[indexPath.item];
 //    place.favour = [NSNumber numberWithBool:NO];
 //    [[DBWork shared] saveContext];
-    [[DBWork shared] removePlaceFromFavour:place.id];
+    [[DBWork shared] removePlaceFromFavour:place.placeID];
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
     //    NSLog(@"Places predicate: %@", predicate);
     //self.frcPlaces = nil;
     
     NSArray *arr = [[DBWork shared] getFavourPlace];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID IN %@", arr];
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortPlaces predicate:predicate sectionName:nil delegate:self];
     //[self.listCollectionView reloadData];
     [self.listCollectionView deleteItemsAtIndexPaths:@[indexPath]];
@@ -313,13 +313,13 @@
     Categories *category = self.frcPlaces.fetchedObjects[indexPath.item];
     
     //category.favour = [NSNumber numberWithBool:NO];
-    [[DBWork shared] removeCategoryFromFavour:category.id];
+    [[DBWork shared] removeCategoryFromFavour:category.categoryID];
     
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
     //    NSLog(@"Places predicate: %@", predicate);
     //self.frcPlaces = nil;
     NSArray *arr = [[DBWork shared] getFavourCategory];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id IN %@", arr];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"categoryID IN %@", arr];
 
     self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortCategory predicate:predicate sectionName:nil delegate:self];
     
@@ -333,12 +333,12 @@
     NSIndexPath *indexPath = [self.listCollectionView indexPathForItemAtPoint:[gestureRecognizer locationInView:self.listCollectionView]];
     
     if(indexPath){
-        NSLog(@"handleTap didSelectImageAtIndexPath: %lu", indexPath.row);
+        NSLog(@"handleTap didSelectImageAtIndexPath: %lu", (long)indexPath.row);
         
         if(self.segmentControl.selectedSegmentIndex == 0){
             
             Categories *category = self.frcPlaces.fetchedObjects[indexPath.item];
-            NSLog(@"Category: %lu", category.places.count);
+            NSLog(@"Category: %lu", (unsigned long)category.places.count);
             if(category.places.count == 0){
                 NSLog(@"perform segueFromFavourToSubCategory");
                 [self performSegueWithIdentifier:@"segueFromFavourToSubCategory" sender:category];

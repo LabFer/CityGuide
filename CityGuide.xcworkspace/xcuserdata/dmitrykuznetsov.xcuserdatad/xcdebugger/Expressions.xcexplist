@@ -10,5 +10,13 @@
             </PersistentString>
          </PersistentStrings>
       </ContextState>
+      <ContextState
+         contextName = "-[DBWork getAttributesArrayForPlaceFromArray:]:DBWork.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "attrArray[0]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
    </ContextStates>
 </VariablesViewState>

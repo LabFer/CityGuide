@@ -13,6 +13,10 @@
 #import "UIViewController+MMDrawerController.h"
 #import "MMDrawerBarButtonItem.h"
 #import "MenuTableViewController.h"
+#import "SyncEngine.h"
+//#import "ResponseViewController.h"
+#import "ResponceCollectionViewController.h"
+#import "PlaceDetailViewController.h"
 
 #import <FacebookSDK/FacebookSDK.h>
 #import <TwitterKit/TwitterKit.h>
@@ -37,63 +41,48 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleFBSessionStateChangeWithNotification:) name:kFacebookNotification object:nil];
     
     [self setNavBarButtons];
+    self.btnCancel.tintColor = kDefaultNavItemTintColor;
     
     NSLog(@"AuthUserViewController. Delegate: %@", self.delegate);
+
 }
 
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
     
-    MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
-    leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
-    
-    self.navigationItem.rightBarButtonItem = [_userSettings setupCancelButtonItem:self];// ====== setup back nav button =====
-    self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
-    
-    self.navigationItem.title = kNavigationTitleAuth;
-    
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    self.navView.backgroundColor = kDefaultNavBarColor;
     
     
     
-}
-
--(void)menuDrawerButtonPress:(id)sender{
-
-    [self.mm_drawerController setMaximumLeftDrawerWidth:280.0f];
-    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
-}
-
--(void)cancelButtonPressed{
-    NSLog(@"cancelButtonPressed");
-    //[self goBack];
-    
-    [self menuDrawerButtonPress:self];
 }
 
 -(void)goBack{
-    [self.navigationController popViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
--(void)viewControllerAfterAuth{
+-(void)authorizationFinished{
     
-    if([self.delegate isKindOfClass:[MenuTableViewController class]]){
+    [[SyncEngine sharedEngine] registerUser];
         
-        MenuTableViewController* menu = (MenuTableViewController*)self.delegate;
-        [menu openMainViewController];
-//        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
-//        UIViewController *newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
-//        
-//        UINavigationController *navigationController = (UINavigationController *)[[UINavigationController alloc] initWithRootViewController:(UIViewController *)newViewController];
-//        //[self.mm_drawerController setCenterViewController:navigationController withCloseAnimation:YES completion:nil];
-//        [self.mm_drawerController setCenterViewController:navigationController withFullCloseAnimation:YES completion:nil];
+    if([self.delegate isKindOfClass:[ResponceCollectionViewController class]]){
+        ResponceCollectionViewController* vc = (ResponceCollectionViewController*)self.delegate;
+        [vc performSegueWithIdentifier:@"segueFromResponseListToSendResponse" sender:self];
     }
+    else if([self.delegate isKindOfClass:[PlaceDetailViewController class]]){
+//        PlaceDetailViewController *vc = (PlaceDetailViewController*)self.delegate;
+//        if(self.needToSetFavour)
+//            [vc setPlaceToFavour];
+    }
+    
+    [self goBack];
 }
 #pragma mark - Button Handlers
 
 
 - (IBAction)btnFBpressed:(id)sender {
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     
     NSLog(@"btnFBpressed");
     if([FBSession activeSession].state == FBSessionStateOpen) NSLog(@"FBSessionStateOpen");
@@ -112,6 +101,7 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
 
 - (IBAction)btnTWpressed:(id)sender {
     NSLog(@"btnTWpressed");
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     
     [[Twitter sharedInstance] logInWithCompletion:^
      (TWTRSession *session, NSError *error) {
@@ -133,13 +123,15 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
                      [userProfile setObject:@"" forKey:kSocialUserLastName];
                      [userProfile setObject:user.userID forKey:kSocialUserID];
                      [userProfile setObject:@"" forKey:kSocialUserEmail];
+                     [userProfile setObject:@"" forKey:kSocialUserPhone];
+                     [userProfile setObject:@"" forKey:kSocialUserToken];
                      [userProfile setObject:user.profileImageURL forKey:kSocialUserPhoto];
                      
                      NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                      [userDefaults setObject:userProfile forKey:kSocialUserProfile];
                      [userDefaults synchronize];
                      
-                     [self viewControllerAfterAuth];
+                     [self authorizationFinished];
                      
                  }
              }];
@@ -153,6 +145,7 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
 
 - (IBAction)btnVKpressed:(id)sender {
     NSLog(@"btnVKpressed");
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     [VKSdk initializeWithDelegate:self andAppId:kVkontakteID];
     if(![VKSdk wakeUpSession]){
         [self authorizeVK];
@@ -160,6 +153,11 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
     else{
         [self requestVkontakeUserProfile];
     }
+}
+
+- (IBAction)btnCancelPressed:(id)sender {
+    
+    [self goBack];
 }
 
 #pragma mark - VK SDK Delegate
@@ -208,13 +206,16 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
         [userProfile setObject:[profile objectForKey:@"last_name"] forKey:kSocialUserLastName];
         [userProfile setObject:[profile objectForKey:@"id"] forKey:kSocialUserID];
         [userProfile setObject:@"" forKey:kSocialUserEmail];
+        [userProfile setObject:@"" forKey:kSocialUserPhone];
+        [userProfile setObject:@"" forKey:kSocialUserToken];
+
         [userProfile setObject:[profile objectForKey:@"photo_max"] forKey:kSocialUserPhoto];
         
         NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
         [userDefaults setObject:userProfile forKey:kSocialUserProfile];
         [userDefaults synchronize];
         
-        [self viewControllerAfterAuth];
+        [self authorizationFinished];
         
         
     } errorBlock: ^(NSError *error) {
@@ -237,7 +238,7 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
         if (sessionState == FBSessionStateOpen) {
             // The session is open. Get the user information and update the UI.
             [FBRequestConnection startWithGraphPath:@"me"
-                                         parameters:@{@"fields": @"first_name, last_name, picture, email", @"redirect": @"0"}
+                                         parameters:@{@"fields": @"first_name, last_name, picture.type(large), email", @"redirect": @"0"}
                                          HTTPMethod:@"GET"
                                   completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
                                       if (!error) {
@@ -250,13 +251,15 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
                                           [userProfile setObject:[result objectForKey:@"last_name"] forKey:kSocialUserLastName];
                                           [userProfile setObject:[result objectForKey:@"id"] forKey:kSocialUserID];
                                           [userProfile setObject:[result objectForKey:@"email"] forKey:kSocialUserEmail];
+                                          [userProfile setObject:@"" forKey:kSocialUserPhone];
                                           [userProfile setObject:[[[result objectForKey:@"picture"] objectForKey:@"data"] objectForKey:@"url"] forKey:kSocialUserPhoto];
+                                          [userProfile setObject:@"" forKey:kSocialUserToken];
                                           
                                           NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                                           [userDefaults setObject:userProfile forKey:kSocialUserProfile];
                                           [userDefaults synchronize];
                                           
-                                          [self viewControllerAfterAuth];
+                                          [self authorizationFinished];
 
                                       }
                                       else{
@@ -276,6 +279,15 @@ static NSString *const ALL_USER_FIELDS = @"id,first_name,last_name,photo_max";
     }
 }
 
-//segueFromAuthToResponce
+//#pragma mark - Storyboard Navigation - Segue handler
+//
+//-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+//    
+//    if([[segue identifier] isEqualToString:@"segueFromAuthToResponce"]){
+//        ResponseViewController *subVC = (ResponseViewController*)[segue destinationViewController];
+//        subVC.aPlace = self.aPlace;
+//        subVC.delegate = self;
+//    }
+//}
 
 @end

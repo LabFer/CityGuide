@@ -57,11 +57,12 @@
 
 #pragma mark - Authoruzation
 -(void)setAuthInformation{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+
     
-    NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
-    
-    if(userProfile){
+    if([_userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
+        
         [self.userPhotoImage setImageWithURL:[NSURL URLWithString:[userProfile objectForKey:kSocialUserPhoto]]];
         self.userNameLabel.text = [NSString stringWithFormat:@"%@ %@", [userProfile objectForKey:kSocialUserFirstName], [userProfile objectForKey:kSocialUserLastName]];
         
@@ -173,9 +174,12 @@
                     newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
                 }
                 else{
-                    newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
-                    AuthUserViewController* auth = (AuthUserViewController*)newViewController;
+                    newViewController = (UIViewController *)[storyboard instantiateViewControllerWithIdentifier:@"MainViewController"];
+                    AuthUserViewController* auth = [storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
                     auth.delegate = self;
+                    [self presentViewController:auth animated:YES completion:nil];
+
+                    
                 }
                 break;
             default:
@@ -196,10 +200,10 @@
 #pragma mark - User Log Out
 -(void)userLogOut{
     
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSDictionary *profile = [userDefaults objectForKey:kSocialUserProfile];
-    
-    if(profile){
+    if([_userSettings isUserAuthorized]){
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSDictionary *profile = [userDefaults objectForKey:kSocialUserProfile];
+        
         if([[profile objectForKey:kSocialType] isEqualToString:kSocialFacebookProfile]){
             [self facebookLogOut];
             [userDefaults removeObjectForKey:kSocialUserProfile];

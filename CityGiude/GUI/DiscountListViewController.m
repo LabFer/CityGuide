@@ -43,7 +43,7 @@
     NSString *str = @"";
     NSPredicate *predicate = nil;
     if(self.aPlace){
-        str = [NSString stringWithFormat:@"placeID == %@", self.aPlace.id];
+        str = [NSString stringWithFormat:@"placeID == %@", self.aPlace.placeID];
         predicate = [NSPredicate predicateWithFormat:str];
     }
     
@@ -189,14 +189,14 @@
     
     NSString *resultString = @"";
     if([breakdownInfo month] != 0){
-        resultString = [NSString stringWithFormat:@" Осталось %li месяца %li дней", [breakdownInfo month], [breakdownInfo day]];
+        resultString = [NSString stringWithFormat:@" Осталось %li месяца %li дней", (long)[breakdownInfo month], (long)[breakdownInfo day]];
     }
     else{
         if([breakdownInfo day] != 0){
-            resultString = [NSString stringWithFormat:@"Осталось %li дней", [breakdownInfo day]];
+            resultString = [NSString stringWithFormat:@"Осталось %li дней", (long)[breakdownInfo day]];
         }
         else{
-            resultString = [NSString stringWithFormat:@"Осталось %li часов %li минут", [breakdownInfo hour], [breakdownInfo minute]];
+            resultString = [NSString stringWithFormat:@"Осталось %li часов %li минут", (long)[breakdownInfo hour], (long)[breakdownInfo minute]];
         }
     }
     
@@ -282,7 +282,7 @@
     NSUInteger currentIndex = [self indexOfViewController:(BannerContentViewController *)self.pageController.viewControllers[0]];
     
     BOOL forward = true;
-    NSLog(@"updatePage. currentIndex: %lu; count: %lu", currentIndex, [self.pageContent count]);
+    //NSLog(@"updatePage. currentIndex: %lu; count: %lu", currentIndex, [self.pageContent count]);
     if((currentIndex + 1) >= [self.pageContent count]){
         currentIndex = 0;
         forward = false;

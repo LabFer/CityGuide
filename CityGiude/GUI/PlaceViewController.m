@@ -15,9 +15,13 @@
 #import "Places.h"
 #import "calloutViewController.h"
 #import "SubCategoryListFlowLayout.h"
+#import "FilterViewController.h"
 
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
+
+#import "UIViewController+MMDrawerController.h"
+#import "MMDrawerBarButtonItem.h"
 
 @implementation PlaceViewController{
     UIUserSettings *_userSettings;
@@ -28,26 +32,9 @@
 bool opened = false;
 
 -(void)viewWillAppear:(BOOL)animated {
-    locationManager = [[CLLocationManager alloc] init];
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
-    NSError *error;
-    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
     
-    [self.mapView.tileSource setCacheable:YES];
-    
-    self.mapView.showsUserLocation = YES;
-    
-    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
-                   {
-                       weakMap.zoom = 15;
-                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-                   });
-    
-    NSLog(@"User location is %@",self.mapView.userLocation.location);
+    [self createMap];
+    [self.placeCollectionView reloadData];
 }
 
 -(void)viewDidLoad{
@@ -60,14 +47,15 @@ bool opened = false;
     [self.placeCollectionView setCollectionViewLayout:layout];
     
     
-    NSPredicate *predicate = nil;
-    if(self.aCategory)
-        predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
-    _sortKeys = @"promoted,sort,name";
-    //NSLog(@"Places predicate: %@", predicate);
-    
-    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
-    
+//    NSPredicate *predicate = nil;
+//    if(self.aCategory)
+//        predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
+//    _sortKeys = @"promoted,sort,name";
+//    //NSLog(@"Places predicate: %@", predicate);
+//    
+//    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
+    self.filterDictionary = [NSDictionary dictionary];
+    [self createPlaceList];
     self.placeCollectionView.backgroundColor = [UIColor whiteColor];
     
     self.listMapButtonView.backgroundColor = kDefaultButtonBarColor;
@@ -90,9 +78,11 @@ bool opened = false;
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    NSLog(@"viewDidAppear");
+    
     double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
-    for (Places *place in self.frcPlaces.fetchedObjects) {
+    for (Places *place in self.frcPlaces) { //self.frcPlaces.fetchedObjects
         //NSLog(@"Place from Coredata: %@",place);
         if ((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)) {
             minLat = [place.lattitude doubleValue];
@@ -116,12 +106,37 @@ bool opened = false;
     
 }
 
+#pragma mark - RMMapBox
+
+-(void)createMap{
+    locationManager = [[CLLocationManager alloc] init];
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
+    NSError *error;
+    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
+    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+    
+    [self.mapView.tileSource setCacheable:YES];
+    
+    self.mapView.showsUserLocation = YES;
+    
+    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
+                   {
+                       weakMap.zoom = 15;
+                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+                   });
+    
+    //NSLog(@"User location is %@",self.mapView.userLocation.location);
+}
+
 - (RMMapLayer *)mapView:(RMMapView *)mapView layerForAnnotation:(RMAnnotation *)annotation
 {
     if (annotation.isUserLocationAnnotation) return nil;
     RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"marker" ]];
     marker.canShowCallout = NO;
-    NSLog(@"Annotation marker is changed");
+    //NSLog(@"Annotation marker is changed");
     return marker;
 }
 
@@ -253,12 +268,27 @@ bool opened = false;
     self.navigationItem.rightBarButtonItem = [_userSettings setupFilterButtonItem:self]; // ====== setup right nav button ======
     self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
     
-    self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button =====
-    self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
+    if(self.aCategory){
+    
+        self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button =====
+        self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
+    }
+    else{
+        MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
+        leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
+        self.navigationItem.leftBarButtonItem = leftDrawerButton;
+    }
     
     self.navigationItem.title = (self.aCategory) ? self.aCategory.name : kNavigationTitlePlace;
     
     // ===== remove shadow =====
+}
+
+-(void)menuDrawerButtonPress:(id)sender{
+
+    [self.mm_drawerController setMaximumLeftDrawerWidth:280.0f];
+    [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+
 }
 
 -(void)goBack{
@@ -266,7 +296,16 @@ bool opened = false;
 }
 
 -(void)filterButtonPressed{
-    [self performSegueWithIdentifier:@"segueFromPlaceViewToFilterView" sender:self];
+    if(self.aCategory){
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        FilterViewController* auth = [storyboard instantiateViewControllerWithIdentifier:@"FilterViewController"];
+        auth.delegate = self;
+        auth.aCategory = self.aCategory;
+        
+        auth.filterDictionary = [[NSMutableDictionary alloc] initWithDictionary:self.filterDictionary];
+        [self presentViewController:auth animated:YES completion:nil];
+        //[self performSegueWithIdentifier:@"segueFromPlaceViewToFilterView" sender:self];
+    }
 }
 
 #pragma mark - Button Handlers
@@ -311,7 +350,7 @@ bool opened = false;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
     
-    return [self.frcPlaces.fetchedObjects count];
+    return [self.frcPlaces count];//[self.frcPlaces.fetchedObjects count];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -330,7 +369,7 @@ bool opened = false;
 }
 
 -(void)configurePlaceListCell:(PlaceListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
-    Places *place = self.frcPlaces.fetchedObjects[indexPath.item];
+    Places *place = self.frcPlaces[indexPath.item];//self.frcPlaces.fetchedObjects[indexPath.item];
     [cell.titleLabel setText:place.name];
     [cell.subTitleLabel setText:place.address];
     //@property (weak, nonatomic) IBOutlet UIImageView *placeImage; FIXME: add image for place
@@ -368,10 +407,101 @@ bool opened = false;
     cell.rateView.maxRating = 5;
 }
 
+-(void)createPlaceList{
+    
+    NSFetchedResultsController *frc = nil;
+    
+    _sortKeys = @"promoted,sort,name";
+    
+    NSSortDescriptor *sortDescriptorPromoted = [[NSSortDescriptor alloc] initWithKey:@"promoted" ascending:NO];
+    NSSortDescriptor *sortDescriptorSort = [[NSSortDescriptor alloc] initWithKey:@"sort" ascending:YES];
+    NSSortDescriptor *sortDescriptorName = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    NSArray* sortKeys = @[sortDescriptorPromoted, sortDescriptorSort, sortDescriptorName];
+    
+    if(self.aCategory){ //need to apply filters
+        if(self.filterDictionary.count == 0){
+            self.frcPlaces = [[self.aCategory.places allObjects] sortedArrayUsingDescriptors:sortKeys];
+        }
+        else{
+            NSMutableArray *subPredicates = [[NSMutableArray alloc] initWithCapacity:0];
+            for(id key in self.filterDictionary) {
+                id value = [self.filterDictionary objectForKey:key];
+            
+                if([value isKindOfClass:[NSNumber class]]){
+                    NSNumber *filterValue = (NSNumber*)value;
+                    if(filterValue.integerValue == 0){ // if YES
+                        if([key isEqualToString:kFilterAllTime]){
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"work_time_end == 0 AND work_time_start == 0"];
+                            [subPredicates addObject:p];
+                        }
+                        else if([key isEqualToString:kFilterWebsiteExists]){
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"website != nil AND website != '' AND website != 'None'"];
+                            [subPredicates addObject:p];
+                        }
+                        else if([key isEqualToString:kFilterWorkNow]){
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"work_time_end >= %@ AND work_time_start <= %@", [self getCurrentTimeInSeconds], [self getCurrentTimeInSeconds]];
+                            [subPredicates addObject:p];
+                        }
+                        else{
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"SUBQUERY(attributes, $attr, $attr.name == %@).@count>0", key];
+                            [subPredicates addObject:p];
+                        }
+                    } // end if YES
+                    else if(filterValue.integerValue == 1){ // if NOT IMPORTANT
+                        
+                    }// end if NOT IMPORTANT
+                    else if(filterValue.integerValue == 2){ // if NO
+                        if([key isEqualToString:kFilterAllTime]){
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"NOT(work_time_end >= 0 AND work_time_start <= 0)"];
+                            [subPredicates addObject:p];
+                            
+                        }
+                        else if([key isEqualToString:kFilterWebsiteExists]){
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"NOT(website != nil AND website != '' AND website != 'None')"];
+                            [subPredicates addObject:p];
+                        }
+                        else if([key isEqualToString:kFilterWorkNow]){
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"NOT(work_time_end >= %@ AND work_time_start <= %@)", [self getCurrentTimeInSeconds], [self getCurrentTimeInSeconds]];
+                            [subPredicates addObject:p];
+                        }
+                        else{
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"NOT(SUBQUERY(attributes, $attr, $attr.name != %@).@count>0)", key];
+                            [subPredicates addObject:p];
+                        }
+                    }// end if NO
+                    
+                
+                } else if([value isKindOfClass:[NSString class]]){
+                    NSArray *searchTerms = [value componentsSeparatedByString:@","];
+                    for (NSString *term in searchTerms) {
+                        NSPredicate *p = [NSPredicate predicateWithFormat:@"SUBQUERY(attributes, $attr, $attr.name == %@ AND SUBQUERY($attr.values, $val, $val.valueName == %@).@count>0).@count>0", key, term];
+                        [subPredicates addObject:p];
+                    }
+                }
+            
+                //NSLog(@"key: %@; value: %@", key, value);
+                //[value doStuff];
+            }
+            
+            NSPredicate *pred = [NSCompoundPredicate  andPredicateWithSubpredicates:subPredicates];
+            //NSLog(@"Filter predicate: %@", pred);
+            self.frcPlaces = [[[self.aCategory.places allObjects] filteredArrayUsingPredicate:pred] sortedArrayUsingDescriptors:sortKeys];
+        
+        }
+    }
+    else{ // show all places
+        frc = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortKeys predicate:nil sectionName:nil delegate:self];
+        self.frcPlaces = [[frc fetchedObjects] sortedArrayUsingDescriptors:sortKeys];
+    }
+
+    NSLog(@"PlaceController. filterDiscionary: %@", self.filterDictionary);
+
+}
+
 #pragma mark - CollectionViewDelegate
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    Places *aPlace = self.frcPlaces.fetchedObjects[indexPath.item];
+    Places *aPlace = self.frcPlaces[indexPath.item];//self.frcPlaces.fetchedObjects[indexPath.item];
     [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:aPlace];
 }
 
@@ -389,6 +519,52 @@ bool opened = false;
         //subVC.navigationItem.title = appDelegate.testArray[idx.item];
         
     }
+//    else if([[segue identifier] isEqualToString:@"segueFromPlaceViewToFilterView"]){
+//        FilterViewController *filter = (FilterViewController*)[segue destinationViewController];
+//        filter.aCategory = self.aCategory;
+//        filter.delegate = self;
+//    }
+}
+
+#pragma mark - Time Converter
+-(NSNumber*)getMinutes:(NSNumber*)totalSeconds{
+    int minutes = (totalSeconds.intValue / 60) % 60;
+    return [NSNumber numberWithInt:minutes];
+}
+
+-(NSNumber*)getHours:(NSNumber*)totalSeconds{
+//    int seconds = totalSeconds.intValue % 60;
+//    int minutes = (totalSeconds.intValue / 60) % 60;
+    int hours = totalSeconds.intValue / 3600;
+    return [NSNumber numberWithInt:hours];
+}
+
+-(NSNumber*)getCurrentMinutes{
+    NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+    NSNumber *time = [NSNumber numberWithDouble:currentTime];
+    int minutes = (time.intValue / 60) % 60;
+    return [NSNumber numberWithInt:minutes];
+    
+}
+
+-(NSNumber*)getCurrentHour{
+    NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970]; //number of seconds
+    NSNumber *time = [NSNumber numberWithDouble:currentTime];
+    int hours = time.intValue / 3600;
+    return [NSNumber numberWithInt:hours];
+}
+
+-(NSNumber*)getCurrentTimeInSeconds{
+    
+    // In practice, these calls can be combined
+    NSDate *now = [NSDate date];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *hourComponents = [calendar components:NSHourCalendarUnit fromDate:now];
+    NSDateComponents *minuteComponents = [calendar components:NSMinuteCalendarUnit fromDate:now];
+        
+    NSInteger currentTimeInSeconds = [minuteComponents minute]*60 + [hourComponents hour]*60*60;
+    NSLog(@"currentTimeInSeconds: %ld", (long)currentTimeInSeconds);
+    return [NSNumber numberWithInteger:currentTimeInSeconds];
 }
 
 @end

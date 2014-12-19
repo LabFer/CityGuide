@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 
-@interface MainViewController : UIViewController <UIPageViewControllerDataSource, UIPageViewControllerDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
+@interface MainViewController : UIViewController <UIPageViewControllerDataSource, UIPageViewControllerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIAlertViewDelegate>
 
 //@property (weak, nonatomic) IBOutlet UIView *bannerView;
 //@property (weak, nonatomic) IBOutlet UIView *catalogView;

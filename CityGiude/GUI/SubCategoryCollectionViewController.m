@@ -17,6 +17,7 @@
 #import "MainViewController.h"
 #import "CategoryTileFlowLayout.h"
 #import "CategoryListFlowLayout.h"
+#import "AuthUserViewController.h"
 
 
 @implementation SubCategoryCollectionViewController{
@@ -33,7 +34,7 @@
     
     
     // ======== Set CoreData =======
-    NSString *str = [NSString stringWithFormat:@"parent_id == %@", self.aCategory.id];
+    NSString *str = [NSString stringWithFormat:@"parent_id == %@", self.aCategory.categoryID];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:str];
     _sortKeys = @"sort,name";
     self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
@@ -141,7 +142,7 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    if([[DBWork shared] isCategoryFavour:category.id])
+    if([[DBWork shared] isCategoryFavour:category.categoryID])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -151,7 +152,7 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
-    if([[DBWork shared] isCategoryFavour:category.id])
+    if([[DBWork shared] isCategoryFavour:category.categoryID])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
     else
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
@@ -189,11 +190,21 @@
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     //NSLog(@"button pressed: %@, %@", indexPath, category.name);
     
-    if([[DBWork shared] isCategoryFavour:category.id]){
-        [[DBWork shared] removeCategoryFromFavour:category.id];
+    if([[DBWork shared] isCategoryFavour:category.categoryID]){
+        [[DBWork shared] removeCategoryFromFavour:category.categoryID];
     }
     else{
-        [[DBWork shared] setCategoryToFavour:category.id];
+        if([_userSettings isUserAuthorized]){
+            [self setCategoryToFavour:category];
+        }
+        else{
+            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                              message:kFavourNeedAuth
+                                                             delegate:self
+                                                    cancelButtonTitle:kAlertCancel
+                                                    otherButtonTitles:kAlertAuthEnter, nil];
+            [message show];
+        }
     }
     
     [self.collectionView reloadItemsAtIndexPaths:[NSArray arrayWithObjects:indexPath, nil]];
@@ -204,5 +215,24 @@
     
 }
 
+-(void)setCategoryToFavour:(Categories*)category{
+    [[DBWork shared] setCategoryToFavour:category.categoryID];
+}
+
+#pragma mark - Alert Delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"alertView: %@", alertView.message);
+    
+    if(buttonIndex != [alertView cancelButtonIndex]){
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+        AuthUserViewController* auth = [storyboard instantiateViewControllerWithIdentifier:@"AuthUserViewController"];
+        auth.delegate = self;
+        auth.needToSetFavour = YES;
+        [self presentViewController:auth animated:YES completion:nil];
+        
+        //[self performSegueWithIdentifier:@"segueFromResponcesListToAuth" sender:self];
+    }
+    
+}
 
 @end

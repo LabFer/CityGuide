@@ -2,7 +2,7 @@
 //  Favourites.m
 //  CityGuide
 //
-//  Created by Dmitry Kuznetsov on 07/12/14.
+//  Created by Dmitry Kuznetsov on 13/12/14.
 //  Copyright (c) 2014 Appsgroup. All rights reserved.
 //
 
@@ -11,8 +11,10 @@
 
 @implementation Favourites
 
-@dynamic favourType;
 @dynamic favourID;
+@dynamic favourType;
 @dynamic parentID;
+@dynamic userToken;
+@dynamic favourStatus;
 
 @end
