@@ -101,6 +101,8 @@
 		935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB891A1B845D0079EDC3 /* Crashlytics.framework */; };
 		935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB8A1A1B845D0079EDC3 /* Fabric.framework */; };
 		93809D1A1A2DC0A300820E24 /* mapbox.json in Resources */ = {isa = PBXBuildFile; fileRef = 93809D191A2DC0A300820E24 /* mapbox.json */; };
+		93C5AC1F1A4434E5003C9264 /* libFlurry_6.0.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5AC1E1A4434E5003C9264 /* libFlurry_6.0.0.a */; };
+		93C5AC211A443540003C9264 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5AC201A443540003C9264 /* SystemConfiguration.framework */; };
 		93E2B7931A1B160700AAB446 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7921A1B160700AAB446 /* libsqlite3.dylib */; };
 		93E2B7951A1B160D00AAB446 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7941A1B160D00AAB446 /* QuartzCore.framework */; };
 		93E2B7971A1B161100AAB446 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93E2B7961A1B161100AAB446 /* CoreLocation.framework */; };
@@ -306,6 +308,9 @@
 		935FDB891A1B845D0079EDC3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		935FDB8A1A1B845D0079EDC3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		93809D191A2DC0A300820E24 /* mapbox.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = mapbox.json; sourceTree = "<group>"; };
+		93C5AC1D1A4434E5003C9264 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Flurry.h; path = CityGiude/GUI/Flurry.h; sourceTree = "<group>"; };
+		93C5AC1E1A4434E5003C9264 /* libFlurry_6.0.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_6.0.0.a; path = CityGiude/GUI/libFlurry_6.0.0.a; sourceTree = "<group>"; };
+		93C5AC201A443540003C9264 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		93E2B78D1A1B15F200AAB446 /* libMapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMapbox.a; path = Mapbox/libMapbox.a; sourceTree = "<group>"; };
 		93E2B7921A1B160700AAB446 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		93E2B7941A1B160D00AAB446 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -320,6 +325,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93C5AC211A443540003C9264 /* SystemConfiguration.framework in Frameworks */,
 				7177769A1A2B22D600259A0A /* MessageUI.framework in Frameworks */,
 				717776981A2B22CC00259A0A /* Security.framework in Frameworks */,
 				935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */,
@@ -327,6 +333,7 @@
 				93E2B7951A1B160D00AAB446 /* QuartzCore.framework in Frameworks */,
 				93E2B7931A1B160700AAB446 /* libsqlite3.dylib in Frameworks */,
 				935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */,
+				93C5AC1F1A4434E5003C9264 /* libFlurry_6.0.0.a in Frameworks */,
 				71A543791A17A911008E54A7 /* libz.dylib in Frameworks */,
 				71B678171A3300BF00053541 /* TwitterKit.framework in Frameworks */,
 				B54952004935E31484239643 /* libPods.a in Frameworks */,
@@ -756,6 +763,9 @@
 		93E2B7911A1B15F500AAB446 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				93C5AC201A443540003C9264 /* SystemConfiguration.framework */,
+				93C5AC1D1A4434E5003C9264 /* Flurry.h */,
+				93C5AC1E1A4434E5003C9264 /* libFlurry_6.0.0.a */,
 				71B678151A3300BF00053541 /* TwitterKit.framework */,
 				71B678131A32FFA100053541 /* Accounts.framework */,
 				71B678111A32FF9800053541 /* Twitter.framework */,
@@ -1150,6 +1160,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Mapbox",
 					"$(PROJECT_DIR)/Pods/build/Debug-iphoneos",
+					"$(PROJECT_DIR)/CityGiude/GUI",
 				);
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_LIBTOOLFLAGS = "$(OTHER_LDFLAGS)";
@@ -1177,6 +1188,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Mapbox",
 					"$(PROJECT_DIR)/Pods/build/Debug-iphoneos",
+					"$(PROJECT_DIR)/CityGiude/GUI",
 				);
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_LIBTOOLFLAGS = "$(OTHER_LDFLAGS)";

@@ -60,7 +60,7 @@
     self.hostReach = [Reachability reachabilityForInternetConnection];
     [hostReach startNotifier];
     [self updateInterfaceWithReachability:self.hostReach];
-    
+    [Flurry startSession:@"7YMHS9T4DFJHF2RH59VQ"];
     return YES;
 }
 

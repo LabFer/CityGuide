@@ -39,7 +39,7 @@ bool opened = false;
 
 -(void)viewDidLoad{
     [super viewDidLoad];
-    
+    [Flurry logEvent:@"Article_Read"];
     SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
     CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
     layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
@@ -83,7 +83,7 @@ bool opened = false;
     double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
     for (Places *place in self.frcPlaces) { //self.frcPlaces.fetchedObjects
-        //NSLog(@"Place from Coredata: %@",place);
+        NSLog(@"Place from Coredata: %@",place);
         if ((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)) {
             minLat = [place.lattitude doubleValue];
             maxLat = minLat;
@@ -128,6 +128,7 @@ bool opened = false;
                        [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
                    });
     
+    [self deleteAllMarkersFrom:self.mapView];
     //NSLog(@"User location is %@",self.mapView.userLocation.location);
 }
 
@@ -233,6 +234,14 @@ bool opened = false;
     for (RMAnnotation *annotation in map.annotations) {
         if (![annotation isUserLocationAnnotation])
         annotation.layer.sublayers = nil;
+        opened = false;
+    }
+}
+
+- (void)deleteAllMarkersFrom:(RMMapView *)map {
+    for (RMAnnotation *annotation in map.annotations) {
+        if (![annotation isUserLocationAnnotation])
+            annotation.layer = nil;
         opened = false;
     }
 }

@@ -11,6 +11,7 @@
 #import <FacebookSDK/FacebookSDK.h>
 #import "Reachability.h"
 #import "iLink.h"
+#import "Flurry.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, iLinkDelegate>
 
