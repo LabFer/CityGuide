@@ -15,7 +15,7 @@
 
 @interface NearMapViewController : UIViewController <CLLocationManagerDelegate, SMCalloutViewDelegate, RMMapViewDelegate>
 
-@property (strong) IBOutlet RMMapView *mapView;
+@property (strong) IBOutlet UIView *mapView;
 
 //@property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
 @property (nonatomic, strong) NSArray *frcPlaces;

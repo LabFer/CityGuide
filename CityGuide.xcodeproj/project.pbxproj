@@ -154,6 +154,9 @@
 		71EFDB451A49CD520048EA1E /* EstimateView.m in Sources */ = {isa = PBXBuildFile; fileRef = 71EFDB441A49CD520048EA1E /* EstimateView.m */; };
 		935FDB8B1A1B845D0079EDC3 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB891A1B845D0079EDC3 /* Crashlytics.framework */; };
 		935FDB8C1A1B845D0079EDC3 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 935FDB8A1A1B845D0079EDC3 /* Fabric.framework */; };
+		9373F7621A646A64007F4E5A /* tiles.json in Resources */ = {isa = PBXBuildFile; fileRef = 9373F7601A646A64007F4E5A /* tiles.json */; };
+		9373F7631A646A64007F4E5A /* tiles.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 9373F7611A646A64007F4E5A /* tiles.mbtiles */; };
+		9373F7661A646AB7007F4E5A /* SingletonMap.m in Sources */ = {isa = PBXBuildFile; fileRef = 9373F7651A646AB7007F4E5A /* SingletonMap.m */; };
 		93809D1A1A2DC0A300820E24 /* mapbox.json in Resources */ = {isa = PBXBuildFile; fileRef = 93809D191A2DC0A300820E24 /* mapbox.json */; };
 		93C5AC1F1A4434E5003C9264 /* libFlurry_6.0.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5AC1E1A4434E5003C9264 /* libFlurry_6.0.0.a */; };
 		93C5AC211A443540003C9264 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93C5AC201A443540003C9264 /* SystemConfiguration.framework */; };
@@ -485,6 +488,10 @@
 		852D0FFD12D5CC13B5191CFB /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		935FDB891A1B845D0079EDC3 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		935FDB8A1A1B845D0079EDC3 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		9373F7601A646A64007F4E5A /* tiles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tiles.json; sourceTree = "<group>"; };
+		9373F7611A646A64007F4E5A /* tiles.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; path = tiles.mbtiles; sourceTree = "<group>"; };
+		9373F7641A646AB7007F4E5A /* SingletonMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SingletonMap.h; path = ../../SingletonMap.h; sourceTree = "<group>"; };
+		9373F7651A646AB7007F4E5A /* SingletonMap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SingletonMap.m; path = ../../SingletonMap.m; sourceTree = "<group>"; };
 		93809D191A2DC0A300820E24 /* mapbox.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = mapbox.json; sourceTree = "<group>"; };
 		93C5AC1D1A4434E5003C9264 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Flurry.h; path = CityGiude/GUI/Flurry.h; sourceTree = "<group>"; };
 		93C5AC1E1A4434E5003C9264 /* libFlurry_6.0.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_6.0.0.a; path = CityGiude/GUI/libFlurry_6.0.0.a; sourceTree = "<group>"; };
@@ -635,6 +642,7 @@
 		714DE9C71A0FB28F00E4FB3D /* CityGiude */ = {
 			isa = PBXGroup;
 			children = (
+				9373F75F1A646A64007F4E5A /* NovijUrengoj */,
 				71C6D7901A5525A200E68B9C /* NimbusPhotos.bundle */,
 				71B678161A3300BF00053541 /* TwitterKitResources.bundle */,
 				93809D191A2DC0A300820E24 /* mapbox.json */,
@@ -763,6 +771,8 @@
 		714DEA081A1057C700E4FB3D /* Generated */ = {
 			isa = PBXGroup;
 			children = (
+				9373F7641A646AB7007F4E5A /* SingletonMap.h */,
+				9373F7651A646AB7007F4E5A /* SingletonMap.m */,
 				71C6D72C1A55231B00E68B9C /* Nimbus */,
 				717AD9D41A52862800DC084F /* NothingView.h */,
 				717AD9D51A52862800DC084F /* NothingView.m */,
@@ -1126,6 +1136,15 @@
 			path = Search;
 			sourceTree = "<group>";
 		};
+		9373F75F1A646A64007F4E5A /* NovijUrengoj */ = {
+			isa = PBXGroup;
+			children = (
+				9373F7601A646A64007F4E5A /* tiles.json */,
+				9373F7611A646A64007F4E5A /* tiles.mbtiles */,
+			);
+			path = NovijUrengoj;
+			sourceTree = "<group>";
+		};
 		93E2B7911A1B15F500AAB446 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1239,8 +1258,10 @@
 				714DE9D71A0FB28F00E4FB3D /* Main.storyboard in Resources */,
 				714DE9DC1A0FB28F00E4FB3D /* LaunchScreen.xib in Resources */,
 				93809D1A1A2DC0A300820E24 /* mapbox.json in Resources */,
+				9373F7631A646A64007F4E5A /* tiles.mbtiles in Resources */,
 				714DE9D91A0FB28F00E4FB3D /* Images.xcassets in Resources */,
 				71B678181A3300BF00053541 /* TwitterKitResources.bundle in Resources */,
+				9373F7621A646A64007F4E5A /* tiles.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1310,6 +1331,7 @@
 				7164190D1A4C295600998663 /* ActivityView.m in Sources */,
 				71C6D76D1A5523C100E68B9C /* NINonRetainingCollections.m in Sources */,
 				71C6D77E1A55240400E68B9C /* NIPagingScrollViewPage.m in Sources */,
+				9373F7661A646AB7007F4E5A /* SingletonMap.m in Sources */,
 				714DEA0C1A10D5B800E4FB3D /* MainViewController.m in Sources */,
 				718E028F1A10E89B00983653 /* MMDrawerController.m in Sources */,
 				71C6D7CC1A5528C700E68B9C /* NIRadioGroupController.m in Sources */,

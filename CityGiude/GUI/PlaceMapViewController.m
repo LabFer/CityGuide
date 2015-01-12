@@ -9,6 +9,7 @@
 #import "PlaceMapViewController.h"
 #import "UIUserSettings.h"
 #import "RateView.h"
+#import "SingletonMap.h"
 
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
@@ -23,6 +24,8 @@
 @interface PlaceMapViewController (){
     UIUserSettings *_userSettings;
     CLLocationManager *locationManager;
+    RMMapView* _map;
+    BOOL opened;
 }
 
 @end
@@ -54,26 +57,32 @@ bool openedCallout = false;
     [self setNavBarButtons];
     
     locationManager = [[CLLocationManager alloc] init];
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
-    NSError *error;
-    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+    _map = [SingletonMap instance].map;
+    _map.frame = self.view.frame;
+    [self.mapView addSubview:_map];
+    if ([[_map.tileSource shortName]  isEqual: @"Mapbox iOS Example"]) {
+        _map.tileSource = [[RMMBTilesSource alloc] initWithTileSetResource:@"tiles" ofType:@"mbtiles"];
+    }
+    _map.delegate = self;
+    [self deleteAllMarkersFrom:_map];
+    
+    RMAnnotation *annotation = [RMAnnotation  annotationWithMapView:_map
+                                                         coordinate:CLLocationCoordinate2DMake([self.mapPlace.lattitude doubleValue], [self.mapPlace.longitude doubleValue])
+                                                           andTitle:self.mapPlace.name];
+    annotation.userInfo = self.mapPlace;
+    [_map addAnnotation:annotation];
+    NSLog(@"annotation = %@",annotation);
+    _map.zoom = 15;
+    _map.centerCoordinate = annotation.coordinate;
+    
+    _map.showsUserLocation = YES;
     
     NSLog(@"self.mapPlace = %@", self.mapPlace);
 
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    RMAnnotation *annotation = [RMAnnotation  annotationWithMapView:self.mapView
-                                                         coordinate:CLLocationCoordinate2DMake([self.mapPlace.lattitude doubleValue], [self.mapPlace.longitude doubleValue])
-                                                           andTitle:self.mapPlace.name];
-    annotation.userInfo = self.mapPlace;
-    [self.mapView addAnnotation:annotation];
-    NSLog(@"annotation = %@",annotation);
-    
-    self.mapView.centerCoordinate = annotation.coordinate;
-    self.mapView.zoom = 15;
-    self.mapView.showsUserLocation = YES;
+
 }
 
 - (RMMapLayer *)mapView:(RMMapView *)mapView layerForAnnotation:(RMAnnotation *)annotation
@@ -174,6 +183,14 @@ bool openedCallout = false;
         if (![annotation isUserLocationAnnotation])
             annotation.layer.sublayers = nil;
         openedCallout = false;
+    }
+}
+
+- (void)deleteAllMarkersFrom:(RMMapView *)map {
+    for (RMAnnotation *annotation in map.annotations) {
+        if (![annotation isUserLocationAnnotation])
+            annotation.layer = nil;
+        opened = false;
     }
 }
 

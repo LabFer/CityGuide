@@ -12,6 +12,7 @@
 #import "DBWork.h"
 #import "Places.h"
 #import "Constants.h"
+#import "SingletonMap.h"
 
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
@@ -28,43 +29,46 @@
     UIUserSettings *_userSettings;
     CLLocationManager *locationManager;
     NSString *_sortKeys;
+    RMMapView *_map;
     BOOL opened;
 }
 
 -(void)viewWillAppear:(BOOL)animated {
-    
     [super viewWillAppear:animated];
+    
     
     AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
                                                object:appDelegate];
     
-    opened = false;
-    locationManager = [[CLLocationManager alloc] init];
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
-    NSError *error;
-    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
-    
-    [self.mapView.tileSource setCacheable:YES];
-    
-    self.mapView.showsUserLocation = YES;
-    
-    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
-                   {
-                       weakMap.zoom = 15;
-                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-                   });
-    
-    NSLog(@"User location is %@",self.mapView.userLocation.location);
+//    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
+//    NSError *error;
+//    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
+//    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+//    
+//    [self.mapView.tileSource setCacheable:YES];
+//    
+//    self.mapView.showsUserLocation = YES;
+//    
+//    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+//    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
+//    
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
+//                   {
+//                       weakMap.zoom = 15;
+//                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
+//                   });
+//    
+//    NSLog(@"User location is %@",self.mapView.userLocation.location);
     [self createPlaceList];
     
     // ====== mmdrawer swipe gesture =======
     [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
     [self.mm_drawerController setCloseDrawerGestureModeMask:MMCloseDrawerGestureModeAll];
+    
+    
+    opened = false;
+    locationManager = [[CLLocationManager alloc] init];
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
@@ -75,7 +79,6 @@
 
 
 -(void)viewDidLoad{
-    
     _userSettings = [[UIUserSettings alloc] init];
     
     [super viewDidLoad];
@@ -87,6 +90,18 @@
     
     self.filterDictionary = [[NSMutableDictionary alloc] initWithCapacity:0];
     
+    _map = [SingletonMap instance].map;
+    _map.frame = self.mapView.frame;
+    [self.mapView addSubview:_map];
+    NSLog(@"Tilesource: %@", [_map.tileSource shortName]);
+    if ([[_map.tileSource shortName]  isEqual: @"Mapbox iOS Example"]) {
+        _map.tileSource = [[RMMBTilesSource alloc] initWithTileSetResource:@"tiles" ofType:@"mbtiles"];
+        
+    }
+    
+    [_map.tileSource setCacheable:YES];
+    _map.showsUserLocation = YES;
+    _map.delegate = self;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -94,10 +109,10 @@
     
     double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
-    NSLog(@"viewDidAppear. before delete map.annotations: %lu", (unsigned long)self.mapView.annotations.count);
+    NSLog(@"viewDidAppear. before delete map.annotations: %lu", (unsigned long)_map.annotations.count);
     //[self deleteAllMarkersFrom:self.mapView];
-    [self.mapView removeAllAnnotations];
-    NSLog(@"viewDidAppear. after delete map.annotations: %lu", (unsigned long)self.mapView.annotations.count);
+    [_map removeAllAnnotations];
+    NSLog(@"viewDidAppear. after delete map.annotations: %lu", (unsigned long)_map.annotations.count);
     //[self deleteCustomAnnotation:self.mapView];
     NSLog(@"viewDidAppear: %lu", (unsigned long)self.frcPlaces.count);
     for (Places *place in self.frcPlaces) {
@@ -117,11 +132,11 @@
    
             
             }
-            RMAnnotation *annotation = [RMAnnotation annotationWithMapView:self.mapView
+            RMAnnotation *annotation = [RMAnnotation annotationWithMapView:_map
                                                                 coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue])
                                                                   andTitle:place.name];
             annotation.userInfo = place;
-            [self.mapView addAnnotation:annotation];
+            [_map addAnnotation:annotation];
         }
     }
     

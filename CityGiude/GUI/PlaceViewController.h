@@ -14,10 +14,10 @@
 #import "RateView.h"
 
 
-@interface PlaceViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, SMCalloutViewDelegate, CLLocationManagerDelegate>
+@interface PlaceViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate,RMMapViewDelegate, SMCalloutViewDelegate, CLLocationManagerDelegate>
 
 
-@property (strong) IBOutlet RMMapView *mapView;
+@property (strong) IBOutlet UIView *mapView;
 
 
 @property (weak, nonatomic) IBOutlet UIButton *buttonList;

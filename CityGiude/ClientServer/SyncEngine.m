@@ -195,7 +195,7 @@
         [[DBWork shared] insertBannersFromArray:[responseObject objectForKey:@"data"]];
         NSLog(@"Total Banner JSON complete!");
 
-        [self downloadMapCache];
+       // [self downloadMapCache];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);

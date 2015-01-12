@@ -16,6 +16,7 @@
 #import "calloutViewController.h"
 #import "SubCategoryListFlowLayout.h"
 #import "FilterViewController.h"
+#import "SingletonMap.h"
 
 #import "AFNetworking.h"
 #import "UIImageView+AFNetworking.h"
@@ -27,6 +28,7 @@
     UIUserSettings *_userSettings;
     NSString *_sortKeys;
     CLLocationManager *locationManager;
+    RMMapView *_map;
 }
 
 bool opened = false;
@@ -108,7 +110,7 @@ bool opened = false;
     
     double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
-    [self.mapView removeAllAnnotations];
+    [_map removeAllAnnotations];
     for(Places *place in self.frcPlaces){
         //NSLog(@"Place from Coredata: %@",place);
         if((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)){
@@ -135,12 +137,12 @@ bool opened = false;
                 NSLog(@"maxLong = %f",maxLong);
             };
         }
-        RMAnnotation *annotation = [RMAnnotation annotationWithMapView:self.mapView coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue]) andTitle:place.name];
+        RMAnnotation *annotation = [RMAnnotation annotationWithMapView:_map coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue]) andTitle:place.name];
         annotation.userInfo = place;
-        [self.mapView addAnnotation:annotation];
+        [_map addAnnotation:annotation];
         
     }
-    
+    NSLog(@"Annotations: %@",_map.annotations);
     [self.placeCollectionView reloadData];
 }
 
@@ -149,24 +151,36 @@ bool opened = false;
 
 -(void)createMap{
     locationManager = [[CLLocationManager alloc] init];
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"mapbox" ofType:@"json"];
-    NSError *error;
-    NSString* tileJSON = [NSString stringWithContentsOfFile:fullPath encoding:NSUTF8StringEncoding error:&error];
-    self.mapView.tileSource = [[RMMapboxSource alloc] initWithTileJSON:tileJSON];
+    _map = [SingletonMap instance].map;
+    _map.frame = self.mapView.frame;
+    [self.mapView addSubview:_map];
+    NSLog(@"Tilesource: %@", [_map.tileSource shortName]);
+    if ([[_map.tileSource shortName]  isEqual: @"Mapbox iOS Example"]) {
+        _map.tileSource = [[RMMBTilesSource alloc] initWithTileSetResource:@"tiles" ofType:@"mbtiles"];
+        _map.zoom = 13;
+    }
     
-    [self.mapView.tileSource setCacheable:YES];
+    [_map.tileSource setCacheable:YES];
+    _map.showsUserLocation = YES;
+    _map.delegate = self;
+
     
-    self.mapView.showsUserLocation = YES;
-    
-    [self.mapView setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-    __weak RMMapView *weakMap = self.mapView; // avoid block-based memory leak
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
-                   {
-                       weakMap.zoom = 15;
-                       [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
-                   });
-    
+//
+//    NSDictionary *mapViewParams = [[SingletonMap instance] parseJSONwithName:@"tiles"];
+//    
+//    [map.tileSource setCacheable:YES];
+//    map.showsUserLocation = YES;
+//    __weak RMMapView *weakMap = map; // avoid block-based memory leak
+//    
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^(void)
+//                   {
+//                       weakMap.minZoom = [mapViewParams[@"minzoom"] doubleValue];
+//                       weakMap.maxZoom = [mapViewParams[@"maxzoom"] doubleValue];
+//                       [weakMap setConstraintsSouthWest:CLLocationCoordinate2DMake([mapViewParams[@"bounds"][1] doubleValue], [mapViewParams[@"bounds"][0] doubleValue]) northEast:CLLocationCoordinate2DMake([mapViewParams[@"bounds"][3] doubleValue], [mapViewParams[@"bounds"][2] doubleValue])];
+//                       weakMap.zoom = 12;
+//                   });
+
+//
     //[self deleteAllMarkersFrom:self.mapView];
     //NSLog(@"User location is %@",self.mapView.userLocation.location);
 }
