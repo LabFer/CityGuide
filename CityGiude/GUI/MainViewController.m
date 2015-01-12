@@ -28,14 +28,19 @@
 #import "DBWork.h"
 
 #import "AuthUserViewController.h"
+#import "UIImageView+AFNetworking.h"
 
 #import "AppDelegate.h"
+#import "EstimateView.h"
+#import "DiscountDetailViewController.h"
 
 
 @interface MainViewController (){
     UIUserSettings *_userSettings;
     BannerHeaderCollectionView *_headerView;
     NSString *_sortKeys;
+    CategoryTileFlowLayout *_tileLayout;
+    CategoryListFlowLayout *_listLayout;
 }
 
 @end
@@ -54,19 +59,28 @@
     _sortKeys = @"sort,name";
     self.frcCategories = [[DBWork shared] fetchedResultsController:kCoreDataCategoriesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
     
-    if([_userSettings getPresentationMode] == UICatalogTile){
-        [self.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
-    }
-    else{
-        [self.catalogCollectionView setCollectionViewLayout:[[CategoryListFlowLayout alloc] init]];
+    _tileLayout = [[CategoryTileFlowLayout alloc] init];
+    if(IS_IPAD){
+        _tileLayout.numberOfColumns = 4;
+        _tileLayout.itemSize = CGSizeMake(160.0f, 160.0f); //size of each cell
+        _tileLayout.sectionInset = UIEdgeInsetsMake(0.0f, 10.0f, 0.0f, 10.0f);
     }
     
+    _listLayout = [[CategoryListFlowLayout alloc] init];
+    if(IS_IPAD){
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        _listLayout.numberOfColumns = 2;
+        _listLayout.itemSize = CGSizeMake(screenSize/2, 80.0f); //size of each cell
+    }
+    
+    [self setCollectionViewLayout];
     
     self.catalogCollectionView.backgroundColor = [UIColor whiteColor];
     
     self.automaticallyAdjustsScrollViewInsets = NO;
     
-    //[self.view setBackgroundColor:[UIColor clearColor]];
+    
+    [self.view setBackgroundColor:[UIColor whiteColor]];
    
     [self setNavBarButtons];
     
@@ -96,6 +110,7 @@
 //    self.pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
 //    self.pageControl.pageIndicatorTintColor = [UIColor lightTextColor];
 //    [self.bannerView bringSubviewToFront:self.pageControl];
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -104,15 +119,52 @@
 }
 
 -(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
     [self setupPageIndicator];
     self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
     
     [self.catalogCollectionView reloadData];
+    
+    //слушаю PUSH-notification
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+    
+    [self.catalogCollectionView reloadData];
+    
+    // ====== mmdrawer swipe gesture =======
+    [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
+    [self.mm_drawerController setCloseDrawerGestureModeMask:MMCloseDrawerGestureModeAll];
+    self.mm_drawerController.shouldStretchDrawer = NO;
+    
+    // ====== setup offline push notification =====
+    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+    NSDictionary *options = [userDefault objectForKey:@"options"];
+    if(options){
+        //if (self.isViewLoaded && self.view.window) {
+            // handle the notification
+            [_userSettings showPushView:options inViewController:self];
+        //}
+        [userDefault removeObjectForKey:@"options"];
+        [userDefault synchronize];
+    }
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
     [self.pageTimer invalidate];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
+
+
+
+//-(void)viewWillLayoutSubviews{
+//    [super viewWillLayoutSubviews];
+//    NSLog(@"viewWillLayoutSubviews");
+//    UICollectionViewFlowLayout *flowLayout = (id)self.catalogCollectionView.collectionViewLayout;
+//    
+//    [flowLayout invalidateLayout];
+//}
 
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
@@ -130,9 +182,7 @@
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    // ====== mmdrawer swipe gesture =======
-    [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
-    [self.mm_drawerController setCloseDrawerGestureModeMask:MMCloseDrawerGestureModeAll];
+    self.navigationController.interactivePopGestureRecognizer.delegate = (id<UIGestureRecognizerDelegate>)self;
 }
 
 -(void)menuDrawerButtonPress:(id)sender{
@@ -146,16 +196,18 @@
     if([_userSettings getPresentationMode] == UICatalogList){
 //        [self.catalogCollectionView setDataSource:_tileDataSource];
         //_tileDataSource.delegate = self;
-        [self.catalogCollectionView setCollectionViewLayout:[[CategoryTileFlowLayout alloc] init]];
+        //[self.catalogCollectionView setCollectionViewLayout:_tileLayout];
         [_userSettings setPresentationMode:UICatalogTile];
     }
     else{
 //        [self.catalogCollectionView setDataSource:_listDataSource];
-        [self.catalogCollectionView setCollectionViewLayout:[[CategoryListFlowLayout alloc] init]];
+        //[self.catalogCollectionView setCollectionViewLayout:_listLayout];
         [_userSettings setPresentationMode:UICatalogList];
     }
     
+    [self setCollectionViewLayout];
     [self.catalogCollectionView reloadData];
+    NSLog(@"content offSet: %f, %f", self.catalogCollectionView.contentOffset.x, self.catalogCollectionView.contentOffset.y);
     self.navigationItem.rightBarButtonItem = [_userSettings setupRightButtonItem:self];
     self.navigationItem.rightBarButtonItem.tintColor = kDefaultNavItemTintColor;
 }
@@ -261,6 +313,16 @@
 }
 
 #pragma mark - CollectionViewDelegate
+-(void)setCollectionViewLayout{
+    if([_userSettings getPresentationMode] == UICatalogTile){
+        [self.catalogCollectionView setCollectionViewLayout:_tileLayout];
+    }
+    else{
+        [self.catalogCollectionView setCollectionViewLayout:_listLayout];
+    }
+}
+
+
 -(void)collectionView:collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
 
 //    NSLog(@"didSelectItemAtIndexPath = %li", indexPath.item);
@@ -314,8 +376,40 @@
 
 -(void)configureCategoryListCell:(CategoryListCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
-    [cell.labelCategoryName setText:category.name];
+    //[cell.labelCategoryName setText:category.name];
+    [cell.labelCategoryName setAttributedText:[self configureTitleString:category]];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, category.photo];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.imageViewCategoryIcon.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    //NSLog(@"MainViewController. image for Cell :%@,  %@", category.name, imgUrl);
+    [cell.imageViewCategoryIcon setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                           placeholderImage:[UIImage imageNamed:@"no_photo"]
+                                    success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                        
+                                        [activityIndicatorView removeFromSuperview];
+                                        
+                                        // do image resize here
+                                        
+                                        // then set image view
+                                        NSLog(@"MainViewController. Image cell downloaded");
+                                        cell.imageViewCategoryIcon.image = image;
+                                    }
+                                    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                        [activityIndicatorView removeFromSuperview];
+                                        NSLog(@"MainViewController. Fail to download cell image");
+                                        // do any other error handling you want here
+                                    }];
+ 
     
     if([[DBWork shared] isCategoryFavour:category.categoryID])
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
@@ -323,10 +417,75 @@
         [cell.btnCellHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
 }
 
+-(NSMutableAttributedString*)configureTitleString:(Categories*)aCategory{
+    
+    NSMutableAttributedString *nameStr = [[NSMutableAttributedString alloc]
+                                          initWithString:aCategory.name
+                                          attributes:@{
+                                                       NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue-Bold" size:14.0f],
+                                                       NSStrokeColorAttributeName : [UIColor blackColor]}]; //1
+    
+    NSArray* childCategories = [[DBWork shared] getChildCategories:aCategory.categoryID];
+    
+    if(childCategories.count == 0){
+        NSAttributedString *countStr = [[NSAttributedString alloc]
+                                        initWithString:[NSString stringWithFormat:@" (%lu)", (unsigned long)aCategory.places.count]
+                                        attributes:@{
+                                                     NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue" size:14.0f],
+                                                     NSStrokeColorAttributeName : [UIColor blackColor]}]; //1
+        [nameStr appendAttributedString:countStr];
+    }
+    else{
+        NSInteger totalPlaces = 0;
+        for(Categories *aCategory in childCategories){
+            totalPlaces = totalPlaces + aCategory.places.count;
+        }
+        
+        NSAttributedString *countStr = [[NSAttributedString alloc]
+                                        initWithString:[NSString stringWithFormat:@" (%lu)", (unsigned long)totalPlaces]
+                                        attributes:@{
+                                                     NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue" size:14.0f],
+                                                     NSStrokeColorAttributeName : [UIColor blackColor]}]; //1
+        [nameStr appendAttributedString:countStr];
+    }
+
+    return nameStr;
+    
+}
+
+
 -(void)configureCategoryTileCell:(CategoryTileCell*)cell atIndexPath:(NSIndexPath*)indexPath{
     Categories *category = self.frcCategories.fetchedObjects[indexPath.item];
     [cell.labelCategoryName setText:category.name];
     [cell.btnCellHeart addTarget:self action:@selector(collectionViewCellButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, category.photo];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.imageViewCategoryIcon.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    //NSLog(@"MainViewController. image for Cell :%@,  %@", category.name, imgUrl);
+    [cell.imageViewCategoryIcon setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                      placeholderImage:[UIImage imageNamed:@"no_photo"]
+                                               success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                                   
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   
+                                                   // do image resize here
+                                                   
+                                                   // then set image view
+                                                   NSLog(@"MainViewController. Image cell downloaded");
+                                                   cell.imageViewCategoryIcon.image = image;
+                                               }
+                                               failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   NSLog(@"MainViewController. Fail to download cell image");
+                                                   // do any other error handling you want here
+                                               }];
     
     if([[DBWork shared] isCategoryFavour:category.categoryID])
        [cell.btnCellHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
@@ -382,6 +541,11 @@
         PlaceDetailViewController *subVC = (PlaceDetailViewController*)[segue destinationViewController];
         subVC.aPlace = (Places*)sender;
     }
+    else if([[segue identifier] isEqualToString:@"segueFromCategoryToDiscountDetail"]){
+        DiscountDetailViewController *subVC = (DiscountDetailViewController*)[segue destinationViewController];
+        subVC.aDiscount = (Discounts*)sender;
+    }
+    
 }
 
 
@@ -429,19 +593,26 @@
     
     if([bannerVC.dataObject isKindOfClass:[Banners class]]){
         Banners *aBanner = (Banners*)bannerVC.dataObject;
-        NSLog(@"handleHeaderTap: %@", aBanner.bannerName);
+        //NSLog(@"handleHeaderTap: %@, %@, %@", aBanner.bannerName, aBanner.type, aBanner.url);
     
         if([aBanner.type isEqualToString:@"place"]){ //goto place
             NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
             Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
-            [self performSegueWithIdentifier:@"segueFromCategoryToPlaceDetail" sender:aPlace];//segueFromCategoryToPlaceDetail
+            if(aPlace)
+                [self performSegueWithIdentifier:@"segueFromCategoryToPlaceDetail" sender:aPlace];//segueFromCategoryToPlaceDetail
     
         }
         else if([aBanner.type isEqualToString:@"event"]){ //goto event
+            NSNumber *discoutID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
+            Discounts *aDiscount = [[DBWork shared] getDiscountByID:discoutID];
+            if(aDiscount)
+                [self performSegueWithIdentifier:@"segueFromCategoryToDiscountDetail" sender:aDiscount];
+            
             //segueFromCategoryToDiscountDetail
+            //aBanner.
         }
         else if([aBanner.type isEqualToString:@"url"]){ //goto external url
-            NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
+            NSString *web =  ([aBanner.url rangeOfString:@"http"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
             NSLog(@"Banner. Open URL: %@", web);
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
         }
@@ -465,6 +636,15 @@
         //[self performSegueWithIdentifier:@"segueFromResponcesListToAuth" sender:self];
     }
     
+}
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
 }
 
 

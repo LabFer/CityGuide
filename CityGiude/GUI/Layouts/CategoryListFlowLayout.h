@@ -16,4 +16,6 @@
 @property (nonatomic) CGFloat interItemSpacingY;
 @property (nonatomic) CGFloat headerViewHeight;
 
+@property (nonatomic, assign) id delegate;
+
 @end

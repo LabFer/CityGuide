@@ -17,7 +17,9 @@
 
 @property (strong) IBOutlet RMMapView *mapView;
 
-@property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
-@property (nonatomic, strong) Categories *aCategory;
+//@property (nonatomic, strong) NSFetchedResultsController *frcPlaces;
+@property (nonatomic, strong) NSArray *frcPlaces;
+//@property (nonatomic, strong) Categories *aCategory;
+@property (nonatomic, strong) NSMutableDictionary *filterDictionary;
 
 @end

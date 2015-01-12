@@ -7,16 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Mapbox.h"
 
-@interface MenuTableViewController : UITableViewController <UITableViewDataSource, UITableViewDelegate>
+@interface MenuTableViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate, CLLocationManagerDelegate>
 
-@property (nonatomic, strong) NSMutableArray *navigationControllerArray;
-@property (weak, nonatomic) IBOutlet UIImageView *userPhotoImage;
-@property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
-@property (weak, nonatomic) IBOutlet UILabel *authLabel;
-@property (weak, nonatomic) IBOutlet UIImageView *authImage;
-@property (weak, nonatomic) IBOutlet UIImageView *userPhoto;
+//@property (nonatomic, strong) NSMutableArray *navigationControllerArray;
+//@property (weak, nonatomic) IBOutlet UIImageView *userPhotoImage;
+//@property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
+//@property (weak, nonatomic) IBOutlet UILabel *authLabel;
+//@property (weak, nonatomic) IBOutlet UIImageView *authImage;
+//@property (weak, nonatomic) IBOutlet UIImageView *userPhoto;
 @property (strong, nonatomic) IBOutlet UITableView *menuTableView;
+@property (weak, nonatomic) IBOutlet UISearchBar *searchBar;
+@property (weak, nonatomic) IBOutlet UICollectionView *searchResultsCollectionView;
 
 -(void)openMainViewController;
 

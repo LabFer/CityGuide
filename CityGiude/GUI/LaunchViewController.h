@@ -23,6 +23,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *progressLabel;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *substatusLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *launchBkg;
 
 -(void)checkNewDataOnServer;
 -(void)errorDownloadJSONFromServer;

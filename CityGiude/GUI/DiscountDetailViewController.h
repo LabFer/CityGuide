@@ -14,5 +14,9 @@
 @property (weak, nonatomic) IBOutlet UIWebView *discountDetailWebView;
 
 @property (nonatomic, strong) Discounts *aDiscount;
+@property (nonatomic, assign) id delegate;
+
+-(void)setDetailImage;
+
 
 @end

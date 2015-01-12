@@ -21,6 +21,7 @@
 
 #import "SSZipArchive.h"
 #import "UIUserSettings.h"
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 
 
 @implementation SyncEngine
@@ -158,7 +159,7 @@
 
 - (void)tileCache:(RMTileCache *)tileCache didBackgroundCacheTile:(RMTile)tile withIndex:(NSUInteger)tileIndex ofTotalTileCount:(NSUInteger)totalTileCount
 {
-    //NSLog(@"Caching Tile %lu of Total %lu", tileIndex, totalTileCount);
+    NSLog(@"Caching Tile %lu of Total %lu", tileIndex, totalTileCount);
     NSNumber *totalRead = [NSNumber numberWithInteger:tileIndex];
     NSNumber *totalExpected = [NSNumber numberWithInteger:totalTileCount];
     
@@ -210,21 +211,23 @@
 
 -(void)downloadArticleFromServer{
     NSLog(@"downloadArticleFromServer");
-//    //NSString *strURL = URL_API;
-//    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys:@"article", @"method", @"3", @"id", nil];
-//    
-//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-//    
-//    [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        
-//        //NSLog(@"Article: %@", (NSDictionary*)responseObject);
-//        [self setArticle:[(NSDictionary*)responseObject objectForKey:@"data"] ];
-//        
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        NSLog(@"Error: %@", error);
-//    }];
     
-    [self finishSync];
+    
+    NSURL *URL = [NSURL URLWithString:@"http://lsg.appsgroup.ru/mob.php?id=1"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSString *string = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        //NSLog(@"%@", string);
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        [userDefaults setObject:string forKey:@"article"];
+        [userDefaults synchronize];
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"downloadArticleFromServer. Error: %@", error);
+    }];
+    [op start];
+    
 }
 
 -(void)setArticle:(NSDictionary*)article{
@@ -493,9 +496,9 @@
     
     NSArray *favourites = [[DBWork shared] getUnsyncFavourites];
     
-    NSLog(@"uploadFavourites: %lu", (unsigned long)favourites.count);
+    //NSLog(@"uploadFavourites: %lu", (unsigned long)favourites.count);
     if(favourites.count == 0){
-        NSLog(@"Have no favourites for upload!");
+        //NSLog(@"Have no favourites for upload!");
         [self getFavourites];
         return;
     }
@@ -520,7 +523,7 @@
     }
     else {
         JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
-        NSLog(@"syncFavourites. JSON OUTPUT: %@",JSONString);
+        //NSLog(@"syncFavourites. JSON OUTPUT: %@",JSONString);
     }
     
 //    
@@ -529,12 +532,12 @@
                                 JSONString, @"favorites",
                                 @"addfavorite", @"method", nil];
     
-    NSLog(@"uploadFavourites. parameters: %@", parameters);
+    //NSLog(@"uploadFavourites. parameters: %@", parameters);
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
     [manager POST:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"uploadFavourites. Validation responceDict: %@", responseObject);
+        //NSLog(@"uploadFavourites. Validation responceDict: %@", responseObject);
         NSDictionary* arr = (NSDictionary*)responseObject;
         NSNumber *code = [arr objectForKey:@"code"];
         if(code.integerValue == 0){
@@ -553,12 +556,13 @@
 }
 
 -(void)getFavourites{
-    NSLog(@"getFavourites");
+    //NSLog(@"getFavourites");
     
     
     UIUserSettings *us = [[UIUserSettings alloc] init];
     if(![us isUserAuthorized]){
-        NSLog(@"User not authorized");
+        //NSLog(@"User not authorized");
+        [self deleteFavourites];
         return;
     }    
     
@@ -574,7 +578,7 @@
         AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
         
         [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-            NSLog(@"getFavourites JSON: %@", responseObject);
+            //NSLog(@"getFavourites JSON: %@", responseObject);
             NSDictionary* arr = (NSDictionary*)responseObject;
             NSNumber *code = [arr objectForKey:@"code"];
             if(code.integerValue == 0){
@@ -599,7 +603,7 @@
     
     NSArray *favourites = [[DBWork shared] getDeletedFavourites];
     
-    NSLog(@"deleteFavourites: %lu", (unsigned long)favourites.count);
+    //NSLog(@"deleteFavourites: %lu", (unsigned long)favourites.count);
     if(favourites.count == 0){
         NSLog(@"Have no favourites for deleting!");
         return;
@@ -608,9 +612,9 @@
     NSMutableArray *items = [[NSMutableArray alloc] initWithCapacity:0];
     
     for(Favourites *f in favourites){
-        //NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:f.favourID, @"favoriteid", nil];
+        NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:f.favourID, @"id", nil];
         
-        [items addObject:f.favourID];
+        [items addObject:d];
         
     }
     
@@ -625,7 +629,7 @@
     }
     else {
         JSONString = [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
-        NSLog(@"deleteFavourites. JSON OUTPUT: %@",JSONString);
+        //NSLog(@"deleteFavourites. JSON OUTPUT: %@",JSONString);
     }
     
     //
@@ -639,7 +643,7 @@
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     
     [manager POST:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"deleteFavourites. Validation responceDict: %@", responseObject);
+        //NSLog(@"deleteFavourites. Validation responceDict: %@", responseObject);
         NSDictionary* arr = (NSDictionary*)responseObject;
         NSNumber *code = [arr objectForKey:@"code"];
         if(code.integerValue == 0){
@@ -655,6 +659,105 @@
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"deleteFavourites. Validation connection Error: %@", error);
+    }];
+}
+
+-(void)downloadPlaceItemFromServer:(NSNumber*)placeID{
+    NSLog(@"downloadPlaceItemFromServer");
+    
+    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    if(appDelegate.netStatus == ReachableViaWWAN){
+        CTTelephonyNetworkInfo *telephonyInfo = [CTTelephonyNetworkInfo new];
+        if(telephonyInfo.currentRadioAccessTechnology == CTRadioAccessTechnologyEdge) //если EDGE, то ничего не делаем
+            return;
+    }
+    
+    // ======== Get data from server ========
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys: placeID, @"placeID", @"place", @"method", nil];
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    
+    [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        //NSLog(@"getFavourites JSON: %@", responseObject);
+        NSDictionary* arr = (NSDictionary*)responseObject;
+        NSNumber *code = [arr objectForKey:@"code"];
+        if(code.integerValue == 0){
+            NSDictionary *data = [arr objectForKey:@"data"];
+            NSArray *places = [data objectForKey:@"place"];
+            [[DBWork shared] insertPlacesFromArray:places];
+            NSLog(@"downloadPlaceItemFromServer. Success!");
+        }
+        else{
+            NSLog(@"downloadPlaceItemFromServer. Error code: %@", code);
+        }
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"downloadPlaceItemFromServer. Error: %@", error);
+        
+    }];
+}
+
+-(void)downloadDiscountItemFromServer:(NSNumber*)discountID{
+    
+    NSLog(@"downloadDiscountItemFromServer");
+    AppDelegate * appDelegate = (AppDelegate *) [[UIApplication sharedApplication] delegate];
+    if(appDelegate.netStatus == ReachableViaWWAN){
+        CTTelephonyNetworkInfo *telephonyInfo = [CTTelephonyNetworkInfo new];
+        if(telephonyInfo.currentRadioAccessTechnology == CTRadioAccessTechnologyEdge) //если EDGE, то ничего не делаем
+            return;
+    }
+    
+    // ======== Get data from server ========
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys: discountID, @"eventID", @"event", @"method", nil];
+        
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+        
+    [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            //NSLog(@"getFavourites JSON: %@", responseObject);
+        NSDictionary* arr = (NSDictionary*)responseObject;
+        NSNumber *code = [arr objectForKey:@"code"];
+        if(code.integerValue == 0){
+            NSDictionary *data = [arr objectForKey:@"data"];
+            NSArray *discounts = [data objectForKey:@"action"];
+            [[DBWork shared] insertDiscountsFromArray:discounts];
+            NSLog(@"downloadDiscountItemFromServer. Success!");
+        }
+        else{
+            NSLog(@"downloadDiscountItemFromServer. Error code: %@", code);
+        }
+            
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"downloadDiscountItemFromServer. Error: %@", error);
+            
+    }];
+}
+
+-(void)downloadAllDiscountsFromServer{
+    
+    NSLog(@"downloadAllDiscountsFromServer");
+    // ======== Get data from server ========
+    NSDictionary *parameters = [[NSDictionary alloc] initWithObjectsAndKeys: @"events", @"method", nil];
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    
+    [manager GET:URL_API parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        //NSLog(@"downloadAllDiscountsFromServer: %@", responseObject);
+        NSDictionary* arr = (NSDictionary*)responseObject;
+        NSNumber *code = [arr objectForKey:@"code"];
+        if(code.integerValue == 0){
+            NSDictionary *data = [arr objectForKey:@"data"];
+            NSArray *discounts = [data objectForKey:@"action"];
+            [[DBWork shared] deleteDiscounts];
+            [[DBWork shared] insertDiscountsFromArray:discounts];
+            NSLog(@"downloadAllDiscountsFromServer. Success!");
+        }
+        else{
+            NSLog(@"downloadAllDiscountsFromServer. Error code: %@", code);
+        }
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"downloadAllDiscountsFromServer. Error: %@", error);
+        
     }];
 }
 

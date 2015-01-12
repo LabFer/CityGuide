@@ -33,32 +33,57 @@ bool opened = false;
 
 -(void)viewWillAppear:(BOOL)animated {
     
+    [super viewWillAppear:animated];
     [self createMap];
-    [self.placeCollectionView reloadData];
+    
+    
+    //слушаю PUSH-notification
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
 
 -(void)viewDidLoad{
     [super viewDidLoad];
-    [Flurry logEvent:@"Article_Read"];
-    SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
-    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
-    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
-    layout.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 115.0f, 0.0f);
-    [self.placeCollectionView setCollectionViewLayout:layout];
+    
+    SubCategoryListFlowLayout *_listLayout = [[SubCategoryListFlowLayout alloc] init];
+    
+    if(IS_IPAD){
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        _listLayout.numberOfColumns = 2;
+        _listLayout.itemSize = CGSizeMake(screenSize/2, 115.0f); //size of each cell
+    }
+    else{
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        _listLayout.numberOfColumns = 1;
+        _listLayout.itemSize = CGSizeMake(screenSize, 115.0f); //size of each cell
+    }
+
+    [self.placeCollectionView setCollectionViewLayout:_listLayout];
     
     
 //    NSPredicate *predicate = nil;
 //    if(self.aCategory)
 //        predicate = [NSPredicate predicateWithFormat:@"self in %@", self.aCategory.places];
 //    _sortKeys = @"promoted,sort,name";
-//    //NSLog(@"Places predicate: %@", predicate);
+//    NSLog(@"Places predicate: %@", predicate);
 //    
 //    self.frcPlaces = [[DBWork shared] fetchedResultsController:kCoreDataPlacesEntity sortKey:_sortKeys predicate:predicate sectionName:nil delegate:self];
     self.filterDictionary = [NSDictionary dictionary];
     [self createPlaceList];
     self.placeCollectionView.backgroundColor = [UIColor whiteColor];
     
-    self.listMapButtonView.backgroundColor = kDefaultButtonBarColor;
+    //self.listMapButtonView.backgroundColor = kDefaultButtonBarColor;
+    
+   
+    //self.listMapButtonView.layer.borderColor = [UIColor redColor].CGColor;
+    //self.listMapButtonView.layer.borderWidth = 0.0f;
     
     _userSettings = [[UIUserSettings alloc] init];
     
@@ -70,43 +95,57 @@ bool opened = false;
     [self setupHousePresentationMode];
     
     [self setNavBarButtons];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    [self.view setBackgroundColor:[UIColor whiteColor]];
+    
     
    
 }
 
-
-- (void)viewDidAppear:(BOOL)animated {
+-(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    
     NSLog(@"viewDidAppear");
     
     double minLat = NAN, maxLat = NAN, minLong = NAN, maxLong = NAN;
     
-    for (Places *place in self.frcPlaces) { //self.frcPlaces.fetchedObjects
-        NSLog(@"Place from Coredata: %@",place);
-        if ((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)) {
+    [self.mapView removeAllAnnotations];
+    for(Places *place in self.frcPlaces){
+        //NSLog(@"Place from Coredata: %@",place);
+        if((minLat == NAN) || (maxLat = NAN) || (minLong == NAN) || (maxLong == NAN)){
             minLat = [place.lattitude doubleValue];
             maxLat = minLat;
             minLong = [place.longitude doubleValue];
             maxLong = minLong;
         }
-        else {
-            if (minLat > [place.lattitude doubleValue]) {minLat = [place.lattitude doubleValue]; NSLog(@"minLat = %f",minLat);};
-            if (maxLat < [place.lattitude doubleValue]) {maxLat = [place.lattitude doubleValue]; NSLog(@"maxLat = %f",maxLat);};
-            if (minLong > [place.longitude doubleValue]) {minLong = [place.longitude doubleValue]; NSLog(@"minLat = %f",minLong);};
-            if (maxLong < [place.longitude doubleValue]) {maxLong = [place.longitude doubleValue]; NSLog(@"maxLong = %f",maxLong);};
+        else{
+            if (minLat > [place.lattitude doubleValue]) {
+                minLat = [place.lattitude doubleValue];
+                NSLog(@"minLat = %f",minLat);
+            };
+            if (maxLat < [place.lattitude doubleValue]) {
+                maxLat = [place.lattitude doubleValue];
+                NSLog(@"maxLat = %f",maxLat);
+            };
+            if (minLong > [place.longitude doubleValue]) {
+                minLong = [place.longitude doubleValue];
+                NSLog(@"minLat = %f",minLong);
+            };
+            if (maxLong < [place.longitude doubleValue]) {
+                maxLong = [place.longitude doubleValue];
+                NSLog(@"maxLong = %f",maxLong);
+            };
         }
-        
-        RMAnnotation *annotation = [RMAnnotation annotationWithMapView:self.mapView
-                                                            coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue])
-                                                              andTitle:place.name];
+        RMAnnotation *annotation = [RMAnnotation annotationWithMapView:self.mapView coordinate:CLLocationCoordinate2DMake([place.lattitude doubleValue], [place.longitude doubleValue]) andTitle:place.name];
         annotation.userInfo = place;
         [self.mapView addAnnotation:annotation];
+        
     }
     
+    [self.placeCollectionView reloadData];
 }
 
 #pragma mark - RMMapBox
+
 
 -(void)createMap{
     locationManager = [[CLLocationManager alloc] init];
@@ -128,7 +167,7 @@ bool opened = false;
                        [weakMap setCenterCoordinate:self.mapView.userLocation.location.coordinate];
                    });
     
-    [self deleteAllMarkersFrom:self.mapView];
+    //[self deleteAllMarkersFrom:self.mapView];
     //NSLog(@"User location is %@",self.mapView.userLocation.location);
 }
 
@@ -137,7 +176,7 @@ bool opened = false;
     if (annotation.isUserLocationAnnotation) return nil;
     RMMarker *marker = [[RMMarker alloc] initWithUIImage:[UIImage imageNamed:@"marker" ]];
     marker.canShowCallout = NO;
-    //NSLog(@"Annotation marker is changed");
+    NSLog(@"Annotation marker is changed");
     return marker;
 }
 
@@ -161,7 +200,7 @@ bool opened = false;
         while (![[target valueForKey:@"calloutTag"]  isEqual: @"customCallout"]) {
             target = target.superlayer;
         }
-        NSLog(@"Place : %@",[target valueForKey:@"place"]);
+        //NSLog(@"Place : %@",[target valueForKey:@"place"]);
         [self performSegueWithIdentifier:@"segueFromHouseToHouseDetail" sender:[target valueForKey:@"place"]];
     }
     
@@ -176,7 +215,7 @@ bool opened = false;
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(7, 7, 86, 86)];
         NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
         NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-        [imageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+        [imageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"no_photo"]];
         [callout addSubview:imageView];
         
         UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(106, 7, 138, 35)];
@@ -223,7 +262,7 @@ bool opened = false;
     
         [smcallout presentCalloutFromRect:annotation.layer.bounds inLayer:annotation.layer constrainedToLayer:map.layer animated:YES];
 
-        NSLog(@"annotation clicked: %@",annotation.layer);
+        //NSLog(@"annotation clicked: %@",annotation.layer);
         [annotation.layer setValue:@"customCallout" forKey:@"calloutTag"];
         [annotation.layer setValue:place forKey:@"place"];
         opened = true;
@@ -281,14 +320,21 @@ bool opened = false;
     
         self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button =====
         self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
+        
+        // ====== mmdrawer swipe gesture =======
+        [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeNone];
+        //[self.mm_drawerController setCloseDrawerGestureModeMask:MMOpenDrawerGestureModeNone];
     }
     else{
         MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
         leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
         self.navigationItem.leftBarButtonItem = leftDrawerButton;
+        
     }
     
     self.navigationItem.title = (self.aCategory) ? self.aCategory.name : kNavigationTitlePlace;
+    
+//    self.navigationController.interactivePopGestureRecognizer.delegate = (id<UIGestureRecognizerDelegate>)self;
     
     // ===== remove shadow =====
 }
@@ -359,6 +405,7 @@ bool opened = false;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
     
+    NSLog(@"[self.frcPlaces count]: %lu", (unsigned long)[self.frcPlaces count]);
     return [self.frcPlaces count];//[self.frcPlaces.fetchedObjects count];
 }
 
@@ -384,7 +431,7 @@ bool opened = false;
     //@property (weak, nonatomic) IBOutlet UIImageView *placeImage; FIXME: add image for place
     
     CLLocation *placeLocation = [[CLLocation alloc] initWithLatitude:[place.lattitude doubleValue] longitude:[place.longitude doubleValue]];
-    NSLog(@"Place location is %@",placeLocation);
+    //NSLog(@"Place location is %@",placeLocation);
     
     NSString *distance = [self getDistanceFromUserLocationTo:placeLocation];
     
@@ -399,9 +446,38 @@ bool opened = false;
     
     NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    NSLog(@"Promoted: %@", place.promoted);
+    //NSLog(@"Promoted: %@", place.promoted);
     //[cell.placeImage setImageWithURL:imgUrl];
-    [cell.placeImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.placeImage.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    [cell.placeImage setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                 placeholderImage:[UIImage imageNamed:@"no_photo"]
+                                          success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                              
+                                              [activityIndicatorView removeFromSuperview];
+                                              
+                                              // do image resize here
+                                              
+                                              // then set image view
+                                              NSLog(@"Image downloaded");
+                                              cell.placeImage.image = image;
+                                          }
+                                          failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                              [activityIndicatorView removeFromSuperview];
+                                              NSLog(@"Fail to download image");
+                                              // do any other error handling you want here
+                                          }];
+    
+    
+    
+    
+    //[cell.placeImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"noimagesq"]];
     
     cell.placeImage.layer.cornerRadius = kImageViewCornerRadius;
     cell.placeImage.clipsToBounds = YES;
@@ -440,7 +516,7 @@ bool opened = false;
                     NSNumber *filterValue = (NSNumber*)value;
                     if(filterValue.integerValue == 0){ // if YES
                         if([key isEqualToString:kFilterAllTime]){
-                            NSPredicate *p = [NSPredicate predicateWithFormat:@"work_time_end == 0 AND work_time_start == 0"];
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"work_time_end == 86400 AND work_time_start == 0"];
                             [subPredicates addObject:p];
                         }
                         else if([key isEqualToString:kFilterWebsiteExists]){
@@ -461,7 +537,7 @@ bool opened = false;
                     }// end if NOT IMPORTANT
                     else if(filterValue.integerValue == 2){ // if NO
                         if([key isEqualToString:kFilterAllTime]){
-                            NSPredicate *p = [NSPredicate predicateWithFormat:@"NOT(work_time_end >= 0 AND work_time_start <= 0)"];
+                            NSPredicate *p = [NSPredicate predicateWithFormat:@"NOT(work_time_end == 86400 AND work_time_start == 0)"];
                             [subPredicates addObject:p];
                             
                         }
@@ -503,7 +579,7 @@ bool opened = false;
         self.frcPlaces = [[frc fetchedObjects] sortedArrayUsingDescriptors:sortKeys];
     }
 
-    NSLog(@"PlaceController. filterDiscionary: %@", self.filterDictionary);
+    //NSLog(@"PlaceController. filterDiscionary: %@", self.filterDictionary);
 
 }
 
@@ -528,11 +604,7 @@ bool opened = false;
         //subVC.navigationItem.title = appDelegate.testArray[idx.item];
         
     }
-//    else if([[segue identifier] isEqualToString:@"segueFromPlaceViewToFilterView"]){
-//        FilterViewController *filter = (FilterViewController*)[segue destinationViewController];
-//        filter.aCategory = self.aCategory;
-//        filter.delegate = self;
-//    }
+
 }
 
 #pragma mark - Time Converter
@@ -572,8 +644,17 @@ bool opened = false;
     NSDateComponents *minuteComponents = [calendar components:NSMinuteCalendarUnit fromDate:now];
         
     NSInteger currentTimeInSeconds = [minuteComponents minute]*60 + [hourComponents hour]*60*60;
-    NSLog(@"currentTimeInSeconds: %ld", (long)currentTimeInSeconds);
+    //NSLog(@"currentTimeInSeconds: %ld", (long)currentTimeInSeconds);
     return [NSNumber numberWithInteger:currentTimeInSeconds];
+}
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
 }
 
 @end

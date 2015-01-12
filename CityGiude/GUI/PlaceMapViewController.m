@@ -31,10 +31,19 @@
 
 bool openedCallout = false;
 
-- (void)viewWillAppear:(BOOL)animated {
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
     
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
 }
 
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
+}
 - (void)viewDidLoad {
     
     _userSettings = [[UIUserSettings alloc] init];
@@ -110,7 +119,7 @@ bool openedCallout = false;
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(7, 7, 86, 86)];
         NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
         NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-        [imageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+        [imageView setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"no_photo"]];
         [callout addSubview:imageView];
         
         UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(106, 7, 138, 35)];
@@ -220,6 +229,15 @@ bool openedCallout = false;
     //        subVC.navigationItem.title = appDelegate.testArray[idx.item];
     //
     //    }
+}
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
 }
 
 @end

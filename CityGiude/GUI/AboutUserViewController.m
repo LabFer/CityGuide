@@ -15,6 +15,7 @@
 #import "MenuTableViewController.h"
 
 #import "iLink.h"
+#import "AppDelegate.h"
 
 @implementation AboutUserViewController{
     UIUserSettings *_userSettings;
@@ -28,6 +29,20 @@
     
     [self setNavBarButtons];
     
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
 
 #pragma mark - Navigation bar
@@ -108,6 +123,15 @@
 -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error{
     
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
 }
 
 @end

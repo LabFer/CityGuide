@@ -22,11 +22,15 @@
 #import "DBWork.h"
 #import "Discounts.h"
 #import "UIImageView+AFNetworking.h"
+#import "AppDelegate.h"
+
+#import "NothingView.h"
 
 @implementation DiscountListViewController{
     UIUserSettings *_userSettings;
     BannerHeaderCollectionView *_headerView;
     NSString *_sortKeys;
+    NothingView *_nView;
 }
 
 -(void)viewDidLoad{
@@ -35,6 +39,7 @@
     _userSettings = [[UIUserSettings alloc] init];
     
     CategoryListFlowLayout *layout = [[CategoryListFlowLayout alloc] init];
+    layout.delegate = self;
     CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
     layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
     [self.discountListCollectionView setCollectionViewLayout:layout];
@@ -53,6 +58,7 @@
     
     
     [self setNavBarButtons];
+    
     
     // ====== SETUP BANNER PAGEVIEW CONTROLLER=====
     self.pageContent = [[DBWork shared] getArrayOfBanners];
@@ -81,30 +87,70 @@
     self.pageControl.pageIndicatorTintColor = [UIColor lightTextColor];
     [self.bannerView bringSubviewToFront:self.pageControl];
     
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
     [self setupPageIndicator];
     self.pageTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(updatePage) userInfo:nil repeats:YES];
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+    
+    if([self.frcDiscounts fetchedObjects].count == 0){
+        _nView = [[NothingView alloc] initWithFrame:CGRectMake(0, 0, 250.0f, 100.0f)];
+        [_nView setInfoLabel:@"Акций и скидок пока нет"];
+        [_nView showInView:self.view animated:YES];
+    }
+    
+    // ====== mmdrawer swipe gesture =======
+    [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeAll];
+    [self.mm_drawerController setCloseDrawerGestureModeMask:MMCloseDrawerGestureModeAll];
+    
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
     [self.pageTimer invalidate];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
+    
+    if(_nView){
+        [_nView hideWithAnimation:YES];
+        _nView = nil;
+    }
+    
 }
 
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
     
-    MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
-    leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
+    if([self.delegate isKindOfClass:[PlaceDetailViewController class]]){
+        self.navigationItem.leftBarButtonItem = [_userSettings setupBackButtonItem:self];// ====== setup back nav button ====
+
+    }
+    else{
+        MMDrawerBarButtonItem *leftDrawerButton = [[MMDrawerBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"navbar_menu"] style:UIBarButtonItemStylePlain target:self action:@selector(menuDrawerButtonPress:)];
+        leftDrawerButton.tintColor = kDefaultNavItemTintColor;//[UIColor blueColor];
+        
+        [self.navigationItem setLeftBarButtonItem:leftDrawerButton animated:YES];
+    }
     
-    [self.navigationItem setLeftBarButtonItem:leftDrawerButton animated:YES];
     
-    self.navigationItem.title = kNavigationTitleDiscount;
+    self.navigationItem.title = kNavigationTitleDiscount;    
+    self.navigationItem.leftBarButtonItem.tintColor = kDefaultNavItemTintColor;
     
     // ====== setup statbar color ===========
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    self.navigationController.interactivePopGestureRecognizer.delegate = (id<UIGestureRecognizerDelegate>)self;
  
+}
+
+-(void)goBack{
+
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 -(void)menuDrawerButtonPress:(id)sender{
@@ -131,7 +177,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    NSLog(@"self.frcDiscounts.fetchedObjects count: %lu", [self.frcDiscounts.fetchedObjects count]);
+    //NSLog(@"self.frcDiscounts.fetchedObjects count: %lu", [self.frcDiscounts.fetchedObjects count]);
     return [self.frcDiscounts.fetchedObjects count];
 }
 
@@ -155,12 +201,39 @@
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     NSLog(@"%@\n%@", urlStr, imgUrl);
     //[cell.placeImage setImageWithURL:imgUrl];
-    [cell.discountImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.discountImage.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    [cell.discountImage setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                      placeholderImage:[UIImage imageNamed:@"no_photo"]
+                                               success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                                   
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   
+                                                   // do image resize here
+                                                   
+                                                   // then set image view
+                                                   NSLog(@"Image downloaded");
+                                                   cell.discountImage.image = image;
+                                               }
+                                               failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   NSLog(@"Fail to download image");
+                                                   // do any other error handling you want here
+                                               }];
+
+    
+    //[cell.discountImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
     
     cell.discountImage.layer.cornerRadius = kImageViewCornerRadius;
     cell.discountImage.clipsToBounds = YES;
     
-    cell.discountText.text = discount.text;
+    cell.discountText.text = discount.descript;
     cell.discountTitle.text = discount.name;
     cell.discountTime.text = [self timeDifferenceToString:discount.dateEnd];
 }
@@ -337,14 +410,18 @@
         if([aBanner.type isEqualToString:@"place"]){ //goto place
             NSNumber *placeID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
             Places *aPlace = [[DBWork shared] getPlaceByplaceID:placeID];
-            [self performSegueWithIdentifier:@"segueFromDiscountToPlaceDetail" sender:aPlace];
+            if(aPlace)
+                [self performSegueWithIdentifier:@"segueFromDiscountToPlaceDetail" sender:aPlace];
         
         }
         else if([aBanner.type isEqualToString:@"event"]){ //goto event
-            [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:self];
+            NSNumber *discoutID = [[NSNumberFormatter alloc] numberFromString:aBanner.url];
+            Discounts *aDiscount = [[DBWork shared] getDiscountByID:discoutID];
+            if(aDiscount)
+                [self performSegueWithIdentifier:@"segueFromDiscountListToDiscountDetail" sender:aDiscount];
         }
         else if([aBanner.type isEqualToString:@"url"]){ //goto external url
-            NSString *web =  ([aBanner.url rangeOfString:@"http://"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
+            NSString *web =  ([aBanner.url rangeOfString:@"http"].location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", aBanner.url] : [NSString stringWithFormat:@"%@", aBanner.url];
             NSLog(@"Banner. Open URL: %@", web);
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
         }
@@ -367,6 +444,16 @@
         subVC.aPlace = (Places*)sender;
     }
 }
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
+}
+
 
 
 

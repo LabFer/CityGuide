@@ -24,5 +24,7 @@
 -(UIBarButtonItem*)setupResponseButtonItem:(UIViewController*)viewController;
 
 -(BOOL)isUserAuthorized;
+-(void)showPushView:(NSDictionary *)userInfo inViewController:(UIViewController*)vc;
+-(void)showOfflinePushView:(NSDictionary *)userInfo inViewController:(UIViewController *)vc;
 
 @end

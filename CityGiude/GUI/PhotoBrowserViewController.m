@@ -44,7 +44,7 @@
     }
     
     self.pageContent = [[NSArray alloc] initWithArray:array];
-    [self.navigationItem setTitle:[NSString stringWithFormat:@"1/%lu", [self.pageContent count]]];
+    [self.navigationItem setTitle:[NSString stringWithFormat:@"1/%lu", (unsigned long)[self.pageContent count]]];
 
     
     NSDictionary *options = [NSDictionary dictionaryWithObject: [NSNumber numberWithInteger:UIPageViewControllerSpineLocationMin] forKey: UIPageViewControllerOptionSpineLocationKey];
@@ -69,6 +69,20 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
 
 #pragma mark - Navigation bar
@@ -179,7 +193,7 @@
 -(void)setupCurrentPage{
     NSUInteger newIndex = [self indexOfViewController:(PhotoBrowserContentViewController *)self.pageController.viewControllers[0]];
     
-    [self.navigationItem setTitle:[NSString stringWithFormat:@"%lu/%lu", newIndex + 1, [self.pageContent count]]];
+    [self.navigationItem setTitle:[NSString stringWithFormat:@"%u/%lu", (unsigned int)newIndex + 1, (unsigned long)[self.pageContent count]]];
 }
 
 
@@ -198,7 +212,14 @@
 }
 
 
-
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
+}
 
 
 @end

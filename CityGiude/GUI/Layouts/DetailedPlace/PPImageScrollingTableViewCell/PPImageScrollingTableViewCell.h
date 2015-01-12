@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "PPImageScrollingCellView.h"
 @class PPImageScrollingTableViewCell;
 
 @protocol PPImageScrollingTableViewCellDelegate <NSObject>
@@ -20,6 +21,7 @@
 
 @property (weak, nonatomic) id<PPImageScrollingTableViewCellDelegate> delegate;
 @property (nonatomic) CGFloat height;
+@property(strong, nonatomic) PPImageScrollingCellView *imageScrollingView;
 
 - (void) setImageData:(NSDictionary*) image;
 - (void) setCollectionViewBackgroundColor:(UIColor*) color;

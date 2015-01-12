@@ -19,6 +19,7 @@
 #import "InfoCell.h"
 #import "CommonCell.h"
 #import "VKSdk.h"
+#import "InfoCell.h"
 
 //#import "SHKSharerDelegate.h"
 
@@ -26,9 +27,11 @@
 
 @property (nonatomic, strong) PlaceDetailedMainCell *prototypeMainCell;
 @property (nonatomic, strong) PlaceDetailedMainCellNoImage *prototypeMainCellNoImage;
+@property (nonatomic, strong) InfoCell *prototypeInfoCell;
 
 @property (nonatomic, strong) Places *aPlace;
 @property (strong, nonatomic) NSArray *images;
+@property (nonatomic, assign) id delegate;
 
 -(void)setPlaceToFavour;
 

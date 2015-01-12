@@ -7,6 +7,11 @@
 //
 
 #import "UIUserSettings.h"
+#import "DBWork.h"
+#import "EstimateView.h"
+#import "SyncEngine.h"
+#import "PlaceDetailViewController.h"
+#import "DiscountDetailViewController.h"
 
 
 @implementation UIUserSettings
@@ -94,9 +99,101 @@
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
     NSDictionary *userProfile = [userDefaults objectForKey:kSocialUserProfile];
-    if(userProfile && ![[userProfile objectForKey:kSocialUserToken] isEqualToString:@""]) return YES; // user has authorized
+    //NSLog(@"isUserAuthorized: %@", userProfile);
+    if(userProfile && ![[userProfile objectForKey:kSocialUserToken] isEqualToString:@""]){ // user has authorized
+        //NSLog(@"isUserAuthorized: YES (%d)", YES);
+        return YES;
+    }
     
+    //NSLog(@"isUserAuthorized: NO (%d)", NO);
     return NO;
+}
+
+-(void)showPushView:(NSDictionary *)userInfo inViewController:(UIViewController*)vc{
+    NSLog(@"userInfo: %@", userInfo);
+    NSLog(@"userInfo[alert]: %@", [userInfo objectForKey:@"alert"]);
+    EstimateView *pushView = [[EstimateView alloc] initWithFrame:CGRectMake(0, 0, 320, 130)];
+    [pushView setAlertText:[userInfo objectForKey:@"alert"]];
+    
+    NSString *type = [userInfo objectForKey:@"type"];
+    NSNumber *parentID = [userInfo objectForKey:@"id"];
+    [pushView setParentType:type];
+    [pushView setParentID:parentID];
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    
+    
+    if([type isEqualToString:@"event"]){
+        Discounts *aCategory = [[DBWork shared] getDiscountByID:parentID];
+        if(!aCategory){
+            NSLog(@"Discount exists: %@, %@", parentID, aCategory);
+            [[DBWork shared] getDiscountByID:parentID];
+        }
+        else{
+            NSLog(@"No such discount: %@", parentID);
+            [[SyncEngine sharedEngine] downloadDiscountItemFromServer:parentID];
+        }
+        
+        NSNumber *value = [userDefaults objectForKey:kSettingsNotification];
+        if(value.boolValue)
+            [pushView showInView:vc animated:YES];
+    }
+    else if([type isEqualToString:@"place"]){
+        Places *aPlace = [[DBWork shared] getPlaceByplaceID:parentID];
+        if(!aPlace){
+            NSLog(@"Place exists: %@, %@", parentID, aPlace);
+            [[DBWork shared] getPlaceByplaceID:parentID];
+        }
+        else{
+            NSLog(@"No such place: %@", parentID);
+            [[SyncEngine sharedEngine] downloadPlaceItemFromServer:parentID];
+        }
+        
+        NSNumber *value = [userDefaults objectForKey:kSettingsDiscount];
+        if(value.boolValue)
+            [pushView showInView:vc animated:YES];
+    }
+
+}
+
+-(void)showOfflinePushView:(NSDictionary *)userInfo inViewController:(UIViewController *)vc{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]];
+    
+    
+    
+    
+    NSString *type = [userInfo objectForKey:@"type"];
+    NSNumber *parentID = [userInfo objectForKey:@"id"];
+    
+    if([type isEqualToString:kAttributeParentPlace]){
+        if(![vc isKindOfClass:[PlaceDetailViewController class]]){//если я на детальном экране, то просто закрываю PushView
+            
+            PlaceDetailViewController *pd = [storyboard instantiateViewControllerWithIdentifier:@"PlaceDetailViewController"];
+            Places *aPlace = [[DBWork shared] getPlaceByplaceID:parentID];
+            
+            UIAlertView *av = [[UIAlertView alloc] initWithTitle:nil message:[NSString stringWithFormat:@"Places: %@", aPlace] delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+            [av show];
+            
+            if(aPlace){
+                pd.aPlace = aPlace;
+                [vc.navigationController pushViewController:pd animated:YES];
+            }
+        }
+    }
+    else{
+        if(![vc isKindOfClass:[DiscountDetailViewController class]]){//если я на детальном экране, то просто закрываю PushView
+            DiscountDetailViewController *pd = [storyboard instantiateViewControllerWithIdentifier:@"DiscountDetailViewController"];
+            Discounts *aDiscount = [[DBWork shared] getDiscountByID:parentID];
+            
+            if(aDiscount){
+                pd.aDiscount = aDiscount;
+//                [pd setDetailImage];
+//                UIAlertView *av = [[UIAlertView alloc] initWithTitle:nil message:[NSString stringWithFormat:@"Discounts: %@", aDiscount] delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+//                [av show];
+                [vc.navigationController pushViewController:pd animated:YES];
+            }
+        }
+    }
 }
 
 

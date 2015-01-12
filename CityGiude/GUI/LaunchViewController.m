@@ -19,6 +19,9 @@
     [super viewDidLoad];
     NSLog(@"LaunchViewController. viewDidLoad");
     
+//    if(IS_IPAD)
+//        self.launchBkg.hidden = YES;
+    
     self.statusView.layer.cornerRadius = kImageViewCornerRadius;
     self.progressBar.progress = 0.0f;
     
@@ -27,9 +30,14 @@
     self.statusView.hidden = YES;
     self.activityIndicator.hidden = YES;
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
     
+    
+    self.progressLabel.text = [NSString stringWithFormat:@"%@ / %@", [self transformedValue:[NSNumber numberWithInteger:0]] , [self transformedValue:[NSNumber numberWithInteger:0]]];
     [self checkNewDataOnServer];
     [[SyncEngine sharedEngine] uploadFavourites];
+    [[SyncEngine sharedEngine] downloadArticleFromServer];
+    [[SyncEngine sharedEngine] downloadAllDiscountsFromServer];
     
 }
 
@@ -123,6 +131,7 @@
 
     NSLog(@"startMainScreen");
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    [[UIApplication sharedApplication] setIdleTimerDisabled: NO];
     [self performSegueWithIdentifier:@"segueFromLaunchToDrawer" sender:self];
 }
 
@@ -134,15 +143,29 @@
 #pragma mark - Download Progress
 -(void)setProgressValueMb:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected{
     self.progressBar.progress = totalRead.floatValue / totalBytesExpected.floatValue;
-    self.progressLabel.text = [NSString stringWithFormat:@"%@ / %@", totalRead, totalBytesExpected];
+    self.progressLabel.text = [NSString stringWithFormat:@"%@ / %@", [self transformedValue:totalRead] , [self transformedValue:totalBytesExpected]];
 }
 
 -(void)setProgressValue:(NSNumber*)totalRead totalBytesExpected:(NSNumber*)totalBytesExpected{
     self.progressBar.progress = totalRead.floatValue / totalBytesExpected.floatValue;
-    self.progressLabel.text = [NSString stringWithFormat:@"%@ / %@", totalRead, totalBytesExpected];
+    self.progressLabel.text = [NSString stringWithFormat:@"%.0f %%", ceil((100*totalRead.doubleValue/totalBytesExpected.doubleValue))];
 }
 
-
+- (NSString*)transformedValue:(NSNumber*)value
+{
+    
+    double convertedValue = [value doubleValue];
+    int multiplyFactor = 0;
+    
+    NSArray *tokens = @[@"bytes",@"KB",@"MB",@"GB",@"TB"];
+    
+    while (convertedValue > 1024) {
+        convertedValue /= 1024;
+        multiplyFactor++;
+    }
+    
+    return [NSString stringWithFormat:@"%4.2f %@",convertedValue, tokens[multiplyFactor]];
+}
 
 
 @end

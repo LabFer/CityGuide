@@ -11,6 +11,7 @@
 #import "FilterListCell.h"
 #import "UIUserSettings.h"
 #import "Constants.h"
+#import "NearMapViewController.h"
 
 @implementation MapFilterViewController{
     UIUserSettings *_userSettings;
@@ -62,6 +63,18 @@
 
 -(void)confirmButtonPressed{
     NSLog(@"confirmButtonPressed");
+    
+    if(![self.keysTextView.text isEqualToString:kPlaceholderTextViewKeyWords]){
+        NSArray *searchTerms = [self.keysTextView.text componentsSeparatedByString:@" "];
+        [self.filterDictionary setObject:searchTerms forKey:@"searchTerms"];
+    }
+    
+    if([self.delegate isKindOfClass:[NearMapViewController class]]){
+        NearMapViewController *mapVC = (NearMapViewController*)self.delegate;
+        mapVC.filterDictionary = self.filterDictionary;
+    }
+    
+    [self goBack];
 }
 
 -(void)cancelButtonPressed{
@@ -107,22 +120,66 @@
 
 - (void)configureFilterCommonCell:(FilterCommonCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     
-    switch (indexPath.row) {
-        case 0:
-            [cell.filterTitle setText:kFilterAllTime];
-            break;
-        case 1:
-            [cell.filterTitle setText:kFilterWorkNow];
-            break;
-        case 2:
-            [cell.filterTitle setText:kFilterWebsiteExists];
-            break;
-        default:
-            break;
+    
+    if(indexPath.row == 0){
+        NSNumber *selectedItem = [self.filterDictionary objectForKey:kFilterAllTime];
+        if(selectedItem){
+            NSLog(@"selectedItem for %@ exist: %@", kFilterAllTime, selectedItem);
+            [cell.filterCheck setSelectedSegmentIndex:selectedItem.integerValue];
+        }
+        else{
+            NSLog(@"selectedItem for %@ exists", kFilterAllTime);
+            [self.filterDictionary setObject:[NSNumber numberWithInteger:1] forKey:kFilterAllTime];
+        }
+        [cell.filterTitle setText:kFilterAllTime];
     }
-    //Places *place = self.frcPlaces.fetchedObjects[indexPath.row];
-    //
+    else if(indexPath.row == 1){
+        NSNumber *selectedItem = [self.filterDictionary objectForKey:kFilterWorkNow];
+        if(selectedItem){
+            NSLog(@"selectedItem for %@ exist: %@", kFilterWorkNow, selectedItem);
+            [cell.filterCheck setSelectedSegmentIndex:selectedItem.integerValue];
+        }
+        else{
+            NSLog(@"selectedItem for %@ not exists", kFilterWorkNow);
+            [self.filterDictionary setObject:[NSNumber numberWithInteger:1] forKey:kFilterWorkNow];
+        }
+        [cell.filterTitle setText:kFilterWorkNow];
+    }
+    else if(indexPath.row == 2){
+        NSNumber *selectedItem = [self.filterDictionary objectForKey:kFilterWebsiteExists];
+        if(selectedItem){
+            NSLog(@"selectedItem for %@ exist: %@", kFilterWebsiteExists, selectedItem);
+            [cell.filterCheck setSelectedSegmentIndex:selectedItem.integerValue];
+        }
+        else{
+            NSLog(@"selectedItem for %@ not exist", kFilterWebsiteExists);
+            [self.filterDictionary setObject:[NSNumber numberWithInteger:1] forKey:kFilterWebsiteExists];
+        }
+        [cell.filterTitle setText:kFilterWebsiteExists];
+    }
+    
+    [cell.filterCheck addTarget:self action:@selector(segmentedConrolChanged:) forControlEvents:UIControlEventValueChanged];
+    cell.filterCheck.tag = indexPath.row;
 }
+
+-(void)segmentedConrolChanged:(UISegmentedControl *)segment{
+    
+    if(segment.tag == 0){
+        [self.filterDictionary setObject:[NSNumber numberWithInteger:segment.selectedSegmentIndex] forKey:kFilterAllTime];
+    }
+    else if(segment.tag == 1){
+        [self.filterDictionary setObject:[NSNumber numberWithInteger:segment.selectedSegmentIndex] forKey:kFilterWorkNow];
+        
+    }
+    else if(segment.tag == 2){
+        [self.filterDictionary setObject:[NSNumber numberWithInteger:segment.selectedSegmentIndex] forKey:kFilterWebsiteExists];
+        
+    }
+    
+    NSLog(@"%ld, %ld", (long)segment.tag, (long)segment.selectedSegmentIndex);
+    NSLog(@"filter: %@", self.filterDictionary);
+}
+
 
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     //[self.placeTableView deselectRowAtIndexPath:indexPath animated:YES];

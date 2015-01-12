@@ -11,12 +11,23 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "-[DBWork getAllItemsInEntity:withSortKeys:]:DBWork.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "frc.fetchedObjects">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "-[DBWork getAttributesArrayForPlaceFromArray:]:DBWork.m">
          <PersistentStrings>
             <PersistentString
                value = "attrArray[0]">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[DBWork fetchedResultsController:sortKey:predicate:sectionName:delegate:]:DBWork.m">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

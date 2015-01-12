@@ -26,6 +26,7 @@
         // Initialization code
         self.imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0., 0., frame.size.width, frame.size.height)];
         
+        self.imageView.contentMode = UIViewContentModeScaleAspectFit;
         self.imageView.layer.cornerRadius = kImageViewCornerRadius;
         self.imageView.clipsToBounds = YES;
     }
@@ -40,6 +41,21 @@
 -(void)setImageWithUrl:(NSURL *)imageURL
 {
     [self.imageView setImageWithURL:imageURL];
+//    [self.imageView setImageWithURLRequest:[NSURLRequest requestWithURL:imageURL]
+//                                 placeholderImage:[UIImage imageNamed:@"no_photo"]
+//                                          success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+//                                              
+//                                              // do image resize here
+//                                              // then set image view
+//                                              NSLog(@"detailCell.placeImage. Image downloaded");
+//                                              self.imageView.image = image;
+//                                          }
+//                                          failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+//                                              [activityIndicatorView removeFromSuperview];
+//                                              NSLog(@"detailCell.placeImage. Fail to download image");
+//                                              //                                                      // do any other error handling you want here
+//                                              
+//                                          }];
 }
 
 - (void)setImageTitleLabelWitdh:(CGFloat)width withHeight:(CGFloat)height

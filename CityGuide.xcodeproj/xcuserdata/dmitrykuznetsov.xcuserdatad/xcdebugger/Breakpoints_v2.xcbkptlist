@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/BannerContentViewController.m"
-            timestampString = "439635700.86918"
+            timestampString = "441798593.428233"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "25"
-            endingLineNumber = "25"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
             landmarkName = "-viewDidLoad"
             landmarkType = "5">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/SubCategoryCollectionViewController.m"
-            timestampString = "440598922.494035"
+            timestampString = "441633133.069565"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
+            startingLineNumber = "117"
+            endingLineNumber = "117"
             landmarkName = "-rightBarButtonPressed"
             landmarkType = "5">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CityGiude/GUI/MainViewController.m"
-            timestampString = "440598922.494035"
+            timestampString = "442680960.389444"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "394"
-            endingLineNumber = "394"
+            startingLineNumber = "558"
+            endingLineNumber = "558"
             landmarkName = "-collectionViewCellButtonPressed:"
             landmarkType = "5">
          </BreakpointContent>

@@ -41,6 +41,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         [self baseInit];
+        [self addTapGesture];
     }
     return self;
 }
@@ -48,8 +49,15 @@
 - (id)initWithCoder:(NSCoder *)aDecoder {
     if ((self = [super initWithCoder:aDecoder])) {
         [self baseInit];
+        [self addTapGesture];
     }
     return self;
+}
+
+-(void)addTapGesture{
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self addGestureRecognizer:tapGesture];
 }
 
 - (void)refresh {
@@ -130,7 +138,7 @@
     if (!self.editable) return;
     
     int newRating = 0;
-    for(int i = self.imageViews.count - 1; i >= 0; i--) {
+    for(int i = (int)self.imageViews.count - 1; i >= 0; i--) {
         UIImageView *imageView = [self.imageViews objectAtIndex:i];
         if (touchLocation.x > imageView.frame.origin.x) {
             newRating = i+1;
@@ -141,19 +149,29 @@
     self.rating = newRating;
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchLocation = [touch locationInView:self];
-    [self handleTouchAtLocation:touchLocation];
-}
+//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+//    UITouch *touch = [touches anyObject];
+//    CGPoint touchLocation = [touch locationInView:self];
+//    [self handleTouchAtLocation:touchLocation];
+//    NSLog(@"RateView. touchesBegan");
+//}
+//
+//- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+//    UITouch *touch = [touches anyObject];
+//    CGPoint touchLocation = [touch locationInView:self];
+//    [self handleTouchAtLocation:touchLocation];
+//    NSLog(@"RateView. touchesMoved");
+//}
+//
+//- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+//    NSLog(@"RateView. touchesEnded");
+//    [self.delegate rateView:self ratingDidChange:self.rating];
+//}
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchLocation = [touch locationInView:self];
-    [self handleTouchAtLocation:touchLocation];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+-(void)handleTapGesture:(UIGestureRecognizer*)tap{
+    //NSLog(@"RateView. handleTapGesture");
+    CGPoint tapPoint = [tap locationInView:self];
+    [self handleTouchAtLocation:tapPoint];
     [self.delegate rateView:self ratingDidChange:self.rating];
 }
 

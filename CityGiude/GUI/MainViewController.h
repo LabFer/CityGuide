@@ -25,6 +25,7 @@
 @property (nonatomic, retain) NSString *categoryName;
 
 -(void)rightBarButtonPressed;
+-(void)setCollectionViewLayout;
 
 @end
 

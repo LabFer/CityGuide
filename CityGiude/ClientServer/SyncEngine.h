@@ -27,6 +27,9 @@
 -(void)downloadArticleFromServer;
 -(void)downloadZipFile:(NSString*)filePath;
 -(void)downloadMapCache;
+-(void)downloadPlaceItemFromServer:(NSNumber*)placeID;
+-(void)downloadDiscountItemFromServer:(NSNumber*)discountID;
+-(void)downloadAllDiscountsFromServer;
 
 -(void)reloadCollectionView;
 

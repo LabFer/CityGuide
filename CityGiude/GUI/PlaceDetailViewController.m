@@ -20,12 +20,25 @@
 #import "ResponceCollectionViewController.h"
 #import "AuthUserViewController.h"
 
+#import "MenuTableViewController.h"
+#import "UIViewController+MMDrawerController.h"
+#import "MMDrawerBarButtonItem.h"
+#import "VALabel.h"
+#import "Constants.h"
+#import "DiscountListViewController.h"
+#import "DBWork.h"
+#import "Discounts.h"
+
+#import "PlacePhotoAlbumViewController.h"
+
 static NSArray  * SCOPE = nil;
 
 @implementation PlaceDetailViewController{
     UIUserSettings *_userSettings;
     BOOL _isExpanded;
-    NSString *_testString;
+    BOOL _isImageCached;
+    //NSString *_testString;
+    UIImageView *_logoImage;
 }
 
 -(void)viewDidLoad{
@@ -45,7 +58,28 @@ static NSArray  * SCOPE = nil;
     [self.view addGestureRecognizer:tap];
     
     _isExpanded = NO;
-    _testString = @"Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda. ==== Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.";
+    //_testString = @"Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda. ==== Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.";
+    
+    _isImageCached = NO;
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    //слушаю PUSH-notification
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+    
+    // ====== mmdrawer swipe gesture =======
+    [self.mm_drawerController setOpenDrawerGestureModeMask:MMOpenDrawerGestureModeNone];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -67,7 +101,15 @@ static NSArray  * SCOPE = nil;
 }
 
 -(void)goBack{
-    [self.navigationController popViewControllerAnimated:YES];
+    if([self.delegate isKindOfClass:[MenuTableViewController class]]){
+        CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+        [self.mm_drawerController setMaximumLeftDrawerWidth:screenWidth];
+        [self.mm_drawerController toggleDrawerSide:MMDrawerSideLeft animated:YES completion:nil];
+    }
+    else{
+        [self.navigationController popViewControllerAnimated:YES];
+        
+    }
 }
 
 -(void)mapButtonPressed{
@@ -152,39 +194,74 @@ static NSArray  * SCOPE = nil;
 }
 
 #pragma mark - TableView Delegate
+
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     CGFloat cellHeight = 44.0f;
     if(indexPath.row == 0){
+        
+        [self configureMainNoImageCell:self.prototypeMainCellNoImage forRowAtIndexPath:indexPath];
+        
+        //[self.prototypeMainCellNoImage setNeedsUpdateConstraints];
+        [self.prototypeMainCellNoImage updateConstraintsIfNeeded];
+        //[self.prototypeMainCellNoImage setNeedsLayout];
+        [self.prototypeMainCellNoImage layoutIfNeeded];
+        [self.prototypeMainCellNoImage setNeedsDisplay];
+        CGSize size = [self.prototypeMainCellNoImage.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        cellHeight = size.height + 5;
+        
+    }
+    else if(indexPath.row == 1){
         if([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big){ // has no image
-            [self configureMainNoImageCell:self.prototypeMainCellNoImage forRowAtIndexPath:indexPath];
-            [self.prototypeMainCellNoImage layoutIfNeeded];
-            CGSize size = [self.prototypeMainCellNoImage.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-            cellHeight = size.height + 5;
+            cellHeight = 0.0f;
             
         }
         else{ // has image
-            [self configureMainImageCell:self.prototypeMainCell forRowAtIndexPath:indexPath];
-            [self.prototypeMainCell layoutIfNeeded];
-            CGSize size = [self.prototypeMainCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-            cellHeight = size.height + 1;
+            NSLog(@"Place has Image");
+//            [self configureMainImageCell:self.prototypeMainCell forRowAtIndexPath:indexPath];
+//            //[self.prototypeMainCell setNeedsUpdateConstraints];
+//            [self.prototypeMainCell updateConstraintsIfNeeded];
+//            //[self.prototypeMainCell setNeedsLayout];
+//            [self.prototypeMainCell layoutIfNeeded];
+//            [self.prototypeMainCell setNeedsDisplay];
+//            CGSize size = [self.prototypeMainCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+//            cellHeight = size.height + 1;
+            if(IS_IPAD){
+                cellHeight = 315.0f + 8.0f + 8.0f + 1.0f;
+            }
+            else{
+                cellHeight = 125.0f + 8.0f + 8.0f + 1.0f;
+            }
         }
+
     }
-    else if(indexPath.row == 1){
+    else if(indexPath.row == 2){
         cellHeight =  44.0f;
     }
-    else if (indexPath.row == 2){
+    else if (indexPath.row == 3){
         cellHeight = ([self.aPlace.gallery count] == 0) ? 0.0f : 115.0f;
     }
-    else if(indexPath.row == 3){
-        cellHeight = [self textViewHeightForRowAtIndexPath:indexPath] + 8 + 10 + 44 + 10;
-    }
     else if(indexPath.row == 4){
+        
+        cellHeight = (self.aPlace.decript.length == 0) ? 0.0f : [self textViewHeightForRowAtIndexPath:indexPath] + 8 + 10 + 44 + 10;
+    }
+    else if(indexPath.row == 5){//social
         cellHeight = 80.0f;
     }
-    else if(indexPath.row == 5){
-        cellHeight = 185.0f;
+    else if(indexPath.row == 6){//info
+        [self configureInfoCell:self.prototypeInfoCell forRowAtIndexPath:indexPath];
+        //[self.prototypeMainCell setNeedsUpdateConstraints];
+        //[self.prototypeInfoCell updateConstraintsIfNeeded];
+        //[self.prototypeMainCell setNeedsLayout];
+//        [self.prototypeInfoCell layoutIfNeeded];
+//        [self.prototypeInfoCell setNeedsDisplay];
+//        CGSize size = [self.prototypeInfoCell.contentView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+        cellHeight = self.prototypeInfoCell.cellHeight + 1;
+        
+        //cellHeight = 185.0f;
     }
+    
+    //NSLog(@"cellHeight: %f; for row: %lu", cellHeight, (unsigned long)indexPath.row);
     return cellHeight;
 }
 
@@ -194,51 +271,52 @@ static NSArray  * SCOPE = nil;
 
 #pragma mark - TableView DataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 8;
+    return 9;
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     UITableViewCell *cell = nil;
     
-    if(indexPath.row == 0){
-        if([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big){ // has no image
-            cell = [self.tableView dequeueReusableCellWithIdentifier:[PlaceDetailedMainCellNoImage reuseId] forIndexPath:indexPath];
-            [self configureMainNoImageCell:cell forRowAtIndexPath:indexPath];
-            
-        }
-        else{ // has image
-            cell = [self.tableView dequeueReusableCellWithIdentifier:[PlaceDetailedMainCell reuseId] forIndexPath:indexPath];
-            [self configureMainImageCell:cell forRowAtIndexPath:indexPath];
-        }
+    if(indexPath.row == 0){ // make title cell
+        cell = [self.tableView dequeueReusableCellWithIdentifier:[PlaceDetailedMainCellNoImage reuseId] forIndexPath:indexPath];
+        [self configureMainNoImageCell:cell forRowAtIndexPath:indexPath];
+        
     }
-    else if(indexPath.row == 1){
+    if(indexPath.row == 1){ //make image/logo cell
+        cell = [self.tableView dequeueReusableCellWithIdentifier:[PlaceDetailedMainCell reuseId] forIndexPath:indexPath];
+        [self configureMainImageCell:cell forRowAtIndexPath:indexPath];
+    }
+    else if(indexPath.row == 2){//make rating cell
         cell = [self.tableView dequeueReusableCellWithIdentifier:[RatingCell reuseId] forIndexPath:indexPath];
         [self configureRatingCell:cell forRowAtIndexPath:indexPath];
         
     }
-    else if(indexPath.row == 2){
+    else if(indexPath.row == 3){//make photo browser cell
         cell = [self.tableView dequeueReusableCellWithIdentifier:[PPImageScrollingTableViewCell reuseId] forIndexPath:indexPath];
         if([self.aPlace.gallery count] != 0)
             [self configureScrollingViewCell:cell forRowAtIndexPath:indexPath];
         
     }
-    else if (indexPath.row == 3){
+    else if (indexPath.row == 4){//share cell
         cell = [self.tableView dequeueReusableCellWithIdentifier:[AboutCell reuseId] forIndexPath:indexPath];
         [self configureAboutCell:cell forRowAtIndexPath:indexPath];
         
     }
-    else if (indexPath.row == 4){
+    else if (indexPath.row == 5){
         cell = [self.tableView dequeueReusableCellWithIdentifier:[ShareCell reuseId] forIndexPath:indexPath];
         [self configureShareCell:cell forRowAtIndexPath:indexPath];
         
     }
-    else if (indexPath.row == 5){
+    else if (indexPath.row == 6){
         cell = [self.tableView dequeueReusableCellWithIdentifier:[InfoCell reuseId] forIndexPath:indexPath];
-        [self configureInfoCell:cell forRowAtIndexPath:indexPath];
+        //if(cell == nil){
+            NSLog(@"info cell is nil");
+            [self configureInfoCell:cell forRowAtIndexPath:indexPath];
+        //}
         
     }
-    else if(indexPath.row == 6 || indexPath.row == 7){
+    else if(indexPath.row == 7 || indexPath.row == 8){
         cell = [self.tableView dequeueReusableCellWithIdentifier:[CommonCell reuseId] forIndexPath:indexPath];
         [self configureCommonCell:cell forRowAtIndexPath:indexPath];
     }
@@ -250,28 +328,331 @@ static NSArray  * SCOPE = nil;
     
     if([cell isKindOfClass:[CommonCell class]]){
         CommonCell* detailCell = (CommonCell*)cell;
-        detailCell.nameLabel.text = (indexPath.row == 6) ? kSettingsDiscount: kSettingsResponces;
+        detailCell.nameLabel.text = (indexPath.row == 7) ? kSettingsDiscount: kSettingsResponces;
     }
 }
 
 - (void)configureInfoCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
     
     if([cell isKindOfClass:[InfoCell class]]){
-        InfoCell* detailCell = (InfoCell*)cell;
-        detailCell.adressLabel.text = self.aPlace.address;
-        detailCell.workTimeLabel.text = self.aPlace.work_time_description;
+        //NSLog(@"Info cell: %@", cell);
+        //if (cell == nil){
+            NSLog(@"Configure Info cell: %@", cell);
+            InfoCell* detailCell = (InfoCell*)cell;
         
-        [detailCell.btnPhone setTitle:[self getStringPhones] forState:UIControlStateNormal];
-        [detailCell.btnPhone addTarget:self action:@selector(btnPhonePressed:) forControlEvents:UIControlEventTouchUpInside];
-        detailCell.btnPhone.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
         
-        [detailCell.btnSite setTitle:self.aPlace.website forState:UIControlStateNormal];
-        [detailCell.btnSite addTarget:self action:@selector(btnSitePressed:) forControlEvents:UIControlEventTouchUpInside];
-        detailCell.btnSite.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        CGFloat mainX = detailCell.mainTitleLabel.frame.origin.x;
+        CGFloat mainY = detailCell.mainTitleLabel.frame.origin.y;
+        CGFloat mainW = detailCell.mainTitleLabel.frame.size.width;
+        CGFloat mainH = detailCell.mainTitleLabel.frame.size.height;
         
-        [detailCell.btnSocial setTitle:@"vk.com/place" forState:UIControlStateNormal];
-        [detailCell.btnSocial addTarget:self action:@selector(btnSocialPressed:) forControlEvents:UIControlEventTouchUpInside];
-        detailCell.btnSocial.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        //=========== adress ============
+        UILabel *address = (UILabel *)[detailCell.contentView viewWithTag:1];
+        if(!address){
+            
+            address = [[UILabel alloc] initWithFrame:CGRectMake(mainX, mainY + mainH + 10, mainW, mainH)];
+            [address setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:15]];
+            address.textAlignment = NSTextAlignmentLeft;
+            address.tag = 1;
+            [address setBackgroundColor:[UIColor clearColor]];
+            [detailCell.contentView addSubview:address];
+            //detailCell.cellHeight = address.frame.origin.y + address.frame.size.height + 10;
+        }
+        address.text = @"Адрес:";
+        [address sizeToFit];
+        
+        UIImageView *ivAddress = (UIImageView *)[detailCell.contentView viewWithTag:2];
+        UIImage *imgAddress = [UIImage imageNamed:@"char_mapmaker"];
+        if(!ivAddress){
+            ivAddress = [[UIImageView alloc] initWithFrame:CGRectMake(mainX + mainW + 5, address.frame.origin.y + address.frame.size.height - imgAddress.size.height - 2, imgAddress.size.width, imgAddress.size.height)];
+            ivAddress.tag = 2;
+            [detailCell.contentView addSubview:ivAddress];
+        }
+        ivAddress.image = imgAddress;
+        
+        CGFloat localX = ivAddress.frame.origin.x + ivAddress.frame.size.width + 10;
+        UILabel *addressText = (UILabel *)[detailCell.contentView viewWithTag:3];
+        if(!addressText){
+            addressText = [[UILabel alloc] initWithFrame:CGRectMake(localX, address.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX, mainH)];
+            [addressText setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+            addressText.textAlignment = NSTextAlignmentLeft;
+        
+            [addressText setTextColor:[UIColor grayColor]];
+            [addressText setBackgroundColor:[UIColor clearColor]];
+            addressText.tag = 3;
+            [detailCell.contentView addSubview:addressText];
+            //detailCell.cellHeight = fmax(address.frame.origin.y + address.frame.size.height + 10, addressText.frame.origin.y + addressText.frame.size.height + 10);
+        }
+        addressText.text = [NSString stringWithFormat:@"%@", self.aPlace.address];
+        [addressText setNumberOfLines:0];
+        [addressText sizeToFit];
+        detailCell.cellHeight = fmax(address.frame.origin.y + address.frame.size.height + 10, addressText.frame.origin.y + addressText.frame.size.height + 10);
+        
+        // ===========================
+        // ========== work time ==============
+        UILabel *work = (UILabel *)[detailCell.contentView viewWithTag:4];
+        if(!work){
+            work = [[UILabel alloc] initWithFrame:CGRectMake(mainX,
+                                                                  detailCell.cellHeight,
+                                                                  mainW, mainH)];
+            [work setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:15]];
+            work.textAlignment = NSTextAlignmentLeft;
+            work.tag = 4;
+            [work setBackgroundColor:[UIColor clearColor]];
+            [detailCell.contentView addSubview:work];
+            //detailCell.cellHeight = work.frame.origin.y + work.frame.size.height + 10;
+        }
+        work.text = @"Режим работы:";
+        [work sizeToFit];
+        
+        UIImage *imgWorkTime = [UIImage imageNamed:@"char_clock"];
+        UIImageView *ivWorkTime = (UIImageView *)[detailCell.contentView viewWithTag:5];
+        if(!ivWorkTime){
+            ivWorkTime = [[UIImageView alloc] initWithFrame:CGRectMake(mainX + mainW + 5, work.frame.origin.y + work.frame.size.height - imgWorkTime.size.height - 2, imgWorkTime.size.width, imgWorkTime.size.height)];
+            
+            ivWorkTime.tag = 5;
+            [detailCell.contentView addSubview:ivWorkTime];
+        }
+        ivWorkTime.image = imgWorkTime;
+        
+        localX = ivWorkTime.frame.origin.x + ivWorkTime.frame.size.width + 10;
+        UILabel *worktimeText = (UILabel *)[detailCell.contentView viewWithTag:6];
+        if(!worktimeText){
+            worktimeText = [[UILabel alloc] initWithFrame:CGRectMake(localX, work.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX - 8, mainH)];
+            [worktimeText setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+            worktimeText.textAlignment = NSTextAlignmentLeft;
+        
+            [worktimeText setTextColor:[UIColor grayColor]];
+            worktimeText.tag = 6;
+        
+            [worktimeText setBackgroundColor:[UIColor clearColor]];
+            [detailCell.contentView addSubview:worktimeText];
+            
+        }
+        worktimeText.text = [NSString stringWithFormat:@"%@", self.aPlace.work_time_description];
+        [worktimeText setNumberOfLines:0];
+        [worktimeText sizeToFit];
+        detailCell.cellHeight = fmax(work.frame.origin.y + work.frame.size.height + 10, worktimeText.frame.origin.y + worktimeText.frame.size.height + 10);
+        
+        // ========================================
+        // =================== phone ==============
+        UILabel *phone = (UILabel *)[detailCell.contentView viewWithTag:7];
+        if(!phone){
+            phone = [[UILabel alloc] initWithFrame:CGRectMake(mainX,
+                                                                   detailCell.cellHeight,
+                                                                  mainW, mainH)];
+            [phone setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:15]];
+            phone.textAlignment = NSTextAlignmentLeft;
+            [phone setBackgroundColor:[UIColor clearColor]];
+            phone.tag = 7;
+            [detailCell.contentView addSubview:phone];
+            //detailCell.cellHeight = phone.frame.origin.y + phone.frame.size.height + 10;
+        }
+        phone.text = @"Телефон:";
+        [phone sizeToFit];
+        
+        UIImage *imgPhone = [UIImage imageNamed:@"char_phone"];
+        UIImageView *ivPhone = (UIImageView *)[detailCell.contentView viewWithTag:8];
+        if(!ivPhone){
+            ivPhone = [[UIImageView alloc] initWithFrame:CGRectMake(mainX + mainW + 5, phone.frame.origin.y + phone.frame.size.height - imgPhone.size.height - 2, imgPhone.size.width, imgPhone.size.height)];
+            ivPhone.tag = 8;
+            [detailCell.contentView addSubview:ivPhone];
+        }
+        ivPhone.image = imgPhone;
+        
+        localX = ivPhone.frame.origin.x + ivPhone.frame.size.width + 10;
+        UIButton *btnPhone = (UIButton *)[detailCell.contentView viewWithTag:9];
+
+        if(!btnPhone){
+            btnPhone = [[UIButton alloc] initWithFrame:CGRectMake(localX, phone.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX - 8, mainH)];
+            [btnPhone addTarget:self action:@selector(btnPhonePressed:) forControlEvents:UIControlEventTouchUpInside];
+            btnPhone.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+            [btnPhone.titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+            btnPhone.tag = 9;
+            btnPhone.titleLabel.textAlignment = NSTextAlignmentLeft;
+            [btnPhone setTitleColor:kDefaultNavBarColor forState:UIControlStateNormal];
+            [btnPhone setBackgroundColor:[UIColor clearColor]];
+            [detailCell.contentView addSubview:btnPhone];
+
+        }
+        [btnPhone setTitle:[self getStringPhones] forState:UIControlStateNormal];
+        [btnPhone.titleLabel setNumberOfLines:0];
+        [btnPhone.titleLabel sizeToFit];
+        detailCell.cellHeight = fmax(phone.frame.origin.y + phone.frame.size.height + 10, btnPhone.frame.origin.y + btnPhone.frame.size.height + 10);
+        
+        // ======================================================
+        // ====================== website ===============================
+        UILabel *website = (UILabel *)[detailCell.contentView viewWithTag:10];
+        if(!website){
+            website = [[UILabel alloc] initWithFrame:CGRectMake(mainX,
+                                                                   detailCell.cellHeight,
+                                                                   mainW, mainH)];
+            [website setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:15]];
+            website.textAlignment = NSTextAlignmentLeft;
+            [website setBackgroundColor:[UIColor clearColor]];
+            website.tag = 10;
+            [detailCell.contentView addSubview:website];
+            //detailCell.cellHeight = website.frame.origin.y + website.frame.size.height + 10;
+        }
+        website.text = @"Сайт:";
+        [website sizeToFit];
+        
+        
+        UIImage *imgWeb = [UIImage imageNamed:@"char_site"];
+        UIImageView *ivWeb = (UIImageView *)[detailCell.contentView viewWithTag:11];
+
+        if(!ivWeb){
+            ivWeb = [[UIImageView alloc] initWithFrame:CGRectMake(mainX + mainW + 5, website.frame.origin.y + website.frame.size.height - imgWeb.size.height - 2, imgWeb.size.width, imgWeb.size.height)];
+            ivWeb.tag = 11;
+            [detailCell.contentView addSubview:ivWeb];
+        }
+        ivWeb.image = imgWeb;
+
+        
+        localX = ivWeb.frame.origin.x + ivWeb.frame.size.width + 10;
+        UIButton *btnWeb = (UIButton *)[detailCell.contentView viewWithTag:12];
+        if(!btnWeb){
+            btnWeb = [[UIButton alloc] initWithFrame:CGRectMake(localX, website.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX - 8, mainH)];
+        
+            
+            [btnWeb addTarget:self action:@selector(btnSitePressed:) forControlEvents:UIControlEventTouchUpInside];
+            btnWeb.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+            [btnWeb.titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+            btnWeb.tag = 12;
+            btnWeb.titleLabel.textAlignment = NSTextAlignmentLeft;
+            [btnWeb setTitleColor:kDefaultNavBarColor forState:UIControlStateNormal];
+            [btnWeb setBackgroundColor:[UIColor clearColor]];
+            
+            [detailCell.contentView addSubview:btnWeb];
+            
+        }
+        [btnWeb setTitle:self.aPlace.website forState:UIControlStateNormal];
+        [btnWeb.titleLabel setNumberOfLines:0];
+        [btnWeb.titleLabel sizeToFit];
+        detailCell.cellHeight = fmax(website.frame.origin.y + website.frame.size.height + 10, btnWeb.frame.origin.y + btnWeb.frame.size.height + 10);
+        //NSLog(@"detailCell.cellHeight: %f", detailCell.cellHeight);
+        // =====================================================
+
+        NSLog(@"Attributes: %lu", (unsigned long)self.aPlace.attributes.count);
+        NSInteger aTag = 13;
+        for(Attributes *attr in self.aPlace.attributes){
+            if(![attr.type isEqualToString:@"check"]){
+                UILabel *attrLabel = (UILabel *)[detailCell.contentView viewWithTag:aTag];
+                if(!attrLabel){
+                    attrLabel = [[UILabel alloc] initWithFrame:CGRectMake(mainX,
+                                                                         detailCell.cellHeight,
+                                                                         mainW, mainH)];
+                    [attrLabel setFont:[UIFont fontWithName:@"HelveticaNeue-Medium" size:15]];
+                    attrLabel.textAlignment = NSTextAlignmentLeft;
+                    attrLabel.tag = aTag;
+                    [attrLabel setBackgroundColor:[UIColor clearColor]];
+                    [detailCell.contentView addSubview:attrLabel];
+                }
+                aTag++;
+                attrLabel.text = [NSString stringWithFormat:@"%@:", attr.name];
+                [attrLabel setNumberOfLines:0];
+                [attrLabel sizeToFit];
+            
+                //UIImage *imgWeb = [UIImage imageNamed:@"char_site"];
+                UIImageView *ivAttr = (UIImageView *)[detailCell.contentView viewWithTag:aTag];
+                if(!ivAttr){
+                    ivAttr = [[UIImageView alloc] initWithFrame:CGRectMake(mainX + mainW + 5, attrLabel.frame.origin.y + attrLabel.frame.size.height - 13 - 2, 13, 13)];
+                    ivAttr.tag = aTag;
+                    [detailCell.contentView addSubview:ivAttr];
+                }
+                aTag++;
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, attr.picture];
+                NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                [ivAttr setImageWithURL:imgUrl];
+                
+                
+                localX = ivAttr.frame.origin.x + ivAttr.frame.size.width + 10;
+                CGFloat localHeight = 0.0f;
+                //NSLog(@"localHeight: %f", localHeight);
+                if([attr.type isEqualToString:@"url"]){
+                    UIButton *btnAttr = (UIButton *)[detailCell.contentView viewWithTag:aTag];
+                    if(!btnAttr){
+                        btnAttr = [[UIButton alloc] initWithFrame:CGRectMake(localX, attrLabel.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX - 8, mainH)];
+                
+                    
+                        [btnAttr addTarget:self action:@selector(btnSitePressed:) forControlEvents:UIControlEventTouchUpInside];
+                        btnAttr.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+                        [btnAttr.titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+                        btnAttr.tag = aTag;
+                        btnAttr.titleLabel.textAlignment = NSTextAlignmentLeft;
+                        [btnAttr setTitleColor:kDefaultNavBarColor forState:UIControlStateNormal];
+                        [btnAttr setBackgroundColor:[UIColor clearColor]];
+                    
+                        [detailCell.contentView addSubview:btnAttr];
+                        
+                    }
+                    [btnAttr setTitle:attr.value forState:UIControlStateNormal];
+                    [btnAttr.titleLabel setNumberOfLines:0];
+                    [btnAttr.titleLabel sizeToFit];
+                    localHeight = btnAttr.frame.origin.y + btnAttr.frame.size.height + 10;
+                }
+                else if([attr.type isEqualToString:@"string"]){
+                    UILabel *valueText1 = (UILabel *)[detailCell.contentView viewWithTag:aTag];
+                    if(!valueText1){
+                        valueText1 = [[UILabel alloc] initWithFrame:CGRectMake(localX, attrLabel.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX - 8, mainH)];
+                        [valueText1 setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+                        valueText1.textAlignment = NSTextAlignmentLeft;
+                    
+                        [valueText1 setTextColor:[UIColor grayColor]];
+                        
+                        valueText1.tag = aTag;
+                        [valueText1 setBackgroundColor:[UIColor clearColor]];
+                        [detailCell.contentView addSubview:valueText1];
+                        
+                    }
+                    valueText1.text = [NSString stringWithFormat:@"%@", attr.value];
+                    [valueText1 setNumberOfLines:0];
+                    [valueText1 sizeToFit];
+                    localHeight = valueText1.frame.origin.y + valueText1.frame.size.height + 10;
+                }
+                else if([attr.type isEqualToString:@"array"]){
+                    UILabel *valueText = (UILabel *)[detailCell.contentView viewWithTag:aTag];
+                    if(!valueText){
+                        valueText = [[UILabel alloc] initWithFrame:CGRectMake(localX, attrLabel.frame.origin.y, /*detailCell.contentView.frame.size.width*/screenWidth - localX - 8, mainH)];
+                        [valueText setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+                        valueText.textAlignment = NSTextAlignmentLeft;
+                        [valueText setTextColor:[UIColor grayColor]];
+                        [valueText setNumberOfLines:0];
+                        valueText.tag = aTag;
+                        [valueText setBackgroundColor:[UIColor clearColor]];
+                        [detailCell.contentView addSubview:valueText];
+                        
+                    }
+                    NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:0];
+                    for(Values *val in attr.values){
+                        [arr addObject:val.valueName];
+                    }
+                    valueText.text = [arr componentsJoinedByString:@", "];
+                    [valueText setNumberOfLines:0];
+                    [valueText sizeToFit];
+                    localHeight = valueText.frame.origin.y + valueText.frame.size.height + 10;
+                    
+                }
+                aTag++;
+                detailCell.cellHeight = fmax(attrLabel.frame.origin.y + attrLabel.frame.size.height + 10, localHeight);
+                //NSLog(@"localHeight: %f", localHeight);
+                //NSLog(@"detailCell.cellHeight: %f", detailCell.cellHeight);
+            }
+        }
+        
+//
+//        [detailCell.btnSocial setTitle:@"vk.com/place" forState:UIControlStateNormal];
+//        [detailCell.btnSocial addTarget:self action:@selector(btnSocialPressed:) forControlEvents:UIControlEventTouchUpInside];
+//        detailCell.btnSocial.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+//        cell.layer.shouldRasterize = YES;
+//        cell.layer.rasterizationScale = [UIScreen mainScreen].scale;
+//        }
+//        else{
+//            NSLog(@"Info cell not configured: %@", cell);
+//
+//            //cell = self.prototypeInfoCell;
+//        }
     }
 }
 
@@ -298,36 +679,106 @@ static NSArray  * SCOPE = nil;
         NSString *titleStr = _isExpanded ? kTextViewCollapse : kTextViewShowAll;
         [detailCell.showAllBtn setTitle:titleStr forState:UIControlStateNormal];
         if(self.aPlace.decript.length < 200)
+        //if(_testString.length < 200)
             detailCell.showAllBtn.hidden = YES;
         
     }
 }
 
+- (void)configureCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSLog(@"configureCell: %@", cell);
+    
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, self.aPlace.photo_big];
+    NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSLog(@"URL: %@", imgUrl);
+    __weak UITableViewCell *weakCell = cell;
+    
+    [cell.imageView setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                          placeholderImage:[UIImage imageNamed:@"defaulticonbig"]
+                                   success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                       
+                                       NSLog(@"weakCell. imageDownloaded");
+                                       weakCell.imageView.image = image;
+                                       [weakCell setNeedsLayout];
+                                       [self.tableView beginUpdates];
+                                       [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                                       [self.tableView endUpdates];
+                                       
+                                   } failure:nil];
+}
 
 - (void)configureMainImageCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
     
     if([cell isKindOfClass:[PlaceDetailedMainCell class]]){
         PlaceDetailedMainCell* detailCell = (PlaceDetailedMainCell*)cell;
-        detailCell.placeTitle.text = self.aPlace.name;
-        detailCell.placeSubTitle.text = [self getStringCategories];
         
-        NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, self.aPlace.photo_big];
-        NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-        [detailCell.placeImage setImageWithURL:nil];
-        [detailCell.placeImage setImageWithURL:imgUrl];
-        
-        if([[DBWork shared] isPlaceFavour:self.aPlace.placeID]){
-            [detailCell.btnHeart setImage:[UIImage imageNamed:@"heart-active"] forState:UIControlStateNormal];
+        if([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big){ // has no image
+            detailCell.placeImage.hidden = YES;
+            detailCell.btnHeart.hidden = YES;
+            
         }
-        else{
-            [detailCell.btnHeart setImage:[UIImage imageNamed:@"heart-inactive"] forState:UIControlStateNormal];
+        else{ // has image
+            detailCell.placeImage.hidden = NO;
+            detailCell.btnHeart.hidden = NO;
+            
+            NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, self.aPlace.photo_big];
+            NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            
+            NSLog(@"URL: %@", imgUrl);
+            
+            UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+            activityIndicatorView.center = CGPointMake(self.tableView.frame.size.width/2,detailCell.contentView.center.y);
+            
+            
+            [detailCell addSubview:activityIndicatorView];
+            [activityIndicatorView startAnimating];
+            [detailCell.contentView bringSubviewToFront:activityIndicatorView];
+            
+            UIImage *img = [UIImage imageWithContentsOfFile: NIPathForBundleResource(nil, @"NimbusPhotos.bundle/gfx/default.png")];
+            
+            [detailCell.placeImage setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                         placeholderImage:img /*[UIImage imageNamed:@"defaulticonbig"]*/
+                                                  success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                                      
+                                                      [activityIndicatorView removeFromSuperview];
+                                                      
+                                                      // do image resize here
+                                                      // then set image view
+                                                      NSLog(@"detailCell.placeImage. Image downloaded");
+                                                      detailCell.placeImage.image = image;
+                                                  }
+                                                  failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                                      [activityIndicatorView removeFromSuperview];
+                                                      NSLog(@"detailCell.placeImage. Fail to download image");
+//                                                      // do any other error handling you want here
+
+                                                  }];
+
+            if([[DBWork shared] isPlaceFavour:self.aPlace.placeID]){
+                [detailCell.btnHeart setImage:[UIImage imageNamed:@"heart-active"] forState:UIControlStateNormal];
+            }
+            else{
+                [detailCell.btnHeart setImage:[UIImage imageNamed:@"heart-inactive"] forState:UIControlStateNormal];
+            }
+            [detailCell.btnHeart addTarget:self action:@selector(btnHeartPressed:) forControlEvents:UIControlEventTouchUpInside];
+            detailCell.userInteractionEnabled = YES;
+            
+            detailCell.placeImage.layer.cornerRadius = kImageViewCornerRadius;
+            NSLog(@"detailCell.placeImage.layer.cornerRadius = kImageViewCornerRadius;");
+            detailCell.placeImage.layer.masksToBounds = YES;
+            //detailCell.placeImage.clipsToBounds = YES;
         }
-        [detailCell.btnHeart addTarget:self action:@selector(btnHeartPressed:) forControlEvents:UIControlEventTouchUpInside];
-        detailCell.userInteractionEnabled = YES;
-        
-        detailCell.placeImage.layer.cornerRadius = kImageViewCornerRadius;
-        detailCell.placeImage.clipsToBounds = YES;
+
     }
+}
+
+-(void)reloadAsyncData:(NSIndexPath*)indexPath{
+    [self.tableView beginUpdates];
+    NSLog(@"reloadAsyncData");
+    [self.tableView reloadData];
+    //[self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.tableView endUpdates];
 }
 
 - (void)configureMainNoImageCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -337,12 +788,32 @@ static NSArray  * SCOPE = nil;
         detailCell.placeTitle.text = self.aPlace.name;
         detailCell.placeSubTitle.text = [self getStringCategories];
         
+        if([self.aPlace.photo_big isEqualToString:@""] || !self.aPlace.photo_big){ // has no image
+            
+            detailCell.btnHeart.hidden = NO;
+            detailCell.cellSeparator.hidden = NO;
+//            if(self.aPlace.favour.boolValue){
+//                [detailCell.btnHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
+//            }
+//            else{
+//                [detailCell.btnHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
+//            }
+            
+        }
+        else{ // has image
+            detailCell.cellSeparator.hidden = YES;
+            detailCell.btnHeart.hidden = YES;
+            
+            
+        }
+        
         if(self.aPlace.favour.boolValue){
             [detailCell.btnHeart setImage:[UIImage imageNamed:@"active_heart"] forState:UIControlStateNormal];
         }
         else{
             [detailCell.btnHeart setImage:[UIImage imageNamed:@"inactive_heart"] forState:UIControlStateNormal];
         }
+
         
         [detailCell.btnHeart addTarget:self action:@selector(btnHeartPressed:) forControlEvents:UIControlEventTouchUpInside];
         detailCell.userInteractionEnabled = YES;
@@ -369,11 +840,16 @@ static NSArray  * SCOPE = nil;
     
     if([cell isKindOfClass:[PPImageScrollingTableViewCell class]]){
         PPImageScrollingTableViewCell* detailCell = (PPImageScrollingTableViewCell*)cell;
-        NSDictionary *cellData = [self.images objectAtIndex:0];
-        [detailCell setScrollViewWidth:self.tableView.frame.size.width];
-        [detailCell setImageData:cellData];
-        //[detailCell setDelegate:self];
-        [detailCell setCollectionViewBackgroundColor:[UIColor clearColor]];
+        UIView *view = (UIView *)[detailCell.contentView viewWithTag:1];
+        if(!view){
+            NSDictionary *cellData = [self.images objectAtIndex:0];
+            [detailCell setScrollViewWidth:self.tableView.frame.size.width];
+            [detailCell setImageData:cellData];
+        
+            //[detailCell setDelegate:self];
+            [detailCell setCollectionViewBackgroundColor:[UIColor clearColor]];
+            detailCell.imageScrollingView.tag = 1;
+        }
     }
 }
 
@@ -397,6 +873,15 @@ static NSArray  * SCOPE = nil;
     return _prototypeMainCellNoImage;
 }
 
+- (InfoCell *)prototypeInfoCell
+{
+    if (!_prototypeInfoCell)
+    {
+        _prototypeInfoCell = [self.tableView dequeueReusableCellWithIdentifier:[InfoCell reuseId]];
+    }
+    return _prototypeInfoCell;
+}
+
 #pragma mark - Storyboard Navigation
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     
@@ -413,6 +898,12 @@ static NSArray  * SCOPE = nil;
         ResponceCollectionViewController *cv = (ResponceCollectionViewController*)[segue destinationViewController];
         
         cv.aPlace = self.aPlace;
+    }
+    else if([[segue identifier] isEqualToString:@"segueFromPlaceDetailToDiscounts"]){
+        DiscountListViewController *cv = (DiscountListViewController*)[segue destinationViewController];
+        
+        cv.aPlace = self.aPlace;
+        cv.delegate = self;
     }
 }
 
@@ -439,13 +930,24 @@ static NSArray  * SCOPE = nil;
 
 -(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
     
-    NSString *call = [NSString stringWithFormat:@"tel://%@", [actionSheet buttonTitleAtIndex:buttonIndex]];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:call]];
-    NSLog(@"ActionSheet pressed: %@", call);
+    NSString *call = [NSString stringWithFormat:@"tel:%@", [actionSheet buttonTitleAtIndex:buttonIndex]];
+    //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:call]];
+    static UIWebView *webView = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        webView = [UIWebView new];
+    });
+    
+//    UIWebView *callWebview = [[UIWebView alloc] init];
+    NSURL *telURL = [NSURL URLWithString:call];
+    [webView loadRequest:[NSURLRequest requestWithURL:telURL]];
+    NSLog(@"ActionSheet pressed: %@", telURL);
 }
 
 -(void)btnSitePressed:(UIButton*)btn{
-    NSString *web = [NSString stringWithFormat:@"http://%@", btn.titleLabel.text];
+    NSRange result = [btn.titleLabel.text rangeOfString:@"http"];
+    
+    NSString *web = (result.location == NSNotFound) ? [NSString stringWithFormat:@"http://%@", btn.titleLabel.text] : btn.titleLabel.text;
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:web]];
     NSLog(@"Goto website: %@", web);
 }
@@ -548,6 +1050,7 @@ static NSArray  * SCOPE = nil;
 
 -(void)expandText:(UIButton*)btn{
 
+    //if(_testString.length <200) return;
     if(self.aPlace.decript.length < 200) return;
     
     UITableViewCell *cell = (UITableViewCell *)btn.superview.superview;
@@ -557,37 +1060,44 @@ static NSArray  * SCOPE = nil;
     [self.tableView beginUpdates]; // This will cause an animated update of
     _isExpanded = !_isExpanded;
     
-    if(_isExpanded)
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationBottom];
-    else
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+    NSLog(@"System Version: %@", [[UIDevice currentDevice] systemVersion]);
+    //[self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    
+    //[self.tableView reloadData];
+//    if(_isExpanded)
+//        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationBottom];
+//        
+//    else
+//        [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationTop];
+    [self.tableView reloadData];
     [self.tableView endUpdates];
 }
 
 - (IBAction)btnHeartPressed:(id)sender {
     
+    if(![_userSettings isUserAuthorized]){
+        UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
+                                                          message:kFavourNeedAuth
+                                                         delegate:self
+                                                cancelButtonTitle:kAlertCancel
+                                                otherButtonTitles:kAlertAuthEnter, nil];
+        [message show];
+        return;
+    }
+    
     if([[DBWork shared] isPlaceFavour:self.aPlace.placeID]){
         [[DBWork shared] removePlaceFromFavour:self.aPlace.placeID];
     }
     else{
-        if([_userSettings isUserAuthorized]){
-            [self setPlaceToFavour];
-        }
-        else{
-            UIAlertView *message = [[UIAlertView alloc] initWithTitle:kApplicationTitle
-                                                              message:kFavourNeedAuth
-                                                             delegate:self
-                                                    cancelButtonTitle:kAlertCancel
-                                                    otherButtonTitles:kAlertAuthEnter, nil];
-            [message show];
-        }
-
+        [self setPlaceToFavour];
     }
-    
+
+    [self configureBtnHeart:(UIButton*)sender];
+
 //    self.aPlace.favour = [NSNumber numberWithBool:!self.aPlace.favour.boolValue];
 //    [[DBWork shared] saveContext];
     //NSLog(@"self.aPlace.decript.length: %lu", self.aPlace.decript.length);
-    [self configureBtnHeart:(UIButton*)sender];
+    
     //[self.tableView reloadRowsAtIndexPaths:@[_mainCellIndexPath] withRowAnimation:UITableViewRowAnimationNone];
 }
 
@@ -617,13 +1127,19 @@ static NSArray  * SCOPE = nil;
         NSLog(@"didSelectImageAtIndexPath: %lu", (unsigned long)indexPath.row);
         
         switch (indexPath.row) {
-            case 1:
+            case 2:
                 [self performSegueWithIdentifier:@"segueFromPlaceDetailToResponces" sender:self];
                 break;
-            case 2:
-                [self performSegueWithIdentifier:@"segueFromPlaceDetailToPhotoBrowser" sender:self];
+            case 3:
+                
+                [self showPhotoAlbum];
+                //[self performSegueWithIdentifier:@"segueFromPlaceDetailToPhotoBrowser" sender:self];
                 break;
             case 7:
+               //if([[DBWork shared] getDiscountForPlaceID:self.aPlace.placeID])
+                   [self performSegueWithIdentifier:@"segueFromPlaceDetailToDiscounts" sender:self];
+                break;
+            case 8:
                 [self performSegueWithIdentifier:@"segueFromPlaceDetailToResponces" sender:self];
                 break;
                 
@@ -654,6 +1170,15 @@ static NSArray  * SCOPE = nil;
 -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error{
     
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - Photo Album
+-(void)showPhotoAlbum{
+    PlacePhotoAlbumViewController* vc = [[PlacePhotoAlbumViewController alloc] initWith:@""];
+    vc.title = self.aPlace.name;
+    vc.aPlace = self.aPlace;
+    
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma mark - VK SDK Delegate
@@ -722,6 +1247,15 @@ static NSArray  * SCOPE = nil;
         //[self performSegueWithIdentifier:@"segueFromResponcesListToAuth" sender:self];
     }
     
+}
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
 }
 
 @end

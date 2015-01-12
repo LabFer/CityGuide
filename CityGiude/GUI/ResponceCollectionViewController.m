@@ -16,9 +16,11 @@
 #import "UIImageView+AFNetworking.h"
 #import "ResponseViewController.h"
 #import "AuthUserViewController.h"
+#import "NothingView.h"
 
 @implementation ResponceCollectionViewController{
     UIUserSettings *_userSettings;
+    NothingView *_nView;
 }
 
 
@@ -28,12 +30,6 @@
     
     _userSettings = [[UIUserSettings alloc] init];
     
-//    SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
-//    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
-//    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
-//    //[self.collectionView setCollectionViewLayout:layout];
-    
-#warning FIXME: sort by date
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"placeID == %@", self.aPlace.placeID];
     NSLog(@"!!! Places predicate: %@", predicate);
     self.frcComments = [[DBWork shared] fetchedResultsController:kCoreDataCommentsEntity sortKey:@"date" predicate:predicate sectionName:nil delegate:self];
@@ -50,7 +46,28 @@
     [super viewWillAppear:animated];
     
     [self.tableView reloadData];
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+    
+    if([self.frcComments fetchedObjects].count == 0){
+        _nView = [[NothingView alloc] initWithFrame:CGRectMake(0, 0, 250.0f, 200.0f)];
+        [_nView setInfoLabel:@"Отзывов пока нет.\nБудь первым, кто оставит отзыв"];
+        [_nView showInView:self.tableView animated:YES];
+    }
 }
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
+    
+    if(_nView){
+        [_nView hideWithAnimation:YES];
+        _nView = nil;
+    }
+}
+
 
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
@@ -116,7 +133,33 @@
     NSString *urlStr = [NSString stringWithFormat:@"%@", comment.photo];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     
-    [cell.userPhoto setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.userPhoto.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    cell.userPhoto.contentMode = UIViewContentModeScaleAspectFill;
+    [cell.userPhoto setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                      placeholderImage:[UIImage imageNamed:@"no_photo_user"]
+                                               success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                                   
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   
+                                                   // do image resize here
+                                                   
+                                                   // then set image view
+                                                   NSLog(@"Image downloaded");
+                                                   cell.userPhoto.image = image;
+                                               }
+                                               failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   NSLog(@"Fail to download image");
+                                                   // do any other error handling you want here
+                                               }];
+
+    //[cell.userPhoto setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
     
     cell.userPhoto.layer.cornerRadius = kImageViewCornerRadius;
     cell.userPhoto.clipsToBounds = YES;
@@ -222,5 +265,15 @@
     }
     
 }
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
+}
+
 
 @end

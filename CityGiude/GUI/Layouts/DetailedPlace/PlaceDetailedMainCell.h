@@ -13,8 +13,8 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *placeImage;
 @property (weak, nonatomic) IBOutlet UIButton *btnHeart;
-@property (weak, nonatomic) IBOutlet VALabel *placeTitle;
-@property (weak, nonatomic) IBOutlet VALabel *placeSubTitle;
+//@property (weak, nonatomic) IBOutlet VALabel *placeTitle;
+//@property (weak, nonatomic) IBOutlet VALabel *placeSubTitle;
 
 + (NSString *)reuseId;
 @end

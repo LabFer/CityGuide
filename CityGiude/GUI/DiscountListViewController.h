@@ -12,6 +12,7 @@
 @interface DiscountListViewController : UIViewController <UICollectionViewDelegate, UICollectionViewDataSource, UIPageViewControllerDataSource, UIPageViewControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UICollectionView *discountListCollectionView;
+@property (nonatomic, assign) id delegate;
 
 @property (weak, nonatomic) IBOutlet UIView *bannerView;
 @property (weak, nonatomic) IBOutlet UIPageControl *pageControl;

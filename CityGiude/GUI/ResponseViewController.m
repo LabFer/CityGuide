@@ -62,6 +62,20 @@
     self.activityIndicator.hidden = YES;
 }
 
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
+}
+
 #pragma mark - Navigation bar
 -(void)setNavBarButtons{
     
@@ -267,6 +281,9 @@
     if ([self.commentTextView isFirstResponder] && [touch view] != self.commentTextView) {
         [self.commentTextView resignFirstResponder];
     }
+    
+    NSLog(@"ResponceViewController. touchesBegan");
+    
     [super touchesBegan:touches withEvent:event];
 }
 
@@ -274,6 +291,11 @@
 //{
 //    return NO;
 //}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+       shouldReceiveTouch:(UITouch *)touch{
+    return YES;
+}
 
 #pragma mark - Keyboard
 
@@ -320,4 +342,14 @@
     self.contentScrollView.contentInset = contentInsets;
     self.contentScrollView.scrollIndicatorInsets = contentInsets;
 }
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
+}
+
 @end

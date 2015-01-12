@@ -13,9 +13,7 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *filterTitle;
 @property (weak, nonatomic) IBOutlet UILabel *filterValuesTitle;
-
 @property (strong, nonatomic) Attributes *anAttribute;
-
 
 + (NSString *)reuseId;
 

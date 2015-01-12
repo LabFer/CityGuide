@@ -12,8 +12,11 @@
 #import <Crashlytics/Crashlytics.h>
 #import <TwitterKit/TwitterKit.h>
 #import "DBWork.h"
+#import "DiscountDetailViewController.h"
+#import "PlaceDetailViewController.h"
 
 #import "VKSdk.h"
+#import "EstimateView.h"
 //#import "CBSHKConfigurator.h"
 //#import "SHKConfiguration.h"
 
@@ -34,7 +37,12 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    //[UIApplication sharedApplication].stat
     [[UINavigationBar appearance] setBarTintColor:kDefaultNavBarColor];
+    [[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"navBkg"] forBarMetrics:UIBarMetricsDefault];
+    //[[UINavigationBar appearance] setBackgroundColor:kDefaultNavBarColor];
+    [[UINavigationBar appearance] setShadowImage:[UIImage new]];
     [[UINavigationBar appearance] setTitleTextAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
                                                            [UIColor whiteColor], NSForegroundColorAttributeName,
                                                            [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0], NSFontAttributeName, nil]];
@@ -60,7 +68,56 @@
     self.hostReach = [Reachability reachabilityForInternetConnection];
     [hostReach startNotifier];
     [self updateInterfaceWithReachability:self.hostReach];
-    [Flurry startSession:@"7YMHS9T4DFJHF2RH59VQ"];
+    
+    //===== Flurry =====
+    [Flurry startSession:@"DM9N8TCK4FQ4DMVDDR8T"];
+    
+    // ====== Default settings ====    
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *value = [userDefaults objectForKey:kSettingsNotification];
+    
+    if(!value){
+        [userDefaults setObject:[NSNumber numberWithBool:YES] forKey:kSettingsNotification];
+        [userDefaults synchronize];
+    }
+    
+    value = [userDefaults objectForKey:kSettingsDiscount];
+    if(!value){
+        [userDefaults setObject:[NSNumber numberWithBool:YES] forKey:kSettingsDiscount];
+        [userDefaults synchronize];
+    }
+    
+    value = [userDefaults objectForKey:kSettingsFavour];
+    if(!value){
+        [userDefaults setObject:[NSNumber numberWithBool:YES] forKey:kSettingsFavour];
+        [userDefaults synchronize];
+    }
+    
+    value = [userDefaults objectForKey:kSettingsComments];
+    if(!value){
+        [userDefaults setObject:[NSNumber numberWithBool:YES] forKey:kSettingsComments];
+        [userDefaults synchronize];
+    }
+ 
+    // ======= setup offline push notification =====
+    NSDictionary *userInfo = [launchOptions valueForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"];
+    //NSDictionary *apsInfo = [userInfo objectForKey:@"aps"];
+    NSNumber *parentID = [userInfo objectForKey:@"id"];
+    NSString *parentType = [userInfo objectForKey:@"type"];
+    NSDictionary *aps = [userInfo objectForKey:@"aps"];
+    NSString *alert = [aps objectForKey:@"alert"];
+    
+    NSLog(@"launchOptions: %@", launchOptions);
+    NSLog(@"parentType: %@; parentID: %@; %@", parentType, parentID, userInfo);
+    
+    if(parentID && ![parentType isEqualToString:@""]){
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:parentID, @"id", parentType, @"type", alert, @"alert", nil];
+        //NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+        [userDefaults setObject:options forKey:@"options"];
+        [userDefaults synchronize];
+    }
+    
     return YES;
 }
 
@@ -86,6 +143,7 @@
     }
     
     [FBAppCall handleDidBecomeActive];
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -106,7 +164,7 @@
         return;
     }
     
-    //NSLog(@"My token is: %@", deviceToken);
+    NSLog(@"My token is: %@", deviceToken);
     
     NSString *tokenString = [NSMutableString stringWithString:
                              [[deviceToken description] uppercaseString]];
@@ -152,7 +210,12 @@
 
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo{
     
-    NSLog(@"Received notification: %@", userInfo);
+    if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateActive) {
+        NSLog(@"App is active");
+    } else {
+        NSLog(@"App is backgrounded");
+    }
+    [self processRemoteNotification:userInfo];
 }
 
 - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:   (UIUserNotificationSettings *)notificationSettings
@@ -191,6 +254,24 @@
     }
     
     return pushEnabled;
+}
+
+-(void)processRemoteNotification:(NSDictionary*)userInfo{
+
+    //NSLog(@"Received notification: %@", userInfo);
+    NSDictionary *apsInfo = [userInfo objectForKey:@"aps"];
+    NSLog(@"apsInfo alert = %@", [apsInfo objectForKey:@"alert"]);
+    NSLog(@"id = %@", [userInfo objectForKey:@"id"]);
+    NSLog(@"type = %@", [userInfo objectForKey:@"type"]);
+    
+    NSDictionary *notifDict = [[NSDictionary alloc] initWithObjectsAndKeys:[apsInfo objectForKey:@"alert"], @"alert", [userInfo objectForKey:@"id"], @"id", [userInfo objectForKey:@"type"], @"type", nil];
+    
+    
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName: kReceiveRemoteNotification object:self
+                                                      userInfo:notifDict];
+    
+
 }
 
 #pragma mark - Facebook Login

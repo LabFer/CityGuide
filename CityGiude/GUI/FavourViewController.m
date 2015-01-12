@@ -22,6 +22,7 @@
 #import "PlaceDetailViewController.h"
 #import "PlaceViewController.h"
 #import "UIImageView+AFNetworking.h"
+#import "AppDelegate.h"
 
 @implementation FavourViewController{
     UIUserSettings *_userSettings;
@@ -51,6 +52,8 @@
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
     [self.view addGestureRecognizer:tap];
+    
+    self.automaticallyAdjustsScrollViewInsets = NO;
 }
 
 -(void)viewWillAppear:(BOOL)animated{
@@ -59,8 +62,18 @@
     NSLog(@"viewWillAppear");
     [self setTableViewList];
     [self.listCollectionView reloadData];
+    
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
 
     
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
 
 
@@ -151,9 +164,36 @@
     
     NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, place.photo_small];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.placeImage.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    [cell.placeImage setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                      placeholderImage:[UIImage imageNamed:@"no_photo"]
+                                               success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                                   
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   
+                                                   // do image resize here
+                                                   
+                                                   // then set image view
+                                                   NSLog(@"Image downloaded");
+                                                   cell.placeImage.image = image;
+                                               }
+                                               failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   NSLog(@"Fail to download image");
+                                                   // do any other error handling you want here
+                                               }];
+
+    
     //NSLog(@"%@\n%@", urlStr, imgUrl);
     //[cell.placeImage setImageWithURL:imgUrl];
-    [cell.placeImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
+    //[cell.placeImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"photo"]];
     
     cell.placeImage.layer.cornerRadius = kImageViewCornerRadius;
     cell.placeImage.clipsToBounds = YES;
@@ -181,15 +221,79 @@
 - (void)configureCategoryCell:(FavourCategoryCell *)cell atIndexPath:(NSIndexPath *)indexPath {
     
     Categories *category = self.frcPlaces.fetchedObjects[indexPath.item];
-    [cell.categoryTitleLabel setText:category.name];
+    //[cell.categoryTitleLabel setText:category.name];
+    [cell.categoryTitleLabel setAttributedText:[self configureTitleString:category]];
     
     NSString *urlStr = [NSString stringWithFormat:@"%@%@", URL_BASE, category.photo];
     NSURL *imgUrl = [NSURL URLWithString:[urlStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     //NSLog(@"%@\n%@", urlStr, imgUrl);
     //[cell.placeImage setImageWithURL:imgUrl];
-    [cell.categoryImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"icons_category"]];
+    
+    UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    activityIndicatorView.center = cell.categoryImage.center;
+    [cell addSubview:activityIndicatorView];
+    [activityIndicatorView startAnimating];
+    
+    
+    //cell.placeImage.image = [UIImage imageNamed:@"default50"];
+    [cell.categoryImage setImageWithURLRequest:[NSURLRequest requestWithURL:imgUrl]
+                                      placeholderImage:[UIImage imageNamed:@"no_photo"]
+                                               success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+                                                   
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   
+                                                   // do image resize here
+                                                   
+                                                   // then set image view
+                                                   NSLog(@"Image downloaded");
+                                                   cell.categoryImage.image = image;
+                                               }
+                                               failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+                                                   [activityIndicatorView removeFromSuperview];
+                                                   NSLog(@"Fail to download image");
+                                                   // do any other error handling you want here
+                                               }];
+
+    
+    //[cell.categoryImage setImageWithURL:imgUrl placeholderImage:[UIImage imageNamed:@"icons_category"]];
     cell.delegate = self;
 
+}
+
+-(NSMutableAttributedString*)configureTitleString:(Categories*)aCategory{
+    
+    NSMutableAttributedString *nameStr = [[NSMutableAttributedString alloc]
+                                          initWithString:aCategory.name
+                                          attributes:@{
+                                                       NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue-Bold" size:14.0f],
+                                                       NSStrokeColorAttributeName : [UIColor blackColor]}]; //1
+    
+    NSArray* childCategories = [[DBWork shared] getChildCategories:aCategory.categoryID];
+    
+    if(childCategories.count == 0){
+        NSAttributedString *countStr = [[NSAttributedString alloc]
+                                        initWithString:[NSString stringWithFormat:@" (%lu)", (unsigned long)aCategory.places.count]
+                                        attributes:@{
+                                                     NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue" size:14.0f],
+                                                     NSStrokeColorAttributeName : [UIColor blackColor]}]; //1
+        [nameStr appendAttributedString:countStr];
+    }
+    else{
+        NSInteger totalPlaces = 0;
+        for(Categories *aCategory in childCategories){
+            totalPlaces = totalPlaces + aCategory.places.count;
+        }
+        
+        NSAttributedString *countStr = [[NSAttributedString alloc]
+                                        initWithString:[NSString stringWithFormat:@" (%lu)", (unsigned long)totalPlaces]
+                                        attributes:@{
+                                                     NSFontAttributeName : [UIFont fontWithName:@"HelveticaNeue" size:14.0f],
+                                                     NSStrokeColorAttributeName : [UIColor blackColor]}]; //1
+        [nameStr appendAttributedString:countStr];
+    }
+    
+    return nameStr;
+    
 }
 
 //#pragma mark - CollectionViewDelegate
@@ -238,10 +342,19 @@
 -(void)setPlacesList{
     
     SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
-    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
-    layout.itemSize = CGSizeMake(sizeOfItems, 115.0f); //size of each cell
-    [self.listCollectionView setCollectionViewLayout:layout];
     
+    if(IS_IPAD){
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        layout.numberOfColumns = 2;
+        layout.itemSize = CGSizeMake(screenSize/2, 115.0f); //size of each cell
+        NSLog(@"layout.itemSize: %f, %f", layout.itemSize.width, layout.itemSize.height);
+    }
+    else{
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        layout.numberOfColumns = 1;
+        layout.itemSize = CGSizeMake(screenSize, 115.0f); //size of each cell
+    }
+    [self.listCollectionView setCollectionViewLayout:layout];
     //NSPredicate *predicate = [NSPredicate predicateWithFormat:@"favour == 1"];
 //    self.frcPlaces = nil;
     NSArray *arr = [[DBWork shared] getFavourPlace];
@@ -252,8 +365,17 @@
 -(void)setCategoryList{
     
     SubCategoryListFlowLayout *layout = [[SubCategoryListFlowLayout alloc] init];
-    CGFloat sizeOfItems = [UIScreen mainScreen].bounds.size.width;
-    layout.itemSize = CGSizeMake(sizeOfItems, 80.0f); //size of each cell
+    if(IS_IPAD){
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        layout.numberOfColumns = 2;
+        layout.itemSize = CGSizeMake(screenSize/2, 80.0f); //size of each cell
+    }
+    else{
+        CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
+        layout.numberOfColumns = 1;
+        layout.itemSize = CGSizeMake(screenSize, 80.0f); //size of each cell
+        [self.listCollectionView setCollectionViewLayout:layout];
+    }
     [self.listCollectionView setCollectionViewLayout:layout];
     
     NSArray *arr = [[DBWork shared] getFavourCategory];
@@ -356,6 +478,15 @@
             Places *place = self.frcPlaces.fetchedObjects[indexPath.item];
             [self performSegueWithIdentifier:@"segueFromFavourToPlaceDetail" sender:place];
         }
+    }
+}
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
     }
 }
 

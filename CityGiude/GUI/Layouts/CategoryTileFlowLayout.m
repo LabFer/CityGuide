@@ -8,6 +8,7 @@
 
 #import "CategoryTileFlowLayout.h"
 #import "BannerHeaderCollectionView.h"
+#import "Constants.h"
 //#import "BookShelfiPadLandscapeDecorationView.h"
 //#import "CatalogHeaderView.h"
 
@@ -17,6 +18,7 @@
     NSDictionary *_layoutInfo; //store all layout information
     NSDictionary *_headerRect; //store info about header
     NSDictionary *_shelvesRect; //store shelf layout info
+    CGSize _contensSize;
 }
 
 -(id)init{
@@ -34,15 +36,15 @@
     
     CGFloat scale = 185.0f / 320.0f; // H/W from initial design
     CGFloat screenSize = [UIScreen mainScreen].bounds.size.width;
-    self.itemSize = CGSizeMake(160.0f, 160.0f); //size of each cell
-    self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 160.0f, 0.0f);
+    self.itemSize = CGSizeMake(screenSize/2, screenSize/2); //size of each cell
+    self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.itemInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
     self.numberOfColumns = 2;
     self.interItemSpacingY = 0.0f;
     
     
     
-    self.headerViewHeight = screenSize * scale;
+    self.headerViewHeight = 185.0f;//screenSize * scale;
     
     //Register Decoration View Class
 //    [self registerClass:[BookShelfiPadLandscapeDecorationView class] forDecorationViewOfKind:[BookShelfiPadLandscapeDecorationView kind]];
@@ -54,16 +56,32 @@
 
 -(void)prepareLayout{
     
+    if(IS_IPAD){
+        
+        self.sectionInset = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 0.0f);
+        CGFloat scale = 185.0f / 320.0f; // H/W from initial design
+        self.headerViewHeight = 440.0f;//self.collectionView.frame.size.width * scale;
+        
+    }
+    
     NSMutableDictionary *cellLayoutInfo = [NSMutableDictionary dictionary]; //temp dict for attributes
     NSMutableDictionary *headerLayoutInfo = [NSMutableDictionary dictionary]; //temp dict for header view attributes
+    
+    CGFloat top = 0.0f;
+    CGFloat contentHeight = 0.0f;
+    UICollectionViewLayoutAttributes *lastItem;
     
     NSInteger itemCount = [self.collectionView numberOfItemsInSection:0]; //number of items in section. I have only 1 section
     
     //NSLog(@"Tile itemCount: %ld", itemCount);
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:0]; //default value for indexpath
     
-//    NSMutableDictionary *dict = [NSMutableDictionary dictionary]; //store temp info for shelves
-//    CGFloat y = 0;
+    UICollectionViewLayoutAttributes *headerAttributes = [UICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:[BannerHeaderCollectionView kind] withIndexPath:indexPath];
+    headerAttributes.frame = [self frameForAlbumTitleAtIndexPath:indexPath];
+    headerLayoutInfo[indexPath] = headerAttributes;
+    
+    lastItem = headerAttributes;
+    top += self.headerViewHeight;
     
     for(NSInteger item = 0; item < itemCount; item++){
         indexPath = [NSIndexPath indexPathForItem:item inSection:0];
@@ -73,46 +91,19 @@
         
         cellLayoutInfo[indexPath] = itemAttributes;
         //NSLog(@"itemAttributes = %@", itemAttributes);
+        lastItem = itemAttributes;
         
-//        if (indexPath.item == 0) {
-            UICollectionViewLayoutAttributes *headerAttributes = [UICollectionViewLayoutAttributes
-                                                                  layoutAttributesForSupplementaryViewOfKind:[BannerHeaderCollectionView kind]
-                                                                  withIndexPath:indexPath];
-            headerAttributes.frame = [self frameForAlbumTitleAtIndexPath:indexPath];
-            
-            headerLayoutInfo[indexPath] = headerAttributes;
-//        }
-//        
-//        if(item % 2 == 0){
-//            //NSLog(@"item: %i; indexpath.row: %@", item, indexPath);
-//            //y += self.headerReferenceSize.height;
-//            
-//            y += self.itemSize.height;
-//            
-//            dict[indexPath] = [NSValue valueWithCGRect:CGRectMake(0, y + 40, self.collectionViewContentSize.width, 84)];
-//            
-//            y += self.interItemSpacingY;
-//            //y += self.sectionInset.top;
-//            //y += self.sectionInset.bottom;
-//            //y += self.footerReferenceSize.height;
-//        }
     }
     
-//    NSMutableDictionary *dict = [NSMutableDictionary dictionary]; //store temp info for shelves
-//    CGFloat y = 0;
-//
-//    int rows = ceil(itemCount/(float)self.numberOfColumns);
-//    
-//    for(int row = 0; row < rows; row++){
-//        y += self.itemSize.height;
-//        
-//        dict[[NSIndexPath indexPathForItem:row inSection:0]] = [NSValue valueWithCGRect:CGRectMake(0, y + 40, self.collectionViewContentSize.width, 84)];
-//        y += self.interItemSpacingY;
-//    }
+    CGFloat bottomSize = 0.0f;//(section == 0) ? 0.0f : attr.frame.size.height;
+    //NSLog(@"last itemAttributes.frame: %f, %f, %f, %f", lastItem.frame.origin.x, lastItem.frame.origin.y, lastItem.frame.size.width, lastItem.frame.size.height);
+    top = lastItem.frame.origin.y + lastItem.frame.size.height + bottomSize;
+    contentHeight = top;
     
+    _contensSize = CGSizeMake(self.collectionView.frame.size.width, contentHeight);
     _layoutInfo = [NSDictionary dictionaryWithDictionary:cellLayoutInfo];
     _headerRect = [NSDictionary dictionaryWithDictionary:headerLayoutInfo];
-    //_shelvesRect = [NSDictionary dictionaryWithDictionary:dict];
+    
 }
 
 #pragma mark - Private
@@ -129,7 +120,7 @@
     NSInteger row = (indexPath.row) / self.numberOfColumns;
     NSInteger column = (indexPath.row) % self.numberOfColumns;
     
-    CGFloat spacingX = self.collectionView.bounds.size.width -
+    CGFloat spacingX = self.collectionView.bounds.size.width - (self.sectionInset.left + self.sectionInset.right) -
                         self.itemInsets.left -
                         self.itemInsets.right -
                         (self.numberOfColumns * self.itemSize.width);
@@ -162,18 +153,6 @@
             [allAttributes addObject:attributes];
         }
     }];
-    //add decoration view (shelves)
-//    [_shelvesRect enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-//        if (CGRectIntersectsRect([obj CGRectValue], rect))
-//        {
-//            UICollectionViewLayoutAttributes *attributes;
-//            attributes = [UICollectionViewLayoutAttributes layoutAttributesForDecorationViewOfKind:[BookShelfiPadLandscapeDecorationView kind] withIndexPath:key];
-//            
-//            attributes.frame = [obj CGRectValue];
-//            attributes.zIndex = 0;
-//            [allAttributes addObject:attributes];
-//        }
-//    }];
     
     return allAttributes;
 }
@@ -191,18 +170,11 @@
 
 -(CGSize)collectionViewContentSize{
     
-    NSInteger rowCount = ([self.collectionView numberOfItemsInSection:0] - 1) / self.numberOfColumns;
-    
-    // make sure we count another row if one is only partially filled
-    if (([self.collectionView numberOfItemsInSection:0] - 1) % self.numberOfColumns) rowCount++;
-    
-    CGFloat height = self.headerViewHeight + self.itemInsets.top +
-                     rowCount * self.itemSize.height +
-                     rowCount * self.interItemSpacingY +
-                     self.sectionInset.bottom;
-    
-    
-    return CGSizeMake(self.collectionView.bounds.size.width, height);
+    return _contensSize;
+}
+
+-(CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset{
+    return CGPointMake(0.0f, 0.0f);
 }
 
 @end

@@ -1,8 +1,8 @@
 {
     "tilejson": "2.1.0",
-    "tiles": [ "https://api.tiles.mapbox.com/v4/bboytx.k5gobg2j/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYmJveXR4IiwiYSI6IkJxRVFQZDAifQ.GGvwr7W57hPj_POE3Ey8tg" ],
+    "tiles": [ "https://api.tiles.mapbox.com/v4/appsgroup.ki0e4ll9/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXBwc2dyb3VwIiwiYSI6Im0yVGxvd3cifQ.mV22ZJWu5jIvwiQXc_bV4Q" ],
     "minzoom": 13,
-    "maxzoom": 15,
-    "bounds": [60.514242, 56.772081, 60.660497, 56.905416],
-    "center": [56.82, 60.6, 14]
+    "maxzoom": 16,
+    "bounds": [76.44637,66.093666,76.751844,66.128981],
+    "center": [76.6, 66.1, 14]
 }

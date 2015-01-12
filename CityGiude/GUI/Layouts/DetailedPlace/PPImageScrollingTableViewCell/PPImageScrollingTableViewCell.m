@@ -7,7 +7,7 @@
 //
 
 #import "PPImageScrollingTableViewCell.h"
-#import "PPImageScrollingCellView.h"
+//#import "PPImageScrollingCellView.h"
 #import "Constants.h"
 
 #define kScrollingViewHieght 113
@@ -18,7 +18,7 @@
 @interface PPImageScrollingTableViewCell() <PPImageScrollingViewDelegate>
 
 @property (strong,nonatomic) UIColor *categoryTitleColor;
-@property(strong, nonatomic) PPImageScrollingCellView *imageScrollingView;
+//@property(strong, nonatomic) PPImageScrollingCellView *imageScrollingView;
 @property (strong, nonatomic) NSString *categoryLabelText;
 
 @end

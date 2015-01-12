@@ -8,6 +8,7 @@
 
 #import "AboutProgrammViewController.h"
 #import "UIUserSettings.h"
+#import "AppDelegate.h"
 
 @implementation AboutProgrammViewController{
     UIUserSettings *_userSettings;
@@ -23,6 +24,23 @@
     
     [self showString];
     
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    AppDelegate* appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveRemoteNotification:) name:kReceiveRemoteNotification
+                                               object:appDelegate];
+    
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kReceiveRemoteNotification object:nil];
 }
 
 #pragma mark - Navigation bar
@@ -43,12 +61,27 @@
 
 - (void)showString
 {
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *article = [userDefaults objectForKey:@"article"];
+    
     NSString *htmlString = @"<html><body>";
-    htmlString = [htmlString stringByAppendingString:@"<h1>заголовок</h1><table style=\"width:100%%\"><tr><td style=\"text-align:left\">lll</td><td style=\"text-align: right\">rrr</td></tr><tr><td colspan=2><img src=\"\" style=\"width:100%\"/></td></tr></table><div>остальной текст с разбивкой если надо на параграфы</div>"];
+    if(article)
+        htmlString = [htmlString stringByAppendingString:article];
     htmlString = [htmlString stringByAppendingString:@"</body></html>"];
     // UIWebView uses baseURL to find style sheets, images, etc that you include in your HTML.
     NSURL *bundleUrl = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
     [self.aboutWebView loadHTMLString:htmlString baseURL:bundleUrl];
 }
+
+#pragma mark - Push Notification
+-(void)didReceiveRemoteNotification:(NSNotification *)notification {
+    // see http://stackoverflow.com/a/2777460/305149
+    if (self.isViewLoaded && self.view.window) {
+        // handle the notification
+        [_userSettings showPushView:notification.userInfo inViewController:self];
+    }
+}
+
 
 @end

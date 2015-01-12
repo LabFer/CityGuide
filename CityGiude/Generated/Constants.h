@@ -31,6 +31,7 @@
 #define kReuseDiscountListCellID @"DiscountListCell"
 #define kReuseSettingsCellID @"SettingsCell"
 #define kReuseBannerHeaderCollectionViewKind @"BannerHeaderCollectionView"
+#define kReuseSearchHeaderCollectionViewKind @"SearchHeaderCollectionView"
 
 #define kReusePlaceDetailedMainCellID @"PlaceDetailedMainCell"
 #define kReusePlaceDetailedMainNoImageCellID @"PlaceDetailedMainCellNoImage"
@@ -43,6 +44,8 @@
 #define kReuseFavourPlaceListCellID @"FavourPlaceListCell"
 #define kReuseFavourCategoryCellID @"FavourCategoryCell"
 #define kReuseCommentListCellID @"CommentListCell"
+#define kReuseMenuListCellID @"MenuListCell"
+#define kReusePlaceDetailedTitleCellID @"TitleCell"
 
 // ========= Presentation Mode =========
 typedef enum {
@@ -58,8 +61,8 @@ typedef enum {
 #define kDefaultNavItemTintColor [UIColor colorWithRed:156.0f/255.0f green:202.0f/255.0f blue:238.0f/255.0f alpha:1.0f]
 #define kDefaultNavBarColor [UIColor colorWithRed:35.0f/255.0f green:113.0f/255.0f blue:175.0f/255.0f alpha:1.0f]
 #define kPromotedPlaceCellColor [UIColor colorWithRed:156.0f/255.0f green:202.0f/255.0f blue:238.0f/255.0f alpha:0.3f]
-#define kDefaultButtonBarColor [UIColor colorWithRed:70.0f/255.0f green:132.0f/255.0f blue:182.0f/255.0f alpha:1.0f]
-
+#define kDefaultButtonBarColor [UIColor colorWithRed:35.0/255.0f green:113.0f/255.0f blue:175.0f/255.0f alpha:1.0f]
+//#define kDefaultButtonBarColor [UIColor colorWithRed:82.0f/255.0f green:134.0f/255.0f blue:180.0f/255.0f alpha:1.0f]
 // ========== Navigation Bar ========
 #define kNavigationTitle @"КАТЕГОРИИ"
 #define kTitleFilter @"ФИЛЬТР"
@@ -116,10 +119,11 @@ typedef enum {
 
 // ============ Settings ==========
 #define kSettingsNotification @"Уведомление"
-#define kSettingsDiscount @"Акции и скидки"
+#define kSettingsDiscount @"Акции и Скидки"
 #define kSettingsFavour @"Избранное"
 #define kSettingsComments @"Комментарии"
 #define kSettingsResponces @"Отзывы"
+#define kSettingsPlaces @"Заведения"
 
 // ============ Sort Keys ==========
 #define kSortKeyisAscending @"isAscending"
@@ -130,6 +134,7 @@ typedef enum {
 
 // ============ Notifications =======
 #define kFacebookNotification @"SessionStateChangeNotification"
+#define kReceiveRemoteNotification @"ReceiveRemoteNotification"
 
 // ============ Social ========
 
@@ -178,6 +183,6 @@ typedef enum {
 #define kCommentSuccess @"Спасибо за ваш отзыв.\nПосле модерации он будет добавлен в список"
 #define kCommentError @"Не удалось отправить отзыв.\nПопробуйте позже"
 #define kCommentNeedAuth @"Комментировать могут только авторизованные пользователи. Хотите авторизоваться?"
-#define kFavourNeedAuth @"Добавлять в Избранное могут только авторизованные пользователи. Хотите авторизоваться?"
+#define kFavourNeedAuth @"Добавлять/удалять в Избранное могут только авторизованные пользователи. Хотите авторизоваться?"
 
 #endif

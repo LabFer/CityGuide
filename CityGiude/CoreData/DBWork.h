@@ -34,6 +34,7 @@
 
 
 -(void)inserDataFromDictionary:(NSDictionary*)insertDictionary; // insert data for all entities
+-(NSArray*)getAllItemsInEntity:(NSString*)entityName withSortKeys:(NSString*)sortKeys;
 
 -(void)insertCategoriesFromArray:(NSArray*)anArray;
 -(void)insertNewCategory:(NSDictionary*)aCategory;
@@ -44,6 +45,7 @@
 -(void)removeCategoryFromFavour:(NSNumber*)categoryID;
 -(BOOL)isCategoryFavour:(NSNumber*)categoryID;
 -(NSArray*)getFavourCategory;
+-(NSArray*)getChildCategories:(NSNumber*)parentCategoryID;
 
 -(void)insertNewAttributeForCategory:(NSDictionary *)anAttribute;
 -(NSSet*)insertNewValuesForAttributeFromArray:(NSArray *)anArray;
@@ -61,6 +63,7 @@
 -(void)removePlaceFromFavour:(NSNumber*)placeID;
 -(BOOL)isPlaceFavour:(NSNumber*)placeID;
 -(NSArray*)getFavourPlace;
+-(NSArray*)getAllPlaces;
 
 -(NSSet*)insertNewKeysFromArray:(NSArray*)anArray;
 -(BOOL)isKeyExist:(NSString*)keyName;
@@ -81,6 +84,9 @@
 -(void)insertDiscountsFromArray:(NSArray*)anArray;
 -(void)insertNewDiscount:(NSDictionary *)aDiscount;
 -(BOOL)isDiscountExist:(NSNumber *)discountID;
+-(Discounts*)getDiscountForPlaceID:(NSNumber *)placeID;
+-(Discounts*)getDiscountByID:(NSNumber *)placeID;
+-(void)deleteDiscounts;
 
 -(void)insertNewComment:(NSDictionary *)aComment;
 -(void)insertCommentsFromArray:(NSArray *)anArray;

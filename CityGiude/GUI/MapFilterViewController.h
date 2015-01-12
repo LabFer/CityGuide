@@ -13,6 +13,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *filtersTableView;
 
 @property (weak, nonatomic) IBOutlet UITextView *keysTextView;
+@property (nonatomic, strong) NSMutableDictionary *filterDictionary;
+@property (nonatomic, assign) id delegate;
 
 
 

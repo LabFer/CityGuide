@@ -15,6 +15,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeImageConstraintHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeImageConstraintWidth;
 
+@property (weak, nonatomic) IBOutlet UIImageView *cellSeparator;
 
 @property (weak, nonatomic) IBOutlet UIButton *btnHeart;
 @property (weak, nonatomic) IBOutlet VALabel *placeTitle;
